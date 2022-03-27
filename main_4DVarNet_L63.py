@@ -28,7 +28,7 @@ from scipy.integrate import solve_ivp
 #from AnDA_codes.AnDA_dynamical_models import AnDA_Lorenz_63, AnDA_Lorenz_96
 from sklearn.feature_extraction import image
 
-flagProcess = 0
+flagProcess = 1
 
 dimGradSolver = 25
 rateDropout = 0.2
@@ -831,13 +831,15 @@ if __name__ == '__main__':
         #pathCheckPOint = 'resL63/exp02-2/model-l63-unet-exp02-2-Noise01-igrad10_02-dgrad25-drop20-epoch=95-val_loss=0.82.ckpt'
         pathCheckPOint = 'resL63/exp02-2/model-l63-unet-exp02-2-Noise01-igrad05_01-dgrad25-drop20-epoch=82-val_loss=1.69.ckpt'
 
+
+        pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_050-unet-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=09-val_loss=8.38.ckpt'
         print('.... load pre-trained model :'+pathCheckPOint)
         
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
         
         print(mod.hparams)
-        mod.hparams.n_grad = 10
-        mod.hparams.k_n_grad = 1
+        mod.hparams.n_grad = 5
+        mod.hparams.k_n_grad = 2
     
         print(' Ngrad = %d / %d'%(mod.hparams.n_grad,mod.model.n_grad))
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
@@ -871,19 +873,45 @@ if __name__ == '__main__':
         print(' Ngrad = %d / %d'%(mod.hparams.n_grad,mod.model.n_grad))
 
         # Reconstruction performance
-        var_test  = np.mean( (X_test - np.mean(X_test,axis=0))**2 )
-        mse = np.mean( (mod.x_rec-X_test) **2 ) 
-        mse_i   = np.mean( (1.-mask_test.squeeze()) * (mod.x_rec-X_test) **2 ) / np.mean( (1.-mask_test) )
-        mse_r   = np.mean( mask_test.squeeze() * (mod.x_rec-X_test) **2 ) / np.mean( mask_test )
-        
-        nmse = mse / var_test
-        nmse_i = mse_i / var_test
-        nmse_r = mse_r / var_test
-        
-        print("..... Assimilation performance (test data)")
-        print(".. MSE ALL.   : %.3f / %.3f"%(mse,nmse))
-        print(".. MSE ObsData: %.3f / %.3f"%(mse_r,nmse_r))
-        print(".. MSE Interp : %.3f / %.3f"%(mse_i,nmse_i))     
+        if flagForecast == True :
+            var_test  = np.mean( (X_test - np.mean(X_test,axis=0))**2 )
+            mse_rec = np.mean( (mod.x_rec[:,:,:dT-dt_forecast,:]-X_test[:,:,:dT-dt_forecast,:]) **2 ) 
+            
+            nmse_rec = mse_rec / var_test
+            
+            print("..... Assimilation performance (test data)")
+            print(".. MSE rec   : %.3f / %.3f"%(mse_rec,nmse_rec))
+            
+            print("\n")
+            print('..... Forecasting performance (all):')
+            for nn in range(0,dt_forecast):
+                var_test_nn     = np.mean( (X_test[:,:,:dT+nn,:] - X_test[:,:,:dT,:])**2 )
+                mse_forecast = np.mean( (mod.x_rec[:,:,:dT+nn,:]-X_test[:,:,:dT+nn,:]) **2 ) 
+            
+                print('... dt [ %03d ] = %.3f / %.3f %.3f '%(nn,mse_forecast,mse_forecast/var_test,mse_forecast/var_test_nn) )                
+            
+            print("\n")
+            print('..... Forecasting performance (x1):')
+            var_test_x1  = np.mean( (X_test[:,0,:,:] - np.mean(X_test[:,0,:,:],axis=0))**2 )
+            for nn in range(0,dt_forecast):
+                var_test_nn     = np.mean( (X_test[:,0,:dT+nn,:] - X_test[:,0,:dT,:])**2 )
+                mse_forecast = np.mean( (mod.x_rec[:,0,:dT+nn,:]-X_test[:,0,:dT+nn,:]) **2 ) 
+            
+                print('... dt [ %03d ] = %.3f / %.3f %.3f '%(nn,mse_forecast,mse_forecast/var_test,mse_forecast/var_test_nn) )                
+        else:
+            var_test  = np.mean( (X_test - np.mean(X_test,axis=0))**2 )
+            mse = np.mean( (mod.x_rec-X_test) **2 ) 
+            mse_i   = np.mean( (1.-mask_test.squeeze()) * (mod.x_rec-X_test) **2 ) / np.mean( (1.-mask_test) )
+            mse_r   = np.mean( mask_test.squeeze() * (mod.x_rec-X_test) **2 ) / np.mean( mask_test )
+            
+            nmse = mse / var_test
+            nmse_i = mse_i / var_test
+            nmse_r = mse_r / var_test
+            
+            print("..... Assimilation performance (test data)")
+            print(".. MSE ALL.   : %.3f / %.3f"%(mse,nmse))
+            print(".. MSE ObsData: %.3f / %.3f"%(mse_r,nmse_r))
+            print(".. MSE Interp : %.3f / %.3f"%(mse_i,nmse_i))     
                 
         import xarray as xr
         xrdata = xr.Dataset( data_vars={'l63-rec': (["n", "D", "dT"],mod.x_rec),'l63-gt': (["n", "D", "dT"],X_test)})
