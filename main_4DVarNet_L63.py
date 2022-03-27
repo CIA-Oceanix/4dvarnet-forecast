@@ -28,10 +28,21 @@ from scipy.integrate import solve_ivp
 #from AnDA_codes.AnDA_dynamical_models import AnDA_Lorenz_63, AnDA_Lorenz_96
 from sklearn.feature_extraction import image
 
+flagProcess = 1
+
+dimGradSolver = 25
+rateDropout = 0.2
 DimAE = 10
 flagAEType = 'unet' #'ode' # 
-flagProcess = 0
 
+batch_size = 128
+
+NbTraining = 10000
+NbTest     = 2000#256
+time_step = 1
+dT        = 200
+sigNoise  = np.sqrt(2.0)
+rateMissingData = (1-1./8.)#0.75#0.95
 
 
 print('........ Data generation')
@@ -83,12 +94,6 @@ S = S.y.transpose()
 ####################################################
 ## Generation of training and test dataset
 ## Extraction of time series of dT time steps            
-NbTraining = 10000
-NbTest     = 2000#256
-time_step = 1
-dT        = 200
-sigNoise  = np.sqrt(2.0)
-rateMissingData = (1-1./8.)#0.75#0.95
   
 xt = time_series()
 xt.values = S
@@ -730,7 +735,6 @@ UsePriodicBoundary = False # use a periodic boundary for all conv operators in t
 w_loss = np.ones(dT) / np.float(dT)
 
 
-batch_size = 128
 idx_val = x_train.shape[0]-500
 
 
@@ -748,8 +752,6 @@ dataset_sizes = {'train': len(training_dataset), 'val': len(val_dataset), 'test'
 if __name__ == '__main__':
       
     if flagProcess == 0: ## training model from scratch
-        dimGradSolver = 25
-        rateDropout = 0.2
         
         flagLoadModel = False#True #
         if flagLoadModel == True:
@@ -800,9 +802,7 @@ if __name__ == '__main__':
         trainer = pl.Trainer(gpus=1,  **profiler_kwargs,callbacks=[checkpoint_callback])
         trainer.fit(mod, dataloaders['train'], dataloaders['val'])
         
-    elif flagProcess == 1: ## training model from pre-trained model
-        dimGradSolver = 25
-        rateDropout = 0.2
+    elif flagProcess == 1: ## test trained model from pre-trained model
 
         pathCheckPOint = 'resL63/exp02/model-l63-exp02-igrad05_01-dgrad25-drop_00-epoch=197-val_loss=1.37.ckpt'
         pathCheckPOint = 'resL63/exp02/model-l63-exp02-igrad05_01-dgrad25-drop_00-epoch=488-val_loss=2.14.ckpt'
