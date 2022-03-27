@@ -785,7 +785,7 @@ if __name__ == '__main__':
             mod = LitModel()
             
             mod.hparams.n_grad          = 5
-            mod.hparams.k_n_grad        = 1
+            mod.hparams.k_n_grad        = 2
             mod.hparams.iter_update     = [0, 100, 200, 300, 500, 700, 800]  # [0,2,4,6,9,15]
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 15, 15, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-3, 1e-4, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
