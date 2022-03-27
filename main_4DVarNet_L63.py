@@ -885,7 +885,7 @@ if __name__ == '__main__':
             print("\n")
             print('..... Forecasting performance (all):')
             for nn in range(0,dt_forecast):
-                var_test_nn     = np.mean( (X_test[:,:,dT-dt_forecast+nn] - X_test[:,:,dT-dt_forecast])**2 )
+                var_test_nn     = np.mean( (X_test[:,:,dT-dt_forecast+nn] - X_test[:,:,dT-dt_forecast-1])**2 )
                 mse_forecast = np.mean( (mod.x_rec[:,:,dT-dt_forecast+nn]-X_test[:,:,dT-dt_forecast+nn]) **2 ) 
             
                 print('... dt [ %03d ] = %.3f / %.3f %.3f '%(nn,mse_forecast,mse_forecast/var_test,mse_forecast/var_test_nn) )                
@@ -895,7 +895,7 @@ if __name__ == '__main__':
             var_test_x1  = np.mean( (X_test[:,0,:] - np.mean(X_test[:,0,:],axis=0))**2 )
             for nn in range(0,dt_forecast):
                 var_test_nn     = np.mean( (X_test[:,0,dT-dt_forecast+nn] - X_test[:,0,dT-dt_forecast])**2 )
-                mse_forecast = np.mean( (mod.x_rec[:,0,dT-dt_forecast+nn]-X_test[:,0,:dT-dt_forecast+nn]) **2 ) 
+                mse_forecast = np.mean( (mod.x_rec[:,0,dT-dt_forecast+nn]-X_test[:,0,dT-dt_forecast+nn]) **2 ) 
             
                 print('... dt [ %03d ] = %.3f / %.3f %.3f '%(nn,mse_forecast,mse_forecast/var_test,mse_forecast/var_test_nn) )                
         else:
