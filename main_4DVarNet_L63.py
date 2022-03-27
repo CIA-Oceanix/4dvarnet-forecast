@@ -44,6 +44,9 @@ dT        = 200
 sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
+flagTypeMissData = 2
+flagForecast = True
+dt_forecast = 50
 
 print('........ Data generation')
 flagRandomSeed = 0
@@ -103,7 +106,6 @@ dataTrainingNoNaN = image.extract_patches_2d(xt.values[0:12000:time_step,:],(dT,
 dataTestNoNaN     = image.extract_patches_2d(xt.values[15000::time_step,:],(dT,3),max_patches=NbTest)
 
 # create missing data
-flagTypeMissData = 2
 if flagTypeMissData == 0:
     print('..... Observation pattern: Random sampling of osberved L63 components')
     indRand         = np.random.permutation(dataTrainingNoNaN.shape[0]*dataTrainingNoNaN.shape[1]*dataTrainingNoNaN.shape[2])
@@ -761,7 +763,7 @@ if __name__ == '__main__':
             
             pathCheckPOint = 'resL63/exp02-2/model-l63-unet-exp02-2-Noise01-igrad10_02-dgrad25-drop20-epoch=95-val_loss=0.82.ckpt'
             pathCheckPOint = 'resL63/exp02-2/model-l63-unet-exp02-2-Noise01-igrad10_04-dgrad25-drop20-epoch=33-val_loss=0.77.ckpt'
-            pathCheckPOint = 'resL63/exp02-2/model-l63-unet-exp02-2-Noise01-igrad05_01-dgrad25-drop20-epoch=82-val_loss=1.69.ckpt'
+            pathCheckPOint = 'resL63/exp02-2/model-l63-unet-exp02-2-Noise01-igrad05_01-dgrad25-drop20-epoch=92-val_loss=1.61.ckpt'
 
             print('.... load pre-trained model :'+pathCheckPOint)
             mod = LitModel.load_from_checkpoint(pathCheckPOint)
