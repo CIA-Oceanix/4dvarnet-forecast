@@ -740,7 +740,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 
 UsePriodicBoundary = False # use a periodic boundary for all conv operators in the gradient model (see torch_4DVarNN_dinAE)
 if flagForecast == True :
-    w_loss = np.zeros(dT)
+    w_loss = np.ones(dT) / np.float(dT)
     w_loss[dT-dt_forecast:] = 1. / np.float(dt_forecast)
 else:
     w_loss = np.ones(dT) / np.float(dT)
