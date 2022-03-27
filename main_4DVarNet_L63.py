@@ -814,14 +814,15 @@ if __name__ == '__main__':
         
         #pathCheckPOint = 'resL63/exp02-2/model-l63-ode-exp02-2-igrad05_02-dgrad25-drop_20-epoch=405-val_loss=5.89.ckpt'
         
-        pathCheckPOint = 'resL63/exp02-2/model-l63-unet-exp02-2-Noise01-igrad10_02-dgrad25-drop20-epoch=95-val_loss=0.82.ckpt'
+        #pathCheckPOint = 'resL63/exp02-2/model-l63-unet-exp02-2-Noise01-igrad10_02-dgrad25-drop20-epoch=95-val_loss=0.82.ckpt'
+        pathCheckPOint = 'resL63/exp02-2/model-l63-unet-exp02-2-Noise01-igrad05_01-dgrad25-drop20-epoch=56-val_loss=2.02.ckpt'
         print('.... load pre-trained model :'+pathCheckPOint)
         
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
         
         print(mod.hparams)
-        mod.hparams.n_grad = 10
-        mod.hparams.k_n_grad = 2
+        mod.hparams.n_grad = 5
+        mod.hparams.k_n_grad = 1
     
         print(' Ngrad = %d / %d'%(mod.hparams.n_grad,mod.model.n_grad))
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
@@ -852,6 +853,7 @@ if __name__ == '__main__':
             print(".. MSE Interp : %.3f / %.3f"%(mse_i,nmse_i))
         
         trainer.test(mod, test_dataloaders=dataloaders['test'])
+        print(' Ngrad = %d / %d'%(mod.hparams.n_grad,mod.model.n_grad))
 
         # Reconstruction performance
         var_test  = np.mean( (X_test - np.mean(X_test,axis=0))**2 )
