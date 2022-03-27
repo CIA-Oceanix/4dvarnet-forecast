@@ -153,6 +153,11 @@ dataTest[:,0:10,:]     =  float('nan')
 dataTraining[:,dT-10:dT,:] =  float('nan')
 dataTest[:,dT-10:dT,:]     =  float('nan')
 
+# 
+if flagForecast == True :
+    dataTraining[:,dT-dt_forecast:,:] =  float('nan')
+    dataTest[:,dT-dt_forecast:,:]     =  float('nan')
+
 # mask for NaN
 maskTraining = (dataTraining == dataTraining).astype('float')
 maskTest     = ( dataTest    ==  dataTest   ).astype('float')
@@ -734,8 +739,11 @@ class LitModel_FixedPoint(pl.LightningModule):
 from pytorch_lightning.callbacks import ModelCheckpoint
 
 UsePriodicBoundary = False # use a periodic boundary for all conv operators in the gradient model (see torch_4DVarNN_dinAE)
-w_loss = np.ones(dT) / np.float(dT)
-
+if flagForecast == True :
+    w_loss = np.zeros(dT)
+    w_loss[dT-dt_forecast:] = 1. / np.float(dt_forecast)
+else:
+    w_loss = np.ones(dT) / np.float(dT)
 
 idx_val = x_train.shape[0]-500
 
@@ -755,7 +763,7 @@ if __name__ == '__main__':
       
     if flagProcess == 0: ## training model from scratch
         
-        flagLoadModel = True #False#
+        flagLoadModel = False#True #
         if flagLoadModel == True:
             pathCheckPOint = 'resL63/exp 2-/model-l63exp 2--igrad05_01-dgrad25-drop_00-epoch=99-val_loss=0.04.ckpt'
             pathCheckPOint = 'resL63/exp02/model-l63-exp02-igrad05_01-dgrad25-drop_00-epoch=488-val_loss=2.14.ckpt'
@@ -789,6 +797,9 @@ if __name__ == '__main__':
 
         suffix_exp = 'exp%02d-2'%flagTypeMissData
         filename_chkpt = 'model-l63-'
+        
+        if flagForecast == True :
+            filename_chkpt = filename_chkpt+'forecast_%03d-'%dt_forecast
         
         filename_chkpt = filename_chkpt+flagAEType+'-'  
             
