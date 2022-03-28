@@ -841,8 +841,8 @@ if __name__ == '__main__':
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
         
         print(mod.hparams)
-        mod.hparams.n_grad = 10
-        mod.hparams.k_n_grad = 1
+        mod.hparams.n_grad = 5
+        mod.hparams.k_n_grad = 2
     
         print(' Ngrad = %d / %d'%(mod.hparams.n_grad,mod.model.n_grad))
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
