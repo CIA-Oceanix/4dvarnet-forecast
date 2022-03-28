@@ -203,8 +203,8 @@ if 1*1 :
     
     print(X_train.shape)
     for kk in range(0,3):
-        meanTr[kk] = np.mean(X_train[:,kk,:,:])
-        stdTr[kk]  = np.sqrt( np.mean( (X_train[:,kk,:,:]-meanTr[kk])**2 ) )
+        meanTr[kk] = np.mean(X_train[:,kk,:])
+        stdTr[kk]  = np.sqrt( np.mean( (X_train[:,kk,:]-meanTr[kk])**2 ) )
 else:
 #if flagTypeMissData == 2:
     meanTr          = np.mean(X_train[:],) 
@@ -219,11 +219,11 @@ if len(meanTr) > 1 :
     x_test = 1. * X_test
 
     for kk in range(0,3):
-        x_train_missing[:,kk,:,:] = ( X_train_missing[:,kk,:,:] - meanTr[kk] ) / stdTr[kk]
-        x_test_missing[:,kk,:,:]  = ( X_test_missing[:,kk,:,:] - meanTr[kk] ) / stdTr[kk]
+        x_train_missing[:,kk,:] = ( X_train_missing[:,kk,:] - meanTr[kk] ) / stdTr[kk]
+        x_test_missing[:,kk,:]  = ( X_test_missing[:,kk,:] - meanTr[kk] ) / stdTr[kk]
 
-        x_train = (X_train[:,kk,:,:] - meanTr[kk]) / stdTr[kk]
-        x_test  = (X_test[:,kk,:,:] - meanTr[kk]) / stdTr[kk]
+        x_train = (X_train[:,kk,:] - meanTr[kk]) / stdTr[kk]
+        x_test  = (X_test[:,kk,:] - meanTr[kk]) / stdTr[kk]
 else:
     x_train_missing = ( X_train_missing - meanTr ) / stdTr
     x_test_missing  = ( X_test_missing - meanTr ) / stdTr
@@ -306,8 +306,8 @@ if len(meanTr) > 1 :
     x_test_Init = 1. * X_test_missing
 
     for kk in range(0,3):
-        x_train_obs[:,kk,:,:] = ( X_train_Init[:,kk,:,:] - meanTr[kk] ) / stdTr[kk]
-        x_test_Init[:,kk,:,:]  = ( X_test_Init[:,kk,:,:] - meanTr[kk] ) / stdTr[kk]
+        x_train_obs[:,kk,:] = ( X_train_Init[:,kk,:] - meanTr[kk] ) / stdTr[kk]
+        x_test_Init[:,kk,:]  = ( X_test_Init[:,kk,:] - meanTr[kk] ) / stdTr[kk]
 else:
     x_train_Init = ( X_train_Init - meanTr ) / stdTr
     x_test_Init = ( X_test_Init - meanTr ) / stdTr
