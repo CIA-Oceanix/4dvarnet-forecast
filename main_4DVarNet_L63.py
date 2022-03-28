@@ -46,7 +46,7 @@ sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
-flagForecast = False#True#
+flagForecast = True#False#
 dt_forecast = 55
 
 print('........ Data generation')
@@ -609,15 +609,12 @@ elif flagAEType == 'unet2+ode': ## Conv model with no use of the central point
           # forecasting component
           x_forecast = self.ode_l63( x[:,0:3,shapeData[1]-self.dt_forecast-1,:] , self.dt_forecast )
           x_forecast = x_forecast.view(-1,3,self.dt_forecast,1)
-          print( x_forecast.size() )
           
           # concatenation
           xpred = 1. * x
           xpred[:,0:3,dT-dt_forecast:,:] = 1. * x_forecast
-          print( xpred.size() )
           
           return xpred
-
 
 phi_r           = Phi_r()
 print(' AE Model/Dynamical prior: '+flagAEType)
