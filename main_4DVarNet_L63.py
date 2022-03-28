@@ -28,7 +28,7 @@ from scipy.integrate import solve_ivp
 #from AnDA_codes.AnDA_dynamical_models import AnDA_Lorenz_63, AnDA_Lorenz_96
 from sklearn.feature_extraction import image
 
-flagProcess = 0
+flagProcess = 1
 
 dimGradSolver = 25
 rateDropout = 0.2
@@ -194,20 +194,42 @@ mask_test      = maskTest
 
 ############################################
 ## normalized data
-meanTr          = np.mean(X_train_missing[:]) / np.mean(mask_train) 
-stdTr           = np.sqrt( np.mean( (X_train_missing-meanTr)**2 ) / np.mean(mask_train) )
+#meanTr          = np.mean(X_train_missing[:]) / np.mean(mask_train) 
+#stdTr           = np.sqrt( np.mean( (X_train_missing-meanTr)**2 ) / np.mean(mask_train) )
 
-if flagTypeMissData == 2:
-    meanTr          = np.mean(X_train[:]) 
+if 1*0 :
+    meanTr          = np.zeros((3,))
+    stdTr           = np.zeros((3,))
+    
+    print(X_train.shape)
+    for kk in range(0,3):
+        meanTr[kk] = np.mean(X_train[:,kk,:,:])
+        stdTr[kk]  = np.sqrt( np.mean( (X_train[:,kk,:,:]-meanTr[kk])**2 ) )
+else:
+#if flagTypeMissData == 2:
+    meanTr          = np.mean(X_train[:],) 
     stdTr           = np.sqrt( np.mean( (X_train-meanTr)**2 ) )
 
-x_train_missing = ( X_train_missing - meanTr ) / stdTr
-x_test_missing  = ( X_test_missing - meanTr ) / stdTr
 
-# scale wrt std
+if len(meanTr) > 1 :
+    x_train_missing = 1. * X_train_missing
+    x_test_missing = 1. * X_test_missing
 
-x_train = (X_train - meanTr) / stdTr
-x_test  = (X_test - meanTr) / stdTr
+    x_train = 1. * X_train
+    x_test = 1. * X_test
+
+    for kk in range(0,3):
+        x_train_missing[:,kk,:,:] = ( X_train_missing[:,kk,:,:] - meanTr[kk] ) / stdTr[kk]
+        x_test_missing[:,kk,:,:]  = ( X_test_missing[:,kk,:,:] - meanTr[kk] ) / stdTr[kk]
+
+        x_train = (X_train[:,kk,:,:] - meanTr[kk]) / stdTr[kk]
+        x_test  = (X_test[:,kk,:,:] - meanTr[kk]) / stdTr[kk]
+else:
+    x_train_missing = ( X_train_missing - meanTr ) / stdTr
+    x_test_missing  = ( X_test_missing - meanTr ) / stdTr
+
+    x_train = (X_train - meanTr) / stdTr
+    x_test  = (X_test - meanTr) / stdTr
 
 print('.... MeanTr = %.3f --- StdTr = %.3f '%(meanTr,stdTr))
 
@@ -215,8 +237,16 @@ print('.... MeanTr = %.3f --- StdTr = %.3f '%(meanTr,stdTr))
 X_train_obs = X_train_missing + sigNoise * maskTraining * np.random.randn(X_train_missing.shape[0],X_train_missing.shape[1],X_train_missing.shape[2])
 X_test_obs  = X_test_missing  + sigNoise * maskTest * np.random.randn(X_test_missing.shape[0],X_test_missing.shape[1],X_test_missing.shape[2])
 
-x_train_obs = (X_train_obs - meanTr) / stdTr
-x_test_obs  = (X_test_obs - meanTr) / stdTr
+if len(meanTr) > 1 :
+    x_train_obs = 1. * X_train_missing
+    x_test_obs = 1. * X_test_missing
+
+    for kk in range(0,3):
+        x_train_obs[:,kk,:,:] = ( X_train_obs[:,kk,:,:] - meanTr[kk] ) / stdTr[kk]
+        x_test_obs[:,kk,:,:]  = ( X_test_obs[:,kk,:,:] - meanTr[kk] ) / stdTr[kk]
+else:
+    x_train_obs = (X_train_obs - meanTr) / stdTr
+    x_test_obs  = (X_test_obs - meanTr) / stdTr
 
 print('..... Training dataset: %dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2]))
 print('..... Test dataset    : %dx%dx%d'%(x_test.shape[0],x_test.shape[1],x_test.shape[2]))
@@ -271,9 +301,17 @@ else:
 
     X_test_Init[ii,:,:] = XInit
 
+if len(meanTr) > 1 :
+    x_train_Init = 1. * X_train_missing
+    x_test_Init = 1. * X_test_missing
 
-x_train_Init = ( X_train_Init - meanTr ) / stdTr
-x_test_Init = ( X_test_Init - meanTr ) / stdTr
+    for kk in range(0,3):
+        x_train_obs[:,kk,:,:] = ( X_train_Init[:,kk,:,:] - meanTr[kk] ) / stdTr[kk]
+        x_test_Init[:,kk,:,:]  = ( X_test_Init[:,kk,:,:] - meanTr[kk] ) / stdTr[kk]
+else:
+    x_train_Init = ( X_train_Init - meanTr ) / stdTr
+    x_test_Init = ( X_test_Init - meanTr ) / stdTr
+
 
 # reshape to 2D tensors
 x_train = x_train.reshape((-1,3,dT,1))
@@ -341,16 +379,27 @@ if flagAEType == 'ode': ## AE using ode_L63
             return x + self.dt * (k1+2.*k2+2.*k3+k4)/6.
       
         def forward(self, x):
-            X = self.stdTr * x.view(-1,x.size(1),x.size(2))
-            X = X + self.meanTr
+            if len(self.stdTr) > 1:
+                X = 1. * x.view(-1,x.size(1),x.size(2))
+                for kk in range(0,3):
+                    X[:,kk,:,:] = self.stdTr * X[:,kk,:,:]
+                    X[:,kk,:,:] = X[:,kk,:,:]+ self.meanTr[kk]
+            else:
+                X = self.stdTr * x.view(-1,x.size(1),x.size(2))
+                X = X + self.meanTr
             
             if self.IntScheme == 'euler':
                 xpred = self._EulerSolver( X[:,:,0:x.size(2)-1] )
             else:
                 xpred = self._RK4Solver( X[:,:,0:x.size(2)-1] )
 
-            xpred = xpred - self.meanTr
-            xpred = xpred / self.stdTr
+            if len(self.stdTr) > 1:
+                for kk in range(0,3):
+                    xpred[:,kk,:,:] = xpred[:,kk,:,:] - self.meanTr[kk]
+                    xpred[:,kk,:,:] = xpred[:,kk,:,:] / self.stdTr[kk]
+            else:
+                xpred = xpred - self.meanTr
+                xpred = xpred / self.stdTr
 
             xnew  = torch.cat((x[:,:,0].view(-1,x.size(1),1),xpred),dim=2)
             
@@ -934,7 +983,12 @@ class LitModel(pl.LightningModule):
         
         if self.hparams.dim_aug_state > 0 :
             x_test_rec = x_test_rec[:,:3,:]
-        x_test_rec = stdTr * x_test_rec + meanTr        
+
+        if len(self.stdTr) > 1:
+            for kk in range(0,3):
+                x_test_rec[:,kk,:,:] = self.stdTr[kk] * x_test_rec[:,kk,:,:] + self.meanTr[kk]
+        else:
+            x_test_rec = stdTr * x_test_rec + meanTr        
         self.x_rec = x_test_rec.squeeze()
 
         return [{'mse':0.,'preds': 0.}]
@@ -1014,107 +1068,6 @@ class HParam_FixedPoint:
 EPS_NORM_GRAD = 0. * 1.e-20  
 import pytorch_lightning as pl
 
-class LitModel_FixedPoint(pl.LightningModule):
-    def __init__(self,conf=HParam_FixedPoint(),*args, **kwargs):
-        super().__init__()
-        self.save_hyperparameters()
-
-        # hyperparameters
-        self.hparams.n_iter_fp    = 5
-        self.hparams.k_n_fp        = 1
-                
-        self.hparams.alpha_prior    = 0.5
-        self.hparams.alpha_mse = 1.e1        
-        self.hparams.lr    = 1.e-3
-
-        # main model
-        self.model        = Phi_r()
-        self.x_rec    = None # variable to store output of test method
-        self.x_rec_obs = None
-        self.curr = 0
-        
-
-    def forward(self):
-        return 1
-
-    def configure_optimizers(self):
-        optimizer   = optim.Adam([{'params': self.model.parameters(), 'lr': self.hparams.lr},
-                                    ], lr=0.)
-        return optimizer
-    
-        
-    def training_step(self, train_batch, batch_idx, optimizer_idx=0):
-        # compute loss and metrics
-        loss, out, metrics = self.compute_loss(train_batch, phase='train')
-        
-        for kk in range(0,self.hparams.k_n_fp-1):
-            loss1, out, metrics = self.compute_loss(train_batch, phase='train',batch_init=out)
-            loss = loss + loss1
-        
-        self.log("tr_mse", stdTr**2 * metrics['mse'] , on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
-                 
-        return loss
-    
-    def validation_step(self, val_batch, batch_idx):
-        loss, out, metrics = self.compute_loss(val_batch, phase='val')
-        for kk in range(0,self.hparams.k_n_fp-1):
-            loss1, out, metrics = self.compute_loss(val_batch, phase='val',batch_init=out)
-            loss = loss1
-
-        self.log('val_loss', stdTr**2 * metrics['mse'] )
-        self.log("val_mse", stdTr**2 * metrics['mse'] , on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
-        return loss
-
-    def test_step(self, test_batch, batch_idx):
-        loss, out, metrics = self.compute_loss(test_batch, phase='test')
-        
-        for kk in range(0,self.hparams.k_n_fp-1):
-            loss1, out, metrics = self.compute_loss(test_batch, phase='test',batch_init=out)
-
-        self.log("test_mse", stdTr**2 * metrics['mse'] , on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
-        return {'preds': out.detach().cpu()}
-
-    def test_epoch_end(self, outputs):
-        x_test_rec = torch.cat([chunk['preds'] for chunk in outputs]).numpy()
-        x_test_rec = stdTr * x_test_rec + meanTr        
-        self.x_rec = x_test_rec.squeeze()
-
-        return [{'mse':0.,'preds': 0.}]
-
-    def compute_loss(self, batch, phase, batch_init = None ):
-
-        inputs_init_,inputs_obs,masks,targets_GT = batch
- 
-        if batch_init is None :
-            inputs_init = inputs_init_
-        else:
-            inputs_init = batch_init
-            
-        if phase == 'train' :                
-            inputs_init = inputs_init.detach()
-            
-        with torch.set_grad_enabled(True):
-            outputs = inputs_init
-            
-            for kk in range(0,self.hparams.n_iter_fp-1):
-               outputs = inputs_obs * masks + (1. - masks) * self.model( outputs ) 
-            outputs = self.model( outputs ) 
-
-            loss_mse = torch.mean((outputs - targets_GT) ** 2)
-            loss_prior = torch.mean((self.model(outputs) - outputs) ** 2)
-            loss_prior_gt = torch.mean((self.model(targets_GT) - targets_GT) ** 2)
-
-            loss = self.hparams.alpha_mse * loss_mse
-            loss += 0.5 * self.hparams.alpha_prior * (loss_prior + loss_prior_gt)
-            
-            # metrics
-            mse       = loss_mse.detach()
-            metrics   = dict([('mse',mse)])
-            #print(mse.cpu().detach().numpy())
-            if (phase == 'val') or (phase == 'test'):                
-                outputs = outputs.detach()
-                
-        return loss,outputs, metrics
     
 from pytorch_lightning.callbacks import ModelCheckpoint
 
