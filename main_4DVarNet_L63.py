@@ -817,7 +817,8 @@ class LitModel(pl.LightningModule):
         self.hparams.k_batch         = 1
         
         self.hparams.alpha_prior    = 0.5
-        self.hparams.alpha_mse = 1.e1
+        self.hparams.alpha_mse_rec = 1.e0
+        self.hparams.alpha_mse_for = 1.e1
         
 
         self.hparams.w_loss          = torch.nn.Parameter(torch.Tensor(w_loss), requires_grad=False)
@@ -1100,6 +1101,9 @@ if __name__ == '__main__':
         if flagForecast == True :
             filename_chkpt = filename_chkpt+'forecast_%03d-'%dt_forecast
         
+        if flag_x1_only == True :
+            filename_chkpt = filename_chkpt+'x1_only-'
+            
         if dim_aug_state > 0 :
             filename_chkpt = filename_chkpt+'aug%02d-'%dim_aug_state
                   
