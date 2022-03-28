@@ -28,7 +28,7 @@ from scipy.integrate import solve_ivp
 #from AnDA_codes.AnDA_dynamical_models import AnDA_Lorenz_63, AnDA_Lorenz_96
 from sklearn.feature_extraction import image
 
-flagProcess = 1
+flagProcess = 0
 
 dimGradSolver = 25
 rateDropout = 0.2
@@ -48,6 +48,7 @@ rateMissingData = (1-1./8.)#0.75#0.95
 flagTypeMissData = 2
 flagForecast = True#False#
 dt_forecast = 55
+flag_x1_only = False#True
 
 print('........ Data generation')
 flagRandomSeed = 0
@@ -788,7 +789,8 @@ class HParam:
         self.automatic_optimization = True
 
         self.alpha_proj    = 0.5
-        self.alpha_mse = 10.
+        self.alpha_mse_rec = 1.
+        self.alpha_mse_for = 10.
 
         self.k_batch = 1
 
@@ -974,12 +976,24 @@ class LitModel(pl.LightningModule):
             outputs, hidden_new, cell_new, normgrad_ = self.model(inputs_init, inputs_obs, masks, hidden = hidden , cell = cell , normgrad = normgrad )
 
             if self.hparams.dim_aug_state == 0 : 
-                loss_mse = torch.mean((outputs - targets_GT) ** 2)
+                if flag_x1_only == False:
+                    loss_mse_rec = torch.mean((outputs[:,:,:dT-dt_forecast,:] - targets_GT[:,:,:dT-dt_forecast,:]) ** 2)
+                    loss_mse_for = torch.mean((outputs[:,:,dT-dt_forecast:,:] - targets_GT[:,:,dT-dt_forecast:,:]) ** 2)
+                else:
+                    loss_mse_rec = torch.mean((outputs[:,0,:dT-dt_forecast,:] - targets_GT[:,0,:dT-dt_forecast,:]) ** 2)
+                    loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:,:] - targets_GT[:,0,dT-dt_forecast:,:]) ** 2)
+                    
                 loss_prior = torch.mean((self.model.phi_r(outputs) - outputs) ** 2)
                 
                 loss_prior_gt = torch.mean((self.model.phi_r(targets_GT) - targets_GT) ** 2)
             else:
-                loss_mse = torch.mean((outputs[:,:3,:] - targets_GT) ** 2)
+                if flag_x1_only == False:
+                    loss_mse_rec = torch.mean((outputs[:,:3,:dT-dt_forecast,:] - targets_GT[:,:,:dT-dt_forecast,:]) ** 2)
+                    loss_mse_for = torch.mean((outputs[:,:3,dT-dt_forecast:,:] - targets_GT[:,:,dT-dt_forecast:,:]) ** 2)
+                else:
+                    loss_mse_rec = torch.mean((outputs[:,0,:dT-dt_forecast,:] - targets_GT[:,0,:dT-dt_forecast,:]) ** 2)
+                    loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:,:] - targets_GT[:,0,dT-dt_forecast:,:]) ** 2)
+
                 loss_prior = torch.mean((self.model.phi_r(outputs) - outputs) ** 2)
                 
                 targets_gt_aug = torch.cat( (targets_GT,outputs[:,3:,:]) , dim= 1)
@@ -987,8 +1001,9 @@ class LitModel(pl.LightningModule):
                 
             #loss_mse   = solver_4DVarNet.compute_WeightedLoss((outputs - targets_GT), self.w_loss)
 
-            loss = self.hparams.alpha_mse * loss_mse
-            loss += 0.5 * self.hparams.alpha_prior * (loss_prior + loss_prior_gt)
+            loss_mse = self.hparams.alpha_mse_rec * loss_mse_rec + self.hparams.alpha_mse_for * loss_mse_for 
+            loss_mse = self.hparams.alpha_mse_rec * loss_mse_rec + self.hparams.alpha_mse_for * loss_mse_for 
+            loss = loss_mse * 0.5 * self.hparams.alpha_prior * (loss_prior + loss_prior_gt)
             
             # metrics
             mse       = loss_mse.detach()
