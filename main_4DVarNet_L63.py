@@ -160,7 +160,7 @@ if flagForecast == True :
     dataTest[:,dT-dt_forecast:,:]     =  float('nan')
     
     print(dataTraining.shape)
-    print(dataTraining[10,dT-dt_forecast-5:dT-dt_forecast+5,0])
+    print(dataTraining[10,dT-dt_forecast-5:dT-dt_forecast,0])
 
 # mask for NaN
 maskTraining = (dataTraining == dataTraining).astype('float')
