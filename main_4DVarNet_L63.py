@@ -816,7 +816,7 @@ class LitModel(pl.LightningModule):
         
         self.hparams.k_batch         = 1
         
-        self.hparams.alpha_prior    = 0.5
+        self.hparams.alpha_prior   = 0.5
         self.hparams.alpha_mse_rec = 1.e0
         self.hparams.alpha_mse_for = 1.e1
         
@@ -1057,7 +1057,7 @@ if __name__ == '__main__':
       
     if flagProcess == 0: ## training model from scratch
         
-        flagLoadModel = True #False#
+        flagLoadModel = False#True #
         if flagLoadModel == True:
             pathCheckPOint = 'resL63/exp 2-/model-l63exp 2--igrad05_01-dgrad25-drop_00-epoch=99-val_loss=0.04.ckpt'
             pathCheckPOint = 'resL63/exp02/model-l63-exp02-igrad05_01-dgrad25-drop_00-epoch=488-val_loss=2.14.ckpt'
