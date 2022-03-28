@@ -33,7 +33,7 @@ flagProcess = 1#1
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
-flagAEType = 'unet' #'unet2' #'ode' # 
+flagAEType = 'unet2'#'unet' # #'ode' # 
 
 batch_size = 128
 
@@ -45,7 +45,7 @@ sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
-flagForecast = False#True#
+flagForecast = True#False#
 dt_forecast = 50
 
 print('........ Data generation')
@@ -901,13 +901,15 @@ if __name__ == '__main__':
 
         #pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_050-unet-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=198-val_loss=4.18.ckpt'
         #pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_050-unet-exp02-2-Noise01-igrad10_02-dgrad25-drop20-epoch=17-val_loss=3.83.ckpt'
+        
+        pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_050-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=46-val_loss=3.39.ckpt'
         print('.... load pre-trained model :'+pathCheckPOint)
         
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
         
         print(mod.hparams)
-        mod.hparams.n_grad = 10
-        mod.hparams.k_n_grad = 1
+        mod.hparams.n_grad = 5
+        mod.hparams.k_n_grad = 2
     
         print(' Ngrad = %d / %d'%(mod.hparams.n_grad,mod.model.n_grad))
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
