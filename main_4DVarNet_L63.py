@@ -661,6 +661,7 @@ class LitModel(pl.LightningModule):
                 inputs_init = inputs_init_
             else:                
                 init_aug_state = 0. * inputs_init_[:,0,:,:]
+                init_aug_state = init_aug_state.view(-1,1,inputs_init_.size(2),1)
                 init_aug_state = init_aug_state.repeat(1,dim_aug_state,1,1)
                 print(init_aug_state.size())
                 print(inputs_init_.size())
