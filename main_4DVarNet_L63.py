@@ -28,13 +28,13 @@ from scipy.integrate import solve_ivp
 #from AnDA_codes.AnDA_dynamical_models import AnDA_Lorenz_63, AnDA_Lorenz_96
 from sklearn.feature_extraction import image
 
-flagProcess = 0
+flagProcess = 1
 
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
 flagAEType = 'unet2'#'unet' # #'ode' # 
-dim_aug_state = 10 #False#
+dim_aug_state = 3#10 #False#
 
 batch_size = 128
 
@@ -940,6 +940,7 @@ if __name__ == '__main__':
         
         pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_050-aug03-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=75-val_loss=2.48.ckpt'
         
+        pathCheckPOint = 'resL63/exp02-2/model-l63-aug03-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=29-val_loss=0.79.ckpt'
         print('.... load pre-trained model :'+pathCheckPOint)
         
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
