@@ -33,7 +33,7 @@ flagProcess = 0
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
-flagAEType = 'unet2+wc_ode'#'unet2'#'unet' # #'ode' # 
+flagAEType = 'unet2+sc_ode'#'unet2'#'unet' # #'ode' # 
 dim_aug_state = 10#10 #False#
 
 batch_size = 128
