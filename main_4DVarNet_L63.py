@@ -45,7 +45,7 @@ sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
-flagForecast = True
+flagForecast = False#True
 dt_forecast = 50
 
 print('........ Data generation')
