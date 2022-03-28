@@ -659,16 +659,16 @@ class LitModel(pl.LightningModule):
         if batch_init is None :
             if self.hparams.dim_aug_state == 0 :    
                 inputs_init = inputs_init_
-            else: 
+            else:                
                 init_aug_state = 0. * inputs_init_[:,0,:]
-                init_aug_state = init_aug_state.repeat(1,dim_aug_state,1)
+                init_aug_state = init_aug_state.repeat(1,dim_aug_state,1,1)
                 inputs_init = torch.cat( (inputs_init_,init_aug_state) , dim = 1 )
         else:
             inputs_init = batch_init
         
         if self.hparams.dim_aug_state > 0 :    
-            init_aug_state = 0. * inputs_init_[:,0,:]
-            init_aug_state = init_aug_state.repeat(1,dim_aug_state,1)
+            init_aug_state = 0. * inputs_init_[:,0,:,:]
+            init_aug_state = init_aug_state.repeat(1,dim_aug_state,1,1)
             masks = torch.cat( (masks,init_aug_state) , dim = 1 )
             inputs_obs = torch.cat( (inputs_obs,init_aug_state) , dim = 1 )
                         
