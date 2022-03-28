@@ -28,12 +28,13 @@ from scipy.integrate import solve_ivp
 #from AnDA_codes.AnDA_dynamical_models import AnDA_Lorenz_63, AnDA_Lorenz_96
 from sklearn.feature_extraction import image
 
-flagProcess = 1#1
+flagProcess = 0#1
 
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
 flagAEType = 'unet2'#'unet' # #'ode' # 
+dim_aug_state = 3 #False#
 
 batch_size = 128
 
@@ -287,6 +288,8 @@ print('..... Test dataset    : %dx%dx%dx%d'%(x_test.shape[0],x_test.shape[1],x_t
 
 print('........ Define AE architecture')
 shapeData  = x_train.shape[1:]
+if dim_aug_state > 0 :
+    shapeData[0] += dim_aug_state
 # freeze all ode parameters
 
 if flagAEType == 'ode': ## AE using ode_L63
@@ -524,11 +527,13 @@ class LitModel(pl.LightningModule):
         self.hparams.k_n_grad        = 1
         self.hparams.dim_grad_solver = dimGradSolver
         self.hparams.dropout         = rateDropout
+        self.hparams.dim_aug_state = dim_aug_state
         
         self.hparams.k_batch         = 1
         
         self.hparams.alpha_prior    = 0.5
-        self.hparams.alpha_mse = 1.e1        
+        self.hparams.alpha_mse = 1.e1
+        
 
         self.hparams.w_loss          = torch.nn.Parameter(torch.Tensor(w_loss), requires_grad=False)
         self.hparams.automatic_optimization = False#True#
@@ -652,10 +657,21 @@ class LitModel(pl.LightningModule):
  
         #inputs_init = inputs_init_
         if batch_init is None :
-            inputs_init = inputs_init_
+            if self.hparams.dim_aug_state == 0 :    
+                inputs_init = inputs_init_
+            else: 
+                init_aug_state = 0. * inputs_init_[:,0,:]
+                init_aug_state = init_aug_state.repeat(1,dim_aug_state,1)
+                inputs_init = torch.cat( (inputs_init_,init_aug_state) , dim = 1 )
         else:
             inputs_init = batch_init
-            
+        
+        if self.hparams.dim_aug_state > 0 :    
+            init_aug_state = 0. * inputs_init_[:,0,:]
+            init_aug_state = init_aug_state.repeat(1,dim_aug_state,1)
+            masks = torch.cat( (masks,init_aug_state) , dim = 1 )
+            inputs_obs = torch.cat( (inputs_obs,init_aug_state) , dim = 1 )
+                        
         if phase == 'train' :                
             inputs_init = inputs_init.detach()
             
@@ -667,10 +683,19 @@ class LitModel(pl.LightningModule):
             #outputs, hidden_new, cell_new, normgrad_ = self.model(inputs_init, inputs_obs, masks ,hidden = None , cell = None , normgrad = normgrad )
             outputs, hidden_new, cell_new, normgrad_ = self.model(inputs_init, inputs_obs, masks, hidden = hidden , cell = cell , normgrad = normgrad )
 
+            if self.hparams.dim_aug_state == 0 : 
+                loss_mse = torch.mean((outputs - targets_GT) ** 2)
+                loss_prior = torch.mean((self.model.phi_r(outputs) - outputs) ** 2)
+                
+                loss_prior_gt = torch.mean((self.model.phi_r(targets_GT) - targets_GT) ** 2)
+            else:
+                loss_mse = torch.mean((outputs[:,:3,:] - targets_GT) ** 2)
+                loss_prior = torch.mean((self.model.phi_r(outputs) - outputs) ** 2)
+                
+                targets_gt_aug = torch.cat( (targets_GT,outputs[:,3:,:]) , dim= 1)
+                loss_prior_gt = torch.mean((self.model.phi_r(targets_gt_aug) - targets_gt_aug) ** 2)
+                
             #loss_mse   = solver_4DVarNet.compute_WeightedLoss((outputs - targets_GT), self.w_loss)
-            loss_mse = torch.mean((outputs - targets_GT) ** 2)
-            loss_prior = torch.mean((self.model.phi_r(outputs) - outputs) ** 2)
-            loss_prior_gt = torch.mean((self.model.phi_r(targets_GT) - targets_GT) ** 2)
 
             loss = self.hparams.alpha_mse * loss_mse
             loss += 0.5 * self.hparams.alpha_prior * (loss_prior + loss_prior_gt)
@@ -869,6 +894,9 @@ if __name__ == '__main__':
         if flagForecast == True :
             filename_chkpt = filename_chkpt+'forecast_%03d-'%dt_forecast
         
+        if dim_aug_state > 0 :
+            filename_chkpt = filename_chkpt+'aug%02d-'%dim_aug_state
+                  
         filename_chkpt = filename_chkpt+flagAEType+'-'  
             
         filename_chkpt = filename_chkpt + suffix_exp+'-Noise%02d'%(sigNoise)
