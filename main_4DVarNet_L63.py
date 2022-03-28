@@ -217,6 +217,8 @@ if len(meanTr) > 1 :
 
     x_train = 1. * X_train
     x_test = 1. * X_test
+
+    print(x_train.shape,flush=True)
     
     for kk in range(0,3):
         x_train_missing[:,kk,:] = ( X_train_missing[:,kk,:] - meanTr[kk] ) / stdTr[kk]
@@ -235,8 +237,8 @@ else:
 
     print('.... MeanTr = %.3f --- StdTr = %.3f '%(meanTr,stdTr))
 
-print('..... Training dataset: %dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2]))
 print(x_train.shape,flush=True)
+print('..... Training dataset: %dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2]))
 
 # Generate noisy observsation
 X_train_obs = X_train_missing + sigNoise * maskTraining * np.random.randn(X_train_missing.shape[0],X_train_missing.shape[1],X_train_missing.shape[2])
