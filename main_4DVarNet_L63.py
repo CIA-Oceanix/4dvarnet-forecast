@@ -217,6 +217,8 @@ if len(meanTr) > 1 :
 
     x_train = 1. * X_train
     x_test = 1. * X_test
+    
+    print(x_train.shape)
 
     for kk in range(0,3):
         x_train_missing[:,kk,:] = ( X_train_missing[:,kk,:] - meanTr[kk] ) / stdTr[kk]
