@@ -33,7 +33,7 @@ flagProcess = 0
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
-flagAEType = 'unet2+ode'#'unet2'#'unet' # #'ode' # 
+flagAEType = 'unet2+wc_ode'#'unet2'#'unet' # #'ode' # 
 dim_aug_state = 3#10 #False#
 
 batch_size = 128
@@ -474,7 +474,7 @@ elif flagAEType == 'unet2': ## Conv model with no use of the central point
           
           x = x.view(-1,shapeData[0],shapeData[1],1)
           return x
-elif flagAEType == 'unet2+ode': ## Conv model with no use of the central point
+elif flagAEType == 'unet2+sc_ode': ## Conv model with no use of the central point
   dW = 5
 
   class Odenet_l63(torch.nn.Module):
@@ -616,6 +616,148 @@ elif flagAEType == 'unet2+ode': ## Conv model with no use of the central point
           
           return xpred
 
+elif flagAEType == 'unet2+wc_ode': ## Conv model with no use of the central point
+  dW = 5
+
+  class Odenet_l63(torch.nn.Module):
+    class Odenet_l63(torch.nn.Module):
+        def __init__(self):
+              super(Phi_r, self).__init__()
+              self.sigma = torch.nn.Parameter(torch.Tensor([np.random.randn()]))
+              self.rho    = torch.nn.Parameter(torch.Tensor([np.random.randn()]))
+              self.beta   = torch.nn.Parameter(torch.Tensor([np.random.randn()]))
+
+              self.sigma  = torch.nn.Parameter(torch.Tensor([10.]))
+              self.rho    = torch.nn.Parameter(torch.Tensor([28.]))
+              self.beta   = torch.nn.Parameter(torch.Tensor([8./3.]))
+
+              self.dt        = 0.01
+              self.IntScheme = 'rk4'
+              self.stdTr     = stdTr
+              self.meanTr    = meanTr                      
+        def _odeL63(self, xin):
+            x1  = xin[:,0,:]
+            x2  = xin[:,1,:]
+            x3  = xin[:,2,:]
+            
+            dx_1 = (self.sigma*(x2-x1)).view(-1,1,xin.size(2))
+            dx_2 = (x1*(self.rho-x3)-x2).view(-1,1,xin.size(2))
+            dx_3 = (x1*x2 - self.beta*x3).view(-1,1,xin.size(2))
+            
+            dpred = torch.cat((dx_1,dx_2,dx_3),dim=1)
+            return dpred
+
+        def _EulerSolver(self, x):
+            return x + self.dt * self._odeL63(x)
+
+        def _RK4Solver(self, x):
+            k1 = self._odeL63(x)
+            x2 = x + 0.5 * self.dt * k1
+            k2 = self._odeL63(x2)
+          
+            x3 = x + 0.5 * self.dt * k2
+            k3 = self._odeL63(x3)
+              
+            x4 = x + self.dt * k3
+            k4 = self._odeL63(x4)
+
+            return x + self.dt * (k1+2.*k2+2.*k3+k4)/6.
+      
+        def forward(self, x):
+            X = self.stdTr * x.view(-1,x.size(1),x.size(2))
+            X = X + self.meanTr
+            
+            if self.IntScheme == 'euler':
+                xpred = self._EulerSolver( X[:,:,0:x.size(2)-1] )
+            else:
+                xpred = self._RK4Solver( X[:,:,0:x.size(2)-1] )
+
+            xpred = xpred - self.meanTr
+            xpred = xpred / self.stdTr
+
+            xnew  = torch.cat((x[:,:,0].view(-1,x.size(1),1),xpred),dim=2)
+            
+            xnew = xnew.view(-1,x.size(1),x.size(2),1)
+            
+            return xnew
+
+  class Phi_r(torch.nn.Module):
+      def __init__(self):
+          super(Phi_r, self).__init__()
+          self.pool1  = torch.nn.AvgPool2d((5,1))
+          self.pool2  = torch.nn.AvgPool2d((2,1))
+          #self.conv1  = ConstrainedConv2d(shapeData[0],2*shapeData[0]*DimAE,(2*dW+1,1),padding=(dW,0),bias=False)
+
+          self.conv0  = torch.nn.Conv2d(shapeData[0],shapeData[0]*DimAE,(2*dW+1,1),padding=(dW,0),bias=False)
+
+          self.conv21  = torch.nn.Conv2d(shapeData[0]*DimAE,2*shapeData[0]*DimAE,(2*dW+1,1),padding=(dW,0),bias=False)
+          self.conv22  = torch.nn.Conv2d(2*shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)          
+          self.conv221 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv222 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv223 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv23  = torch.nn.Conv2d(2*shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv2Tr = torch.nn.ConvTranspose2d(shapeData[0]*DimAE,shapeData[0]*DimAE,(2,1),stride=(2,1),bias=False)          
+
+          self.conv11  = torch.nn.Conv2d(shapeData[0]*DimAE,2*shapeData[0]*DimAE,(2*dW+1,1),padding=(dW,0),bias=False)
+          self.conv12  = torch.nn.Conv2d(2*shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)          
+          self.conv121 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv122 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv123 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv13  = torch.nn.Conv2d(2*shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv1Tr = torch.nn.ConvTranspose2d(shapeData[0]*DimAE,shapeData[0],(5,1),stride=(5,1),bias=False)          
+
+          self.conv01  = torch.nn.Conv2d(shapeData[0]*DimAE,2*shapeData[0]*DimAE,(2*dW+1,1),padding=(dW,0),bias=False)
+          self.conv02  = torch.nn.Conv2d(2*shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)          
+          self.conv021 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv022 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv023 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv03  = torch.nn.Conv2d(2*shapeData[0]*DimAE,shapeData[0],1,padding=0,bias=False)
+
+          self.ode_l63 = Odenet_l63()
+          self.dt_forecast = dt_forecast          
+
+      def forward(self, xinp):
+          #x = self.fc1( torch.nn.Flatten(x) )
+          #x = self.pool1( xinp )
+          
+          # assimilation component
+          xf = self.conv0( xinp )
+          
+          x2 = self.pool2( self.pool1( xf ) )
+          x2 = self.conv21( x2 )
+          x2 = self.conv22( F.relu(x2) )
+          x2 = torch.cat((self.conv221(x2), self.conv222(x2) * self.conv223(x2)),dim=1)
+          x2 = self.conv23( x2 )
+          x2 = self.conv2Tr( x2 )
+
+          x1 = self.pool1( xf )
+          x1 = self.conv11( x1 )
+          x1 = self.conv12( F.relu(x1) )
+          x1 = torch.cat((self.conv121(x1), self.conv122(x1) * self.conv123(x1)),dim=1)
+          x1 = self.conv13( x1 )
+          x1 = self.conv1Tr( x1 + x2 )
+                   
+
+          x0 = self.conv01( xf )
+          x0 = self.conv02( F.relu(x0) )
+          x0 = torch.cat((self.conv021(x0), self.conv022(x0) * self.conv023(x0)),dim=1)
+          x0 = self.conv03( x0 )
+           
+          x   = x1 + x0
+          
+          x = x.view(-1,shapeData[0],shapeData[1],1)
+          
+          # forecasting component
+          x_forecast = self.ode_l63( x[:,0:3,shapeData[1]-self.dt_forecast-1:,:] )
+          x_forecast = x_forecast.view(-1,3,self.dt_forecast,1)
+          
+          # concatenation
+          xpred = 1. * x
+          xpred[:,0:3,dT-dt_forecast:,:] = 1. * x_forecast
+          xpred[:,3:,dT-dt_forecast:,:] = 0. * xpred[:,3:,dT-dt_forecast:,:]
+          
+          return xpred
+      
 phi_r           = Phi_r()
 print(' AE Model/Dynamical prior: '+flagAEType)
 print(phi_r)
