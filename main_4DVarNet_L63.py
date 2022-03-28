@@ -573,7 +573,7 @@ elif flagAEType == 'unet2+ode': ## Conv model with no use of the central point
           self.conv03  = torch.nn.Conv2d(2*shapeData[0]*DimAE,shapeData[0],1,padding=0,bias=False)
 
           self.ode_l63 = Odenet_l63()
-          self.t0_forecast = dT-dt_forecast
+          self.dt_forecast = dt_forecast          
 
       def forward(self, xinp):
           #x = self.fc1( torch.nn.Flatten(x) )
@@ -607,8 +607,8 @@ elif flagAEType == 'unet2+ode': ## Conv model with no use of the central point
           x = x.view(-1,shapeData[0],shapeData[1],1)
           
           # forecasting component
-          x_forecast = self.ode_l63( x[:,0:3,dT-dt_forecast-1,:] )
-          x_forecast = x_forecast.view(-1,shapeData[0],dt_forecast,1)
+          x_forecast = self.ode_l63( x[:,0:3,shapeData[1]-self.dt_forecast-1,:] , self.dt_forecast )
+          x_forecast = x_forecast.view(-1,shapeData[0],self.dt_forecast,1)
           print( x_forecast.size() )
           
           # concatenation
