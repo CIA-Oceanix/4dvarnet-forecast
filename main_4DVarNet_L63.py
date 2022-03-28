@@ -244,8 +244,8 @@ if len(meanTr) > 1 :
     x_test_obs = 1. * X_test_missing
 
     for kk in range(0,3):
-        x_train_obs[:,kk,:,:] = ( X_train_obs[:,kk,:,:] - meanTr[kk] ) / stdTr[kk]
-        x_test_obs[:,kk,:,:]  = ( X_test_obs[:,kk,:,:] - meanTr[kk] ) / stdTr[kk]
+        x_train_obs[:,kk,:] = ( X_train_obs[:,kk,:] - meanTr[kk] ) / stdTr[kk]
+        x_test_obs[:,kk,:]  = ( X_test_obs[:,kk,:] - meanTr[kk] ) / stdTr[kk]
 else:
     x_train_obs = (X_train_obs - meanTr) / stdTr
     x_test_obs  = (X_test_obs - meanTr) / stdTr
