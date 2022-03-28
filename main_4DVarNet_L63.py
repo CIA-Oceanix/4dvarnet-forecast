@@ -45,7 +45,7 @@ sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
-flagForecast = False#True
+flagForecast = True#False#
 dt_forecast = 50
 
 print('........ Data generation')
@@ -775,11 +775,13 @@ if __name__ == '__main__':
 
             pathCheckPOint = 'resL63/exp02-2/model-l63-unet-exp02-2-Noise01-igrad05_01-dgrad25-drop20-epoch=325-val_loss=1.02.ckpt'
             
+            pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_050-unet-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=198-val_loss=4.18.ckpt'
+            
             print('.... load pre-trained model :'+pathCheckPOint)
             mod = LitModel.load_from_checkpoint(pathCheckPOint)
 
             mod.hparams.n_grad          = 10
-            mod.hparams.k_n_grad        = 1
+            mod.hparams.k_n_grad        = 2
             mod.hparams.iter_update     = [0, 100, 200, 300, 500, 700, 800]  # [0,2,4,6,9,a15]
             mod.hparams.nb_grad_update  = [10, 10, 10, 10, 10, 5, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-4, 1e-5, 1e-6, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
