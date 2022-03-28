@@ -197,64 +197,24 @@ mask_test      = maskTest
 #meanTr          = np.mean(X_train_missing[:]) / np.mean(mask_train) 
 #stdTr           = np.sqrt( np.mean( (X_train_missing-meanTr)**2 ) / np.mean(mask_train) )
 
-if 1*1 :
-    meanTr          = np.zeros((3,))
-    stdTr           = np.zeros((3,))
-    
-    print(X_train.shape)
-    for kk in range(0,3):
-        meanTr[kk] = np.mean(X_train[:,kk,:])
-        stdTr[kk]  = np.sqrt( np.mean( (X_train[:,kk,:]-meanTr[kk])**2 ) )
-else:
-#if flagTypeMissData == 2:
-    meanTr          = np.mean(X_train[:],) 
-    stdTr           = np.sqrt( np.mean( (X_train-meanTr)**2 ) )
+meanTr          = np.mean(X_train[:],) 
+stdTr           = np.sqrt( np.mean( (X_train-meanTr)**2 ) )
 
 
-if len(meanTr) > 1 :
-    x_train_missing = 1. * X_train_missing
-    x_test_missing = 1. * X_test_missing
+x_train_missing = ( X_train_missing - meanTr ) / stdTr
+x_test_missing  = ( X_test_missing - meanTr ) / stdTr
 
-    x_train = 1. * X_train
-    x_test = 1. * X_test
+x_train = (X_train - meanTr) / stdTr
+x_test  = (X_test - meanTr) / stdTr
 
-    print(x_train.shape,flush=True)
-    
-    for kk in range(0,3):
-        x_train_missing[:,kk,:] = ( X_train_missing[:,kk,:] - meanTr[kk] ) / stdTr[kk]
-        x_test_missing[:,kk,:]  = ( X_test_missing[:,kk,:] - meanTr[kk] ) / stdTr[kk]
-
-        x_train[:,kk,:] = (X_train[:,kk,:] - meanTr[kk]) / stdTr[kk]
-        x_test[:,kk,:]  = (X_test[:,kk,:] - meanTr[kk]) / stdTr[kk]
-        
-        print('.... MeanTr[%d] = %.3f --- StdTr = %.3f '%(kk,meanTr[kk],stdTr[kk]))
-else:
-    x_train_missing = ( X_train_missing - meanTr ) / stdTr
-    x_test_missing  = ( X_test_missing - meanTr ) / stdTr
-
-    x_train = (X_train - meanTr) / stdTr
-    x_test  = (X_test - meanTr) / stdTr
-
-    print('.... MeanTr = %.3f --- StdTr = %.3f '%(meanTr,stdTr))
-
-print('..... Training dataset: %dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2]))
+print('.... MeanTr = %.3f --- StdTr = %.3f '%(meanTr,stdTr))
 
 # Generate noisy observsation
 X_train_obs = X_train_missing + sigNoise * maskTraining * np.random.randn(X_train_missing.shape[0],X_train_missing.shape[1],X_train_missing.shape[2])
 X_test_obs  = X_test_missing  + sigNoise * maskTest * np.random.randn(X_test_missing.shape[0],X_test_missing.shape[1],X_test_missing.shape[2])
 
-if len(meanTr) > 1 :
-    x_train_obs = 1. * X_train_missing
-    x_test_obs = 1. * X_test_missing
-
-    for kk in range(0,3):
-        x_train_obs[:,kk,:] = ( X_train_obs[:,kk,:] - meanTr[kk] ) / stdTr[kk]
-        x_test_obs[:,kk,:]  = ( X_test_obs[:,kk,:] - meanTr[kk] ) / stdTr[kk]
-else:
-    x_train_obs = (X_train_obs - meanTr) / stdTr
-    x_test_obs  = (X_test_obs - meanTr) / stdTr
-
-print(x_train.shape,flush=True)
+x_train_obs = (X_train_obs - meanTr) / stdTr
+x_test_obs  = (X_test_obs - meanTr) / stdTr
 
 print('..... Training dataset: %dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2]))
 print('..... Test dataset    : %dx%dx%d'%(x_test.shape[0],x_test.shape[1],x_test.shape[2]))
@@ -309,16 +269,8 @@ else:
 
     X_test_Init[ii,:,:] = XInit
 
-if len(meanTr) > 1 :
-    x_train_Init = 1. * X_train_missing
-    x_test_Init = 1. * X_test_missing
-
-    for kk in range(0,3):
-        x_train_obs[:,kk,:] = ( X_train_Init[:,kk,:] - meanTr[kk] ) / stdTr[kk]
-        x_test_Init[:,kk,:]  = ( X_test_Init[:,kk,:] - meanTr[kk] ) / stdTr[kk]
-else:
-    x_train_Init = ( X_train_Init - meanTr ) / stdTr
-    x_test_Init = ( X_test_Init - meanTr ) / stdTr
+x_train_Init = ( X_train_Init - meanTr ) / stdTr
+x_test_Init = ( X_test_Init - meanTr ) / stdTr
 
 
 # reshape to 2D tensors
@@ -387,27 +339,16 @@ if flagAEType == 'ode': ## AE using ode_L63
             return x + self.dt * (k1+2.*k2+2.*k3+k4)/6.
       
         def forward(self, x):
-            if len(self.stdTr) > 1:
-                X = 1. * x.view(-1,x.size(1),x.size(2))
-                for kk in range(0,3):
-                    X[:,kk,:,:] = self.stdTr * X[:,kk,:,:]
-                    X[:,kk,:,:] = X[:,kk,:,:]+ self.meanTr[kk]
-            else:
-                X = self.stdTr * x.view(-1,x.size(1),x.size(2))
-                X = X + self.meanTr
+            X = self.stdTr * x.view(-1,x.size(1),x.size(2))
+            X = X + self.meanTr
             
             if self.IntScheme == 'euler':
                 xpred = self._EulerSolver( X[:,:,0:x.size(2)-1] )
             else:
                 xpred = self._RK4Solver( X[:,:,0:x.size(2)-1] )
 
-            if len(self.stdTr) > 1:
-                for kk in range(0,3):
-                    xpred[:,kk,:,:] = xpred[:,kk,:,:] - self.meanTr[kk]
-                    xpred[:,kk,:,:] = xpred[:,kk,:,:] / self.stdTr[kk]
-            else:
-                xpred = xpred - self.meanTr
-                xpred = xpred / self.stdTr
+            xpred = xpred - self.meanTr
+            xpred = xpred / self.stdTr
 
             xnew  = torch.cat((x[:,:,0].view(-1,x.size(1),1),xpred),dim=2)
             
@@ -992,11 +933,7 @@ class LitModel(pl.LightningModule):
         if self.hparams.dim_aug_state > 0 :
             x_test_rec = x_test_rec[:,:3,:]
 
-        if len(self.stdTr) > 1:
-            for kk in range(0,3):
-                x_test_rec[:,kk,:,:] = self.stdTr[kk] * x_test_rec[:,kk,:,:] + self.meanTr[kk]
-        else:
-            x_test_rec = stdTr * x_test_rec + meanTr        
+        x_test_rec = stdTr * x_test_rec + meanTr        
         self.x_rec = x_test_rec.squeeze()
 
         return [{'mse':0.,'preds': 0.}]
