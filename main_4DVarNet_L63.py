@@ -47,7 +47,7 @@ rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
 flagForecast = True#False#
-dt_forecast = 50
+dt_forecast = 56
 
 print('........ Data generation')
 flagRandomSeed = 0
@@ -159,7 +159,7 @@ if flagForecast == True :
     dataTraining[:,dT-dt_forecast:,:] =  float('nan')
     dataTest[:,dT-dt_forecast:,:]     =  float('nan')
     
-    print(dataTraining[10,140:150,0])
+    print(dataTraining[10,dT-dt_forecast-1:dT-dt_forecast+1,0])
 
 # mask for NaN
 maskTraining = (dataTraining == dataTraining).astype('float')
