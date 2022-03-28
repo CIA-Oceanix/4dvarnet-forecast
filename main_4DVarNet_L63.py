@@ -28,7 +28,7 @@ from scipy.integrate import solve_ivp
 #from AnDA_codes.AnDA_dynamical_models import AnDA_Lorenz_63, AnDA_Lorenz_96
 from sklearn.feature_extraction import image
 
-flagProcess = 0#1
+flagProcess = 1
 
 dimGradSolver = 25
 rateDropout = 0.2
@@ -934,6 +934,9 @@ if __name__ == '__main__':
         #pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_050-unet-exp02-2-Noise01-igrad10_02-dgrad25-drop20-epoch=17-val_loss=3.83.ckpt'
         
         pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_050-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=46-val_loss=3.39.ckpt'
+        
+        pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_050-aug03-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=75-val_loss=2.48.ckpt'
+        
         print('.... load pre-trained model :'+pathCheckPOint)
         
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
