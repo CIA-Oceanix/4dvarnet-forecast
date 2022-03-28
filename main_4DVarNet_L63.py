@@ -477,8 +477,8 @@ elif flagAEType == 'unet2': ## Conv model with no use of the central point
 
           x0 = self.conv01( xf )
           x0 = self.conv02( F.relu(x0) )
-          x0 = torch.cat((self.conv021(x0), self.conv022(x1) * self.conv023(x1)),dim=1)
-          x0 = self.conv03( x1 )
+          x0 = torch.cat((self.conv021(x0), self.conv022(x0) * self.conv023(x0)),dim=1)
+          x0 = self.conv03( x0 )
            
           x   = x1 + x0
           
