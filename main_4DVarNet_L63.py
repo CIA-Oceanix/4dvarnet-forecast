@@ -748,11 +748,11 @@ elif flagAEType == 'unet2+wc_ode': ## Conv model with no use of the central poin
           
           # forecasting component
           x_forecast = self.ode_l63( x[:,0:3,shapeData[1]-self.dt_forecast-1:,:] )
-          x_forecast = x_forecast.view(-1,3,self.dt_forecast,1)
+          x_forecast = x_forecast.view(-1,3,self.dt_forecast+1,1)
           
           # concatenation
           xpred = 1. * x
-          xpred[:,0:3,dT-dt_forecast:,:] = 1. * x_forecast
+          xpred[:,0:3,dT-dt_forecast:,:] = 1. * x_forecast[:,0:3,1:,:]
           xpred[:,3:,dT-dt_forecast:,:] = 0. * xpred[:,3:,dT-dt_forecast:,:]
           
           return xpred
