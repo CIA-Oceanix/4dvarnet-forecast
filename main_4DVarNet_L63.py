@@ -620,9 +620,8 @@ elif flagAEType == 'unet2+wc_ode': ## Conv model with no use of the central poin
   dW = 5
 
   class Odenet_l63(torch.nn.Module):
-    class Odenet_l63(torch.nn.Module):
         def __init__(self):
-              super(Phi_r, self).__init__()
+              super(Odenet_l63, self).__init__()
               self.sigma = torch.nn.Parameter(torch.Tensor([np.random.randn()]))
               self.rho    = torch.nn.Parameter(torch.Tensor([np.random.randn()]))
               self.beta   = torch.nn.Parameter(torch.Tensor([np.random.randn()]))
