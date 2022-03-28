@@ -941,9 +941,9 @@ if __name__ == '__main__':
         
         pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_050-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=46-val_loss=3.39.ckpt'
         
-        pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_050-aug03-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=75-val_loss=2.48.ckpt'
+        pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_050-aug03-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=169-val_loss=2.13.ckpt'
         
-        pathCheckPOint = 'resL63/exp02-2/model-l63-aug03-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=33-val_loss=0.75.ckpt'
+        #pathCheckPOint = 'resL63/exp02-2/model-l63-aug03-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=75-val_loss=0.63.ckpt'
         
         print('.... load pre-trained model :'+pathCheckPOint)
         
@@ -997,7 +997,7 @@ if __name__ == '__main__':
             print("\n")
             print('..... Forecasting performance (all):')
             for nn in range(0,dt_forecast):
-                var_test_nn     = np.mean( (X_test[:,:,dT-dt_forecast+nn] - X_test[:,:,dT-dt_forecast-6])**2 )
+                var_test_nn     = np.mean( (X_test[:,:,dT-dt_forecast+nn] - X_test[:,:,dT-dt_forecast-1])**2 )
                 mse_forecast = np.mean( (mod.x_rec[:,:,dT-dt_forecast+nn]-X_test[:,:,dT-dt_forecast+nn]) **2 ) 
             
                 print('... dt [ %03d ] = %.3f / %.3f / %.3f '%(nn,mse_forecast,mse_forecast/var_test,mse_forecast/var_test_nn) )                
@@ -1006,7 +1006,7 @@ if __name__ == '__main__':
             print('..... Forecasting performance (x1):')
             var_test_x1  = np.mean( (X_test[:,0,:] - np.mean(X_test[:,0,:],axis=0))**2 )
             for nn in range(0,dt_forecast):
-                var_test_nn     = np.mean( (X_test[:,0,dT-dt_forecast+nn] - X_test[:,0,dT-dt_forecast-6])**2 )
+                var_test_nn     = np.mean( (X_test[:,0,dT-dt_forecast+nn] - X_test[:,0,dT-dt_forecast-1])**2 )
                 mse_forecast = np.mean( (mod.x_rec[:,0,dT-dt_forecast+nn]-X_test[:,0,dT-dt_forecast+nn]) **2 ) 
             
                 print('... dt [ %03d ] = %.3f / %.3f / %.3f '%(nn,mse_forecast,mse_forecast/var_test,mse_forecast/var_test_nn) )                
