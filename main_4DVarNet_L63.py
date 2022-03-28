@@ -28,12 +28,12 @@ from scipy.integrate import solve_ivp
 #from AnDA_codes.AnDA_dynamical_models import AnDA_Lorenz_63, AnDA_Lorenz_96
 from sklearn.feature_extraction import image
 
-flagProcess = 1
+flagProcess = 0#1
 
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
-flagAEType = 'unet' #'ode' # 
+flagAEType = 'unet2' #'ode' # 
 
 batch_size = 128
 
@@ -45,7 +45,7 @@ sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
-flagForecast = False#True#
+flagForecast = True#False#
 dt_forecast = 50
 
 print('........ Data generation')
@@ -401,6 +401,86 @@ elif flagAEType == 'unet': ## Conv model with no use of the central point
           xHR = self.convHR3( xHR )
           
           x   = torch.add(x,1.,xHR)
+          
+          x = x.view(-1,shapeData[0],shapeData[1],1)
+          return x
+elif flagAEType == 'unet2': ## Conv model with no use of the central point
+  dW = 5
+  class Phi_r(torch.nn.Module):
+      def __init__(self):
+          super(Phi_r, self).__init__()
+          self.pool1  = torch.nn.AvgPool2d((5,1))
+          self.pool2  = torch.nn.AvgPool2d((2,1))
+          #self.conv1  = ConstrainedConv2d(shapeData[0],2*shapeData[0]*DimAE,(2*dW+1,1),padding=(dW,0),bias=False)
+
+          self.conv0  = torch.nn.Conv2d(shapeData[0],shapeData[0]*DimAE,(2*dW+1,1),padding=(dW,0),bias=False)
+
+          self.conv21  = torch.nn.Conv2d(shapeData[0]*DimAE,2*shapeData[0]*DimAE,(2*dW+1,1),padding=(dW,0),bias=False)
+          self.conv22  = torch.nn.Conv2d(2*shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)          
+          self.conv221 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv222 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv223 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv23  = torch.nn.Conv2d(2*shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv2Tr = torch.nn.ConvTranspose2d(shapeData[0]*DimAE,shapeData[0],(2,1),stride=(2,1),bias=False)          
+
+          self.conv11  = torch.nn.Conv2d(shapeData[0]*DimAE,2*shapeData[0]*DimAE,(2*dW+1,1),padding=(dW,0),bias=False)
+          self.conv12  = torch.nn.Conv2d(2*shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)          
+          self.conv121 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv122 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv123 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv13  = torch.nn.Conv2d(2*shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv1Tr = torch.nn.ConvTranspose2d(shapeData[0]*DimAE,shapeData[0],(5,1),stride=(5,1),bias=False)          
+
+          self.conv01  = torch.nn.Conv2d(shapeData[0]*DimAE,2*shapeData[0]*DimAE,(2*dW+1,1),padding=(dW,0),bias=False)
+          self.conv02  = torch.nn.Conv2d(2*shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)          
+          self.conv021 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv022 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv023 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.conv03  = torch.nn.Conv2d(2*shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+
+          #self.conv4 = torch.nn.Conv1d(4*shapeData[0]*DimAE,8*shapeData[0]*DimAE,1,padding=0,bias=False)
+
+          #self.conv5 = torch.nn.Conv1d(2*shapeData[0]*DimAE,2*shapeData[0]*DimAE,3,padding=1,bias=False)
+          #self.conv6 = torch.nn.Conv1d(2*shapeData[0]*DimAE,shapeData[0],1,padding=0,bias=False)
+          #self.conv6 = torch.nn.Conv1d(16*shapeData[0]*DimAE,shapeData[0],3,padding=1,bias=False)
+
+          #self.convHR1  = ConstrainedConv2d(shapeData[0],2*shapeData[0]*DimAE,(2*dW+1,1),padding=(dW,0),bias=False)
+          #self.convHR1  = ConstrainedConv2d(shapeData[0],2*shapeData[0]*DimAE,(2*dW+1,1),padding=(dW,0),bias=False)
+          self.convHR1  = torch.nn.Conv2d(shapeData[0],2*shapeData[0]*DimAE,(2*dW+1,1),padding=(dW,0),bias=False)
+          self.convHR2  = torch.nn.Conv2d(2*shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          
+          self.convHR21 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.convHR22 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.convHR23 = torch.nn.Conv2d(shapeData[0]*DimAE,shapeData[0]*DimAE,1,padding=0,bias=False)
+          self.convHR3  = torch.nn.Conv2d(2*shapeData[0]*DimAE,shapeData[0],1,padding=0,bias=False)
+
+      def forward(self, xinp):
+          #x = self.fc1( torch.nn.Flatten(x) )
+          #x = self.pool1( xinp )
+          
+          xf = self.conv0( xinp )
+          
+          x2 = self.pool2( self.pool1( xf ) )
+          x2 = self.conv21( x2 )
+          x2 = self.conv22( F.relu(x2) )
+          x2 = torch.cat((self.conv221(x2), self.conv222(x2) * self.conv223(x2)),dim=1)
+          x2 = self.conv23( x2 )
+          x2 = self.conv2Tr( x2 )
+
+          x1 = self.pool1( xf )
+          x1 = self.conv11( x1 )
+          x1 = self.conv12( F.relu(x1) )
+          x1 = torch.cat((self.conv121(x1), self.conv122(x1) * self.conv123(x1)),dim=1)
+          x1 = self.conv13( x1 )
+          x1 = self.conv1Tr( x1 + x2 )
+                   
+
+          x0 = self.conv01( xf )
+          x0 = self.conv02( F.relu(x0) )
+          x0 = torch.cat((self.conv021(x0), self.conv022(x1) * self.conv023(x1)),dim=1)
+          x0 = self.conv03( x1 )
+           
+          x   = x1 + x0
           
           x = x.view(-1,shapeData[0],shapeData[1],1)
           return x
@@ -763,7 +843,7 @@ if __name__ == '__main__':
       
     if flagProcess == 0: ## training model from scratch
         
-        flagLoadModel = True #False#
+        flagLoadModel = False#True #
         if flagLoadModel == True:
             pathCheckPOint = 'resL63/exp 2-/model-l63exp 2--igrad05_01-dgrad25-drop_00-epoch=99-val_loss=0.04.ckpt'
             pathCheckPOint = 'resL63/exp02/model-l63-exp02-igrad05_01-dgrad25-drop_00-epoch=488-val_loss=2.14.ckpt'
