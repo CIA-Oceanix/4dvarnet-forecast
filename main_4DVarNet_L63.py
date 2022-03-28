@@ -224,8 +224,8 @@ if len(meanTr) > 1 :
         x_train_missing[:,kk,:] = ( X_train_missing[:,kk,:] - meanTr[kk] ) / stdTr[kk]
         x_test_missing[:,kk,:]  = ( X_test_missing[:,kk,:] - meanTr[kk] ) / stdTr[kk]
 
-        x_train = (X_train[:,kk,:] - meanTr[kk]) / stdTr[kk]
-        x_test  = (X_test[:,kk,:] - meanTr[kk]) / stdTr[kk]
+        x_train[:,kk,:] = (X_train[:,kk,:] - meanTr[kk]) / stdTr[kk]
+        x_test[:,kk,:]  = (X_test[:,kk,:] - meanTr[kk]) / stdTr[kk]
         
         print('.... MeanTr[%d] = %.3f --- StdTr = %.3f '%(kk,meanTr[kk],stdTr[kk]))
 else:
@@ -237,7 +237,6 @@ else:
 
     print('.... MeanTr = %.3f --- StdTr = %.3f '%(meanTr,stdTr))
 
-print(x_train.shape,flush=True)
 print('..... Training dataset: %dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2]))
 
 # Generate noisy observsation
