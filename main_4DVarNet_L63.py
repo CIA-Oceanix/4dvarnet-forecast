@@ -197,7 +197,7 @@ mask_test      = maskTest
 #meanTr          = np.mean(X_train_missing[:]) / np.mean(mask_train) 
 #stdTr           = np.sqrt( np.mean( (X_train_missing-meanTr)**2 ) / np.mean(mask_train) )
 
-if 1*0 :
+if 1*1 :
     meanTr          = np.zeros((3,))
     stdTr           = np.zeros((3,))
     
