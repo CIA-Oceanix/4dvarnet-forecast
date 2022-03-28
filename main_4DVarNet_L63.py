@@ -287,7 +287,7 @@ print('..... Training dataset: %dx%dx%dx%d'%(x_train.shape[0],x_train.shape[1],x
 print('..... Test dataset    : %dx%dx%dx%d'%(x_test.shape[0],x_test.shape[1],x_test.shape[2],x_test.shape[3]))
 
 print('........ Define AE architecture')
-shapeData  = x_train.shape[1:]
+shapeData  = np.array(x_train.shape[1:])
 if dim_aug_state > 0 :
     shapeData[0] += dim_aug_state
 # freeze all ode parameters
