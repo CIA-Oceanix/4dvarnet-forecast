@@ -647,7 +647,7 @@ class LitModel(pl.LightningModule):
     def test_epoch_end(self, outputs):
         x_test_rec = torch.cat([chunk['preds'] for chunk in outputs]).numpy()
         
-        if self.hparams.dim_aug_state < 0 :
+        if self.hparams.dim_aug_state > 0 :
             x_test_rec = x_test_rec[:,:3,:]
         x_test_rec = stdTr * x_test_rec + meanTr        
         self.x_rec = x_test_rec.squeeze()
