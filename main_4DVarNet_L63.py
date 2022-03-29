@@ -1201,7 +1201,7 @@ class LitModel_4dvar_classic(pl.LightningModule):
 
                 # compute gradient w.r.t. X and update X
                 loss.backward()
-                print( torch.mean( torch.abs( x_curr.grad.data ) ))
+                print( torch.sqrt( torch.mean(  x_curr.grad.data ** 2 ) ))
                 x_curr = x_curr - self.lam * x_curr.grad.data
                 
                 
