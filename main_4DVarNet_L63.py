@@ -1083,6 +1083,20 @@ class Ode_l63(torch.nn.Module):
 
         return x + self.dt * (k1+2.*k2+2.*k3+k4)/6.
   
+    def ode_int(self, x0, N):
+        X = self.stdTr * x0(-1,x0.size(1),1) + self.meanTr
+        
+        out = 1. * X
+        
+        for nn in range(0,N):
+            X = self._RK4Solver( X )
+            out = torch.cat( (out,X) , dim = 2 )
+     
+        out = out - self.meanTr
+        out = out / self.stdTr
+            
+        return out
+     
     def forward(self, x):
         X = self.stdTr * x.view(-1,x.size(1),x.size(2))
         X = X + self.meanTr
@@ -1113,9 +1127,11 @@ class LitModel_4dvar_classic(pl.LightningModule):
         self.alpha_obs = 1.
         self.alpha_prior = 1.
         self.n_iter_descent = 100
+        self.dt_forecast = dt_forecast
         
         self.x_rec    = None # variable to store output of test method
-
+        self.flag_ode_forecast = True
+        
     def forward(self):
         return 1
 
@@ -1200,6 +1216,13 @@ class LitModel_4dvar_classic(pl.LightningModule):
                 x_curr = torch.autograd.Variable(x_curr, requires_grad=True)
 
             outputs = 1. * x_curr
+            
+            if self.flag_ode_forecast == True :
+                x_for = self.phi.ode_int( x_curr[:,:,dT-dt_forecast-1] , dt_forecast )
+                
+                print( x_for.size() )                
+                outputs[:,:,dT-dt_forecast:] = x_for
+                    
                 
             if flag_x1_only == False:
                 loss_mse_rec = torch.mean((outputs[:,:,:dT-dt_forecast,:] - targets_GT[:,:,:dT-dt_forecast,:]) ** 2)
@@ -1461,7 +1484,7 @@ if __name__ == '__main__':
         mod.alpha_prior = 1e4
         mod.alpha_obs = 1e5
         mod.lam = 0.2
-        mod.n_iter_descent = 20000
+        mod.n_iter_descent = 2000
     
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
 
