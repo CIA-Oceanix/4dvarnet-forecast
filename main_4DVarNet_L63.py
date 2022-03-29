@@ -1208,8 +1208,12 @@ class LitModel_4dvar_classic(pl.LightningModule):
                 loss = self.alpha_obs * loss_obs + self.alpha_prior * loss_prior 
 
                 if( np.mod(iter,100) == 0 ):
-                  mse = torch.mean( (x_curr - targets_GT )**2  )
-                  print(".... iter %d: loss %.3f dyn_loss %.3f obs_loss %.3f mse %.3f"%(iter,1.e3*loss,1.e3*loss_prior,1.e3*loss_obs,stdTr**2 * mse))  
+                    if self.flag_ode_forecast == True :
+                        mse = torch.mean( (x_curr[:,:,dT-dt_forecast-1,:] - targets_GT[:,:,dT-dt_forecast-1,:] )**2  )
+                    else:
+                        mse = torch.mean( (x_curr - targets_GT )**2  )
+
+                print(".... iter %d: loss %.3f dyn_loss %.3f obs_loss %.3f mse %.3f"%(iter,1.e3*loss,1.e3*loss_prior,1.e3*loss_obs,stdTr**2 * mse))  
 
                 # compute gradient w.r.t. X and update X
                 loss.backward()
@@ -1226,18 +1230,8 @@ class LitModel_4dvar_classic(pl.LightningModule):
                 
                 outputs[:,:,dT-dt_forecast-1:] = x_for.view(-1,3,dt_forecast+1,1)
                     
-                
-            if flag_x1_only == False:
-                loss_mse_rec = torch.mean((outputs[:,:,:dT-dt_forecast,:] - targets_GT[:,:,:dT-dt_forecast,:]) ** 2)
-                loss_mse_for = torch.mean((outputs[:,:,dT-dt_forecast:,:] - targets_GT[:,:,dT-dt_forecast:,:]) ** 2)
-            else:
-                loss_mse_rec = torch.mean((outputs[:,0,:dT-dt_forecast,:] - targets_GT[:,0,:dT-dt_forecast,:]) ** 2)
-                loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:,:] - targets_GT[:,0,dT-dt_forecast:,:]) ** 2)
-                                   
-            #loss_mse   = solver_4DVarNet.compute_WeightedLoss((outputs - targets_GT), self.w_loss)
-
-            loss_mse = 0.5 * loss_mse_rec + 0.5 * loss_mse_for 
-            
+            loss_mse = torch.mean((outputs - targets_GT) ** 2)
+                                         
             # metrics
             mse       = loss_mse.detach()
             metrics   = dict([('mse',mse)])
