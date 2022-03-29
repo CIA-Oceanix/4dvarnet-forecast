@@ -1191,6 +1191,8 @@ if __name__ == '__main__':
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
         
         print(mod.hparams)
+        mod.hparams.alpha_mse_rec = 0.75
+        mod.hparams.alpha_mse_for = 0.25
         mod.hparams.n_grad = 5
         mod.hparams.k_n_grad = 2
     
