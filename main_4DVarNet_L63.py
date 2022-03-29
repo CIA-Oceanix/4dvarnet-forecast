@@ -29,7 +29,7 @@ from scipy.integrate import solve_ivp
 #from AnDA_codes.AnDA_dynamical_models import AnDA_Lorenz_63, AnDA_Lorenz_96
 from sklearn.feature_extraction import image
 
-flagProcess = 1
+flagProcess = 2
 
 dimGradSolver = 25
 rateDropout = 0.2
@@ -132,7 +132,8 @@ else:
     ncfile = Dataset(path_l63_dataset,"r")
     dataTrainingNoNaN = ncfile.variables['X_train'][:]
     dataTestNoNaN = ncfile.variables['X_test'][:]
-        
+    dataTestNoNaN = dataTestNoNaN[:128,:,:]  
+    
 # create missing data
 if flagTypeMissData == 0:
     print('..... Observation pattern: Random sampling of osberved L63 components')
@@ -1039,6 +1040,150 @@ class LitModel(pl.LightningModule):
         
         return loss,out, metrics
 
+class LitModel_4dvar_classic(pl.LightningModule):
+    def __init__(self,conf=HParam(),*args, **kwargs):
+        super().__init__()
+        self.save_hyperparameters()
+
+        # main model
+        self.phi = Phi_r() 
+        self.lam_grad = 0.1
+        self.alpha_obs = 1.
+        self.alpha_prior = 1.
+        self.n_iter_descent = 100
+        
+
+    def forward(self):
+        return 1
+
+    def configure_optimizers(self):
+        optimizer   = optim.Adam([{'params': self.model.model_Grad.phi(), 'lr': 0.}], lr=0.)
+        return optimizer
+            
+    def on_train_epoch_start(self):
+
+        print('...  No training step for classic 4DVar method')
+        
+        #if self.current_epoch == 0 :     
+        #    self.save_hyperparameters()
+        
+    def training_step(self, train_batch, batch_idx, optimizer_idx=0):
+         
+        return 0.
+    
+    def validation_step(self, val_batch, batch_idx):
+        loss, out, metrics = self.compute_loss(val_batch, phase='val')
+        for kk in range(0,self.hparams.k_n_grad-1):
+            loss1, out, metrics = self.compute_loss(val_batch, phase='val',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
+            loss = loss1
+
+        #self.log('val_loss', loss)
+        self.log('val_loss', stdTr**2 * metrics['mse'] )
+        self.log("val_mse", stdTr**2 * metrics['mse'] , on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
+        return loss
+
+    def test_step(self, test_batch, batch_idx):
+        loss, out, metrics = self.compute_loss(test_batch, phase='test')
+        
+        for kk in range(0,self.hparams.k_n_grad-1):
+            loss1, out, metrics = self.compute_loss(test_batch, phase='test',batch_init=out[0].detach(),hidden=out[1],cell=out[2],normgrad=out[3])
+
+        #out_ssh,out_ssh_obs = out
+        #self.log('test_loss', loss)
+        self.log("test_mse", stdTr**2 * metrics['mse'] , on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
+        #return {'preds': out_ssh.detach().cpu(),'obs_ssh': out_ssh_obs.detach().cpu()}
+        return {'preds': out[0].detach().cpu()}
+
+    def training_epoch_end(self, training_step_outputs):
+        # do something with all training_step outputs
+        print('.. \n')
+    
+    def test_epoch_end(self, outputs):
+        x_test_rec = torch.cat([chunk['preds'] for chunk in outputs]).numpy()
+        
+        if self.hparams.dim_aug_state > 0 :
+            x_test_rec = x_test_rec[:,:3,:]
+
+        x_test_rec = stdTr * x_test_rec + meanTr        
+        self.x_rec = x_test_rec.squeeze()
+
+        return [{'mse':0.,'preds': 0.}]
+
+    def compute_loss(self, batch, phase, batch_init = None , hidden = None , cell = None , normgrad = 0.0):
+
+        inputs_init_,inputs_obs,masks,targets_GT = batch
+ 
+        #inputs_init = inputs_init_
+        if batch_init is None :
+            inputs_init = inputs_init_
+        else:
+            inputs_init = batch_init
+        
+            
+        with torch.set_grad_enabled(True):
+            # with torch.set_grad_enabled(phase == 'train'):
+            x_curr = torch.autograd.Variable(inputs_init, requires_grad=True)
+
+            for iter in range(0,self.n_iter_descent):
+                # prior term
+                loss_prior = torch.mean( (x_curr - self.phi(x_curr ))**2  )
+                loss_obs = torch.mean( (x_curr - inputs_obs )**2 * masks )
+                
+                # overall loss
+                loss = self.alpha_obs * loss_obs + self.alpha_prior * loss_prior 
+
+                if( np.mod(iter,100) == 0 ):
+                  mse = torch.mean( (x_curr - targets_GT )**2  )
+                  print(".... iter %d: loss %.3f dyn_loss %.3f obs_loss %.3f mse %.3f"%(iter,loss,loss_prior,loss_obs,mse))  
+
+                # compute gradient w.r.t. X and update X
+                loss.backward()
+                x_curr = x_curr - self.lam * x_curr.grad.data
+                x_curr = torch.autograd.Variable(x_curr, requires_grad=True)
+
+            outputs = 1. * x_curr
+                
+            if self.hparams.dim_aug_state == 0 : 
+                if flag_x1_only == False:
+                    loss_mse_rec = torch.mean((outputs[:,:,:dT-dt_forecast,:] - targets_GT[:,:,:dT-dt_forecast,:]) ** 2)
+                    loss_mse_for = torch.mean((outputs[:,:,dT-dt_forecast:,:] - targets_GT[:,:,dT-dt_forecast:,:]) ** 2)
+                else:
+                    loss_mse_rec = torch.mean((outputs[:,0,:dT-dt_forecast,:] - targets_GT[:,0,:dT-dt_forecast,:]) ** 2)
+                    loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:,:] - targets_GT[:,0,dT-dt_forecast:,:]) ** 2)
+                    
+                loss_prior = torch.mean((self.model.phi_r(outputs) - outputs) ** 2)
+                
+                loss_prior_gt = torch.mean((self.model.phi_r(targets_GT) - targets_GT) ** 2)
+            else:
+                if flag_x1_only == False:
+                    #loss_mse_rec = torch.mean((outputs[:,:3,:,:] - targets_GT[:,:,:,:]) ** 2)
+                    loss_mse_rec = torch.mean((outputs[:,:3,:dT-dt_forecast,:] - targets_GT[:,:,:dT-dt_forecast,:]) ** 2)
+                    loss_mse_for = torch.mean((outputs[:,:3,dT-dt_forecast:,:] - targets_GT[:,:,dT-dt_forecast:,:]) ** 2)
+                else:
+                    loss_mse_rec = torch.mean((outputs[:,0,:dT-dt_forecast,:] - targets_GT[:,0,:dT-dt_forecast,:]) ** 2)
+                    loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:,:] - targets_GT[:,0,dT-dt_forecast:,:]) ** 2)
+
+                loss_prior = torch.mean((self.model.phi_r(outputs) - outputs) ** 2)
+                
+                targets_gt_aug = torch.cat( (targets_GT,outputs[:,3:,:]) , dim= 1)
+                loss_prior_gt = torch.mean((self.model.phi_r(targets_gt_aug) - targets_gt_aug) ** 2)
+                
+            #loss_mse   = solver_4DVarNet.compute_WeightedLoss((outputs - targets_GT), self.w_loss)
+
+            loss_mse = 0.5 * loss_mse_rec + 0.5 * loss_mse_for 
+            loss = loss_mse + 0.5 * self.hparams.alpha_prior * (loss_prior + loss_prior_gt)
+            
+            # metrics
+            mse       = loss_mse.detach()
+            metrics   = dict([('mse',mse)])
+            #print(mse.cpu().detach().numpy())
+            if (phase == 'val') or (phase == 'test'):                
+                outputs = outputs.detach()
+        
+        out = [outputs]
+        
+        return loss,out, metrics
+
 class HParam_FixedPoint:
     def __init__(self):
         self.n_iter_fp       = 1
@@ -1269,49 +1414,90 @@ if __name__ == '__main__':
         xrdata.to_netcdf(path=pathCheckPOint.replace('.ckpt','_res.nc'), mode='w')
 
 
-    if flagProcess == 2: ## training model from scratch
-        dimGradSolver = 25
-        rateDropout = 0.2
+    if flagProcess == 2: # WC 4DVar solution using a fixed-step gradient descent
         
-        flagLoadModel = False#True #
-        if flagLoadModel == True:
-            pathCheckPOint = ''
-            
-            print('.... load pre-trained model :'+pathCheckPOint)
-            mod = LitModel_FixedPoint.load_from_checkpoint(pathCheckPOint)
+        mod = LitModel_4dvar_classic()            
+        
+        print(mod.hparams)
+        mod.alpha_prior = 0.75
+        mod.alpha_obs = 0.25
+        mod.lam = 0.2
+        mod.n_iter_descent = 2000
+    
+        #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
 
-            mod.hparams.n_iter_fp       = 5
-            mod.hparams.k_n_fp          = 2
-            mod.hparams.lr_update       = 1e-3
+        profiler_kwargs = {'max_epochs': 1}
+        trainer = pl.Trainer(gpus=1,  **profiler_kwargs)
+        
+        #trainer.fit(mod, dataloaders['train'], dataloaders['val'])
+        
+        if 1*0 :
+            trainer.test(mod, test_dataloaders=dataloaders['val'])
+            
+            # Reconstruction performance
+            X_val = X_train[idx_val::,:,:]
+            mask_val = mask_train[idx_val::,:,:,:].squeeze()
+            var_val  = np.mean( (X_val - np.mean(X_val,axis=0))**2 )
+            mse = np.mean( (mod.x_rec-X_val) **2 ) 
+            mse_i   = np.mean( (1.-mask_val.squeeze()) * (mod.x_rec-X_val) **2 ) / np.mean( (1.-mask_val) )
+            mse_r   = np.mean( mask_val.squeeze() * (mod.x_rec-X_val) **2 ) / np.mean( mask_val )
+            
+            nmse = mse / var_val
+            nmse_i = mse_i / var_val
+            nmse_r = mse_r / var_val
+            
+            print("..... Assimilation performance (validation data)")
+            print(".. MSE ALL.   : %.3f / %.3f"%(mse,nmse))
+            print(".. MSE ObsData: %.3f / %.3f"%(mse_r,nmse_r))
+            print(".. MSE Interp : %.3f / %.3f"%(mse_i,nmse_i))
+        
+        trainer.test(mod, test_dataloaders=dataloaders['test'])
+
+        # Reconstruction performance
+        if flagForecast == True :
+            var_test  = np.mean( (X_test - np.mean(X_test,axis=0))**2 )
+            mse_rec = np.mean( (mod.x_rec[:,:,:dT-dt_forecast]-X_test[:,:,:dT-dt_forecast]) **2 ) 
+            
+            nmse_rec = mse_rec / var_test
+            
+            print("..... Assimilation performance (test data)")
+            print(".. MSE rec   : %.3f / %.3f"%(mse_rec,nmse_rec))
+            
+            print("\n")
+            print('..... Forecasting performance (all):')
+            for nn in range(0,dt_forecast+1):
+                var_test_nn     = np.mean( (X_test[:,:,dT-dt_forecast+nn-1] - X_test[:,:,dT-dt_forecast-1])**2 )
+                mse_forecast = np.mean( (mod.x_rec[:,:,dT-dt_forecast+nn-1]-X_test[:,:,dT-dt_forecast+nn-1]) **2 ) 
+            
+                print('... dt [ %03d ] = %.3f / %.3f / %.3f '%(nn,mse_forecast,mse_forecast/var_test,mse_forecast/var_test_nn) )                
+            
+            print("\n")
+            print('..... Forecasting performance (x1):')
+            var_test_x1  = np.mean( (X_test[:,0,:] - np.mean(X_test[:,0,:],axis=0))**2 )
+            for nn in range(0,dt_forecast+1):
+                var_test_nn     = np.mean( (X_test[:,0,dT-dt_forecast+nn-1] - X_test[:,0,dT-dt_forecast-1])**2 )
+                mse_forecast = np.mean( (mod.x_rec[:,0,dT-dt_forecast+nn-1]-X_test[:,0,dT-dt_forecast+nn-1]) **2 ) 
+            
+                print('... dt [ %03d ] = %.3f / %.3f / %.3f '%(nn,mse_forecast,mse_forecast/var_test,mse_forecast/var_test_nn) )                
         else:
-            mod = LitModel_FixedPoint()
+            var_test  = np.mean( (X_test - np.mean(X_test,axis=0))**2 )
+            mse = np.mean( (mod.x_rec-X_test) **2 ) 
+            mse_i   = np.mean( (1.-mask_test.squeeze()) * (mod.x_rec-X_test) **2 ) / np.mean( (1.-mask_test) )
+            mse_r   = np.mean( mask_test.squeeze() * (mod.x_rec-X_test) **2 ) / np.mean( mask_test )
             
-            mod.hparams.n_iter_fp       = 5
-            mod.hparams.k_n_fp          = 2
-            mod.hparams.lr_update       = 1e-3
-        
-        mod.hparams.alpha_prior = 0.1
-        mod.hparams.alpha_mse = 1.
-        
-        profiler_kwargs = {'max_epochs': 500 }
-
-        suffix_exp = 'exp%02d-2'%flagTypeMissData
-        filename_chkpt = 'modelFP-l63-'
-        
-        filename_chkpt = filename_chkpt+flagAEType+'-'  
+            nmse = mse / var_test
+            nmse_i = mse_i / var_test
+            nmse_r = mse_r / var_test
             
-        filename_chkpt = filename_chkpt + suffix_exp
-        filename_chkpt = filename_chkpt+'-fp%02d_%02d'%(mod.hparams.n_iter_fp,mod.hparams.k_n_fp)
-
-        print('.... chkpt: '+filename_chkpt)
-        checkpoint_callback = ModelCheckpoint(monitor='val_loss',
-                                              dirpath= './resL63/'+suffix_exp,
-                                              filename= filename_chkpt + '-{epoch:02d}-{val_loss:.2f}',
-                                              save_top_k=3,
-                                              mode='min')
-        trainer = pl.Trainer(gpus=1,  **profiler_kwargs,callbacks=[checkpoint_callback])
-        trainer.fit(mod, dataloaders['train'], dataloaders['val'])
-
+            print("..... Assimilation performance (test data)")
+            print(".. MSE ALL.   : %.3f / %.3f"%(mse,nmse))
+            print(".. MSE ObsData: %.3f / %.3f"%(mse_r,nmse_r))
+            print(".. MSE Interp : %.3f / %.3f"%(mse_i,nmse_i))     
+                
+        import xarray as xr
+        xrdata = xr.Dataset( data_vars={'l63-rec': (["n", "D", "dT"],mod.x_rec),'l63-gt': (["n", "D", "dT"],X_test)})
+        xrdata.to_netcdf(path=pathCheckPOint.replace('.ckpt','_res.nc'), mode='w')
+        
     elif flagProcess == 3: ## testing trainable fixed-point scheme
         dimGradSolver = 25
         rateDropout = 0.2
