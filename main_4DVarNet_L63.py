@@ -18,6 +18,7 @@ from torch.optim import lr_scheduler
 import torch.nn.functional as F
 
 from sklearn import decomposition
+from netCDF4 import Dataset
 
 
 import solver as solver_4DVarNet
@@ -84,28 +85,52 @@ class time_series:
   values = 0.
   time   = 0.
   
-## data generation: L63 series
-GD = GD()    
-y0 = np.array([8.0,0.0,30.0])
-tt = np.arange(GD.dt_integration,GD.nb_loop_test*GD.dt_integration+0.000001,GD.dt_integration)
-#S = odeint(AnDA_Lorenz_63,x0,np.arange(0,5+0.000001,GD.dt_integration),args=(GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta));
-S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[0.,5+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=np.arange(0,5+0.000001,GD.dt_integration),method='RK45')
+flag_load_data = False 
 
-y0 = S.y[:,-1];
-S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[GD.dt_integration,GD.nb_loop_test+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=tt,method='RK45')
-S = S.y.transpose()
+if   flag_load_data == False :
+    ## data generation: L63 series
+    GD = GD()    
+    y0 = np.array([8.0,0.0,30.0])
+    tt = np.arange(GD.dt_integration,GD.nb_loop_test*GD.dt_integration+0.000001,GD.dt_integration)
+    #S = odeint(AnDA_Lorenz_63,x0,np.arange(0,5+0.000001,GD.dt_integration),args=(GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta));
+    S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[0.,5+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=np.arange(0,5+0.000001,GD.dt_integration),method='RK45')
+    
+    y0 = S.y[:,-1];
+    S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[GD.dt_integration,GD.nb_loop_test+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=tt,method='RK45')
+    S = S.y.transpose()
+    
+    
+    ####################################################
+    ## Generation of training and test dataset
+    ## Extraction of time series of dT time steps            
+      
+    xt = time_series()
+    xt.values = S
+    xt.time   = tt
+    # extract subsequences
+    dataTrainingNoNaN = image.extract_patches_2d(xt.values[0:12000:time_step,:],(dT,3),max_patches=NbTraining)
+    dataTestNoNaN     = image.extract_patches_2d(xt.values[15000::time_step,:],(dT,3),max_patches=NbTest)
 
-
-####################################################
-## Generation of training and test dataset
-## Extraction of time series of dT time steps            
-  
-xt = time_series()
-xt.values = S
-xt.time   = tt
-# extract subsequences
-dataTrainingNoNaN = image.extract_patches_2d(xt.values[0:12000:time_step,:],(dT,3),max_patches=NbTraining)
-dataTestNoNaN     = image.extract_patches_2d(xt.values[15000::time_step,:],(dT,3),max_patches=NbTest)
+    import xarray as xr
+    flag_save_dataset = True
+    if flag_save_dataset == True :
+        
+        print( dataTrainingNoNaN.shape )
+        xrdata = xr.Dataset( \
+            data_vars={'X_train': (('idx_train', 'l63', 'time'), dataTrainingNoNaN), \
+                       'X_test': (('idx_test', 'l63', 'time'), dataTestNoNaN) },
+            coords={'idx_train': np.arange(dataTrainingNoNaN.shape[0]),
+                    'idx_test': np.arange(dataTestNoNaN.shape[0]),
+                    'l63': np.arange(3), 
+                    'time': np.arange(dT)})
+                    
+        xrdata.to_netcdf(path='/tmp/test.nc', mode='w')
+else:
+    path_l63_dataset = '/tmp/test.nc'
+    ncfile = Dataset(path_l63_dataset,"r")
+    dataTrainingNoNaN = ncfile.variables['X_train'][:]
+    dataTestNoNaN = ncfile.variables['X_test'][:]
+        
 
 # create missing data
 if flagTypeMissData == 0:
@@ -287,6 +312,9 @@ x_test_obs = x_test_obs.reshape((-1,3,dT,1))
 
 print('..... Training dataset: %dx%dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2],x_train.shape[3]))
 print('..... Test dataset    : %dx%dx%dx%d'%(x_test.shape[0],x_test.shape[1],x_test.shape[2],x_test.shape[3]))
+
+
+
 
 print('........ Define AE architecture')
 shapeData  = np.array(x_train.shape[1:])
@@ -1154,7 +1182,8 @@ if __name__ == '__main__':
         pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=73-val_loss=71.93.ckpt'
         pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-x1_only-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=43-val_loss=40.65.ckpt'
         
-        pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=65-val_loss=2.38.ckpt'
+        pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=103-val_loss=1.96.ckpt'
+        
         print('.... load pre-trained model :'+pathCheckPOint)
         
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
