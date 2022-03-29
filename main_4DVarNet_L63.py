@@ -1202,39 +1202,23 @@ class LitModel_4dvar_classic(pl.LightningModule):
                 # compute gradient w.r.t. X and update X
                 loss.backward()
                 x_curr = x_curr - self.lam * x_curr.grad.data
+                
+                print( torch.mean( torch.abs( x_curr.grad.data ) ))
+                
                 x_curr = torch.autograd.Variable(x_curr, requires_grad=True)
 
             outputs = 1. * x_curr
                 
-            if self.hparams.dim_aug_state == 0 : 
-                if flag_x1_only == False:
-                    loss_mse_rec = torch.mean((outputs[:,:,:dT-dt_forecast,:] - targets_GT[:,:,:dT-dt_forecast,:]) ** 2)
-                    loss_mse_for = torch.mean((outputs[:,:,dT-dt_forecast:,:] - targets_GT[:,:,dT-dt_forecast:,:]) ** 2)
-                else:
-                    loss_mse_rec = torch.mean((outputs[:,0,:dT-dt_forecast,:] - targets_GT[:,0,:dT-dt_forecast,:]) ** 2)
-                    loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:,:] - targets_GT[:,0,dT-dt_forecast:,:]) ** 2)
-                    
-                loss_prior = torch.mean((self.model.phi_r(outputs) - outputs) ** 2)
-                
-                loss_prior_gt = torch.mean((self.model.phi_r(targets_GT) - targets_GT) ** 2)
+            if flag_x1_only == False:
+                loss_mse_rec = torch.mean((outputs[:,:,:dT-dt_forecast,:] - targets_GT[:,:,:dT-dt_forecast,:]) ** 2)
+                loss_mse_for = torch.mean((outputs[:,:,dT-dt_forecast:,:] - targets_GT[:,:,dT-dt_forecast:,:]) ** 2)
             else:
-                if flag_x1_only == False:
-                    #loss_mse_rec = torch.mean((outputs[:,:3,:,:] - targets_GT[:,:,:,:]) ** 2)
-                    loss_mse_rec = torch.mean((outputs[:,:3,:dT-dt_forecast,:] - targets_GT[:,:,:dT-dt_forecast,:]) ** 2)
-                    loss_mse_for = torch.mean((outputs[:,:3,dT-dt_forecast:,:] - targets_GT[:,:,dT-dt_forecast:,:]) ** 2)
-                else:
-                    loss_mse_rec = torch.mean((outputs[:,0,:dT-dt_forecast,:] - targets_GT[:,0,:dT-dt_forecast,:]) ** 2)
-                    loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:,:] - targets_GT[:,0,dT-dt_forecast:,:]) ** 2)
-
-                loss_prior = torch.mean((self.model.phi_r(outputs) - outputs) ** 2)
-                
-                targets_gt_aug = torch.cat( (targets_GT,outputs[:,3:,:]) , dim= 1)
-                loss_prior_gt = torch.mean((self.model.phi_r(targets_gt_aug) - targets_gt_aug) ** 2)
-                
+                loss_mse_rec = torch.mean((outputs[:,0,:dT-dt_forecast,:] - targets_GT[:,0,:dT-dt_forecast,:]) ** 2)
+                loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:,:] - targets_GT[:,0,dT-dt_forecast:,:]) ** 2)
+                                   
             #loss_mse   = solver_4DVarNet.compute_WeightedLoss((outputs - targets_GT), self.w_loss)
 
             loss_mse = 0.5 * loss_mse_rec + 0.5 * loss_mse_for 
-            loss = loss_mse + 0.5 * self.hparams.alpha_prior * (loss_prior + loss_prior_gt)
             
             # metrics
             mse       = loss_mse.detach()
