@@ -1084,7 +1084,7 @@ class Ode_l63(torch.nn.Module):
         return x + self.dt * (k1+2.*k2+2.*k3+k4)/6.
   
     def ode_int(self, x0, N):
-        X = self.stdTr * x0(-1,x0.size(1),1) + self.meanTr
+        X = self.stdTr * x0.view(-1,x0.size(1),1) + self.meanTr
         
         out = 1. * X
         
