@@ -1130,7 +1130,7 @@ class LitModel_4dvar_classic(pl.LightningModule):
         self.dt_forecast = dt_forecast
         
         self.x_rec    = None # variable to store output of test method
-        self.flag_ode_forecast = True
+        self.flag_ode_forecast = False#True
         
     def forward(self):
         return 1
@@ -1197,8 +1197,12 @@ class LitModel_4dvar_classic(pl.LightningModule):
 
             for iter in range(0,self.n_iter_descent):
                 # prior term
-                loss_prior = torch.mean( (x_curr - self.phi(x_curr ))**2  )
-                loss_obs = torch.mean( (x_curr - inputs_obs )**2 * masks )
+                if self.flag_ode_forecast == True :
+                    loss_prior = torch.mean( (x_curr[:,:,dT-dt_forecast-1:] - self.phi(x_curr[:,:,dT-dt_forecast-1:] ))**2  )
+                    loss_obs = torch.mean( (x_curr[:,:,dT-dt_forecast-1:] - inputs_obs[:,:,dT-dt_forecast-1:] )**2 * masks )
+                else:
+                    loss_prior = torch.mean( (x_curr - self.phi(x_curr ))**2  )
+                    loss_obs = torch.mean( (x_curr - inputs_obs )**2 * masks )
                 
                 # overall loss
                 loss = self.alpha_obs * loss_obs + self.alpha_prior * loss_prior 
@@ -1217,8 +1221,8 @@ class LitModel_4dvar_classic(pl.LightningModule):
 
             outputs = 1. * x_curr
             
-            if 0*1 : #self.flag_ode_forecast == True :
-                x_for = self.phi.ode_int( x_curr[:,:,dT-dt_forecast-1] , dt_forecast )
+            if self.flag_ode_forecast == True :
+                x_for = self.phi.ode_int( x_curr[:,:,-1,:] , dt_forecast )
                 
                 outputs[:,:,dT-dt_forecast-1:] = x_for.view(-1,3,dt_forecast+1,1)
                     
