@@ -1222,7 +1222,7 @@ class LitModel_4dvar_classic(pl.LightningModule):
             outputs = 1. * x_curr
             
             if self.flag_ode_forecast == True :
-                x_for = self.phi.ode_int( x_curr[:,:,-1,:] , dt_forecast )
+                x_for = self.phi.ode_int( x_curr[:,:,dT-dt_forecast-1,:] , dt_forecast )
                 
                 outputs[:,:,dT-dt_forecast-1:] = x_for.view(-1,3,dt_forecast+1,1)
                     
