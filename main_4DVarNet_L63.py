@@ -37,7 +37,7 @@ DimAE = 10
 flagAEType = 'unet2'#'unet2+wc_ode'#'unet' # #'ode' # 
 dim_aug_state = 10#10 #False#
 
-batch_size = 128
+batch_size = 2000#128
 
 NbTraining = 10000
 NbTest     = 2000#256
@@ -131,7 +131,7 @@ else:
     ncfile = Dataset(path_l63_dataset,"r")
     dataTrainingNoNaN = ncfile.variables['X_train'][:]
     dataTestNoNaN = ncfile.variables['X_test'][:]
-    dataTestNoNaN = dataTestNoNaN[:128,:,:]  
+    #dataTestNoNaN = dataTestNoNaN[:128,:,:]  
     
 # create missing data
 if flagTypeMissData == 0:
@@ -1475,11 +1475,10 @@ if __name__ == '__main__':
         
         mod = LitModel_4dvar_classic()            
         
-        print(mod.hparams)
         mod.alpha_prior = 1e4
         mod.alpha_obs = 1e5
-        mod.lam = 0.4
-        mod.n_iter_descent = 20000
+        mod.lam = 0.2
+        mod.n_iter_descent = 22000
         mod.flag_ode_forecast = True#
     
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
