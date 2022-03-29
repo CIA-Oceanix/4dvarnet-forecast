@@ -1477,7 +1477,7 @@ if __name__ == '__main__':
         
         mod.alpha_prior = 1e4
         mod.alpha_obs = 1e5
-        mod.lam = 1e-3 * batch_size 
+        mod.lam = 2e-3 * batch_size 
         mod.n_iter_descent = 22000
         mod.flag_ode_forecast = True#
     
