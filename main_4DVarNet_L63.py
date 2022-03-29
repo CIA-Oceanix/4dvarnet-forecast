@@ -1112,7 +1112,7 @@ if __name__ == '__main__':
             mod.hparams.lr_update       = [1e-3, 1e-4, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
         
         mod.hparams.alpha_prior = 0.1
-        mod.hparams.alpha_mse_rec = 0.1#0.75
+        mod.hparams.alpha_mse_rec = 0.#0.75
         mod.hparams.alpha_mse_for = 0.5#0.25
         
         profiler_kwargs = {'max_epochs': 200 }
@@ -1123,6 +1123,9 @@ if __name__ == '__main__':
         if flagForecast == True :
             filename_chkpt = filename_chkpt+'forecast_%03d-'%dt_forecast
         
+        if mod.hparams.alpha_mse_rec == 0. :
+            filename_chkpt = filename_chkpt+'-norec'
+            
         if flag_x1_only == True :
             filename_chkpt = filename_chkpt+'x1_only-'
             
