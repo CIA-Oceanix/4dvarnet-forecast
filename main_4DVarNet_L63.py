@@ -1198,8 +1198,8 @@ class LitModel_4dvar_classic(pl.LightningModule):
             for iter in range(0,self.n_iter_descent):
                 # prior term
                 if self.flag_ode_forecast == True :
-                    loss_prior = torch.mean( (x_curr[:,:,dT-dt_forecast-1:] - self.phi(x_curr[:,:,dT-dt_forecast-1:] ))**2  )
-                    loss_obs = torch.mean( (x_curr[:,:,dT-dt_forecast-1:] - inputs_obs[:,:,dT-dt_forecast-1:] )**2 * masks )
+                    loss_prior = torch.mean( (x_curr[:,:,:dT-dt_forecast] - self.phi(x_curr[:,:,:dT-dt_forecast] ))**2  )
+                    loss_obs = torch.mean( (x_curr[:,:,:dT-dt_forecast] - inputs_obs[:,:,:dT-dt_forecast] )**2 * masks[:,:,:dT-dt_forecast] )
                 else:
                     loss_prior = torch.mean( (x_curr - self.phi(x_curr ))**2  )
                     loss_obs = torch.mean( (x_curr - inputs_obs )**2 * masks )
