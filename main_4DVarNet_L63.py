@@ -1460,8 +1460,8 @@ if __name__ == '__main__':
         mod = LitModel_4dvar_classic()            
         
         print(mod.hparams)
-        mod.alpha_prior = 1e4
-        mod.alpha_obs = 1e4
+        mod.alpha_prior = 1e5
+        mod.alpha_obs = 1e5
         mod.lam = 0.2
         mod.n_iter_descent = 20000
     
