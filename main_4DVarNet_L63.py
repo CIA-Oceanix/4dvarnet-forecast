@@ -133,7 +133,6 @@ else:
     dataTrainingNoNaN = ncfile.variables['X_train'][:]
     dataTestNoNaN = ncfile.variables['X_test'][:]
         
-
 # create missing data
 if flagTypeMissData == 0:
     print('..... Observation pattern: Random sampling of osberved L63 components')
@@ -228,7 +227,6 @@ mask_test      = maskTest
 meanTr          = np.mean(X_train[:],) 
 stdTr           = np.sqrt( np.mean( (X_train-meanTr)**2 ) )
 
-
 x_train_missing = ( X_train_missing - meanTr ) / stdTr
 x_test_missing  = ( X_test_missing - meanTr ) / stdTr
 
@@ -246,7 +244,6 @@ x_test_obs  = (X_test_obs - meanTr) / stdTr
 
 print('..... Training dataset: %dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2]))
 print('..... Test dataset    : %dx%dx%d'%(x_test.shape[0],x_test.shape[1],x_test.shape[2]))
-
 
 import scipy
 # Initialization
@@ -300,7 +297,6 @@ else:
 x_train_Init = ( X_train_Init - meanTr ) / stdTr
 x_test_Init = ( X_test_Init - meanTr ) / stdTr
 
-
 # reshape to 2D tensors
 x_train = x_train.reshape((-1,3,dT,1))
 mask_train = mask_train.reshape((-1,3,dT,1))
@@ -314,9 +310,6 @@ x_test_obs = x_test_obs.reshape((-1,3,dT,1))
 
 print('..... Training dataset: %dx%dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2],x_train.shape[3]))
 print('..... Test dataset    : %dx%dx%dx%d'%(x_test.shape[0],x_test.shape[1],x_test.shape[2],x_test.shape[3]))
-
-
-
 
 print('........ Define AE architecture')
 shapeData  = np.array(x_train.shape[1:])
@@ -1070,7 +1063,6 @@ else:
 
 idx_val = x_train.shape[0]-500
 
-
 training_dataset     = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init[:idx_val:,:,:,:]),torch.Tensor(x_train_obs[:idx_val:,:,:,:]),torch.Tensor(mask_train[:idx_val:,:,:,:]),torch.Tensor(x_train[:idx_val:,:,:,:])) # create your datset
 val_dataset         = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init[idx_val::,:,:,:]),torch.Tensor(x_train_obs[idx_val::,:,:,:]),torch.Tensor(mask_train[idx_val::,:,:,:]),torch.Tensor(x_train[idx_val::,:,:,:])) # create your datset
 test_dataset         = torch.utils.data.TensorDataset(torch.Tensor(x_test_Init),torch.Tensor(x_test_obs),torch.Tensor(mask_test),torch.Tensor(x_test)) # create your datset
@@ -1120,8 +1112,8 @@ if __name__ == '__main__':
             mod.hparams.lr_update       = [1e-3, 1e-4, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
         
         mod.hparams.alpha_prior = 0.1
-        mod.hparams.alpha_mse_rec = 0.75
-        mod.hparams.alpha_mse_for = 0.25
+        mod.hparams.alpha_mse_rec = 0.1#0.75
+        mod.hparams.alpha_mse_for = 0.5#0.25
         
         profiler_kwargs = {'max_epochs': 200 }
 
