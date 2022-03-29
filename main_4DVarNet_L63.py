@@ -16,10 +16,10 @@ import torch
 import torch.optim as optim
 from torch.optim import lr_scheduler
 import torch.nn.functional as F
+import xarray as xr
 
 from sklearn import decomposition
 from netCDF4 import Dataset
-
 
 import solver as solver_4DVarNet
 
@@ -111,7 +111,6 @@ if   flag_load_data == False :
     dataTrainingNoNaN = image.extract_patches_2d(xt.values[0:12000:time_step,:],(dT,3),max_patches=NbTraining)
     dataTestNoNaN     = image.extract_patches_2d(xt.values[15000::time_step,:],(dT,3),max_patches=NbTest)
 
-    import xarray as xr
     flag_save_dataset = True
     if flag_save_dataset == True :
         
@@ -1458,7 +1457,7 @@ if __name__ == '__main__':
         
         print(mod.hparams)
         mod.alpha_prior = 1e4
-        mod.alpha_obs = 1e4
+        mod.alpha_obs = 2e4
         mod.lam = 0.5
         mod.n_iter_descent = 20000
     
