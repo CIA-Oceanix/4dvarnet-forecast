@@ -28,7 +28,7 @@ from scipy.integrate import solve_ivp
 #from AnDA_codes.AnDA_dynamical_models import AnDA_Lorenz_63, AnDA_Lorenz_96
 from sklearn.feature_extraction import image
 
-flagProcess = 1
+flagProcess = 0
 
 dimGradSolver = 25
 rateDropout = 0.2
@@ -817,8 +817,8 @@ class LitModel(pl.LightningModule):
         self.hparams.k_batch         = 1
         
         self.hparams.alpha_prior   = 0.5
-        self.hparams.alpha_mse_rec = 1.#10*0.75#1.e0
-        self.hparams.alpha_mse_for = 10.#*0.25#1.e1
+        self.hparams.alpha_mse_rec = 10.#10*0.75#1.e0
+        self.hparams.alpha_mse_for = 0.#*0.25#1.e1
         
         self.hparams.w_loss          = torch.nn.Parameter(torch.Tensor(w_loss), requires_grad=False)
         self.hparams.automatic_optimization = False#True#
@@ -988,6 +988,7 @@ class LitModel(pl.LightningModule):
                 loss_prior_gt = torch.mean((self.model.phi_r(targets_GT) - targets_GT) ** 2)
             else:
                 if flag_x1_only == False:
+                    #loss_mse_rec = torch.mean((outputs[:,:3,:,:] - targets_GT[:,:,:,:]) ** 2)
                     loss_mse_rec = torch.mean((outputs[:,:3,:dT-dt_forecast,:] - targets_GT[:,:,:dT-dt_forecast,:]) ** 2)
                     loss_mse_for = torch.mean((outputs[:,:3,dT-dt_forecast:,:] - targets_GT[:,:,dT-dt_forecast:,:]) ** 2)
                 else:
@@ -1089,7 +1090,8 @@ if __name__ == '__main__':
             mod.hparams.lr_update       = [1e-3, 1e-4, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
         
         mod.hparams.alpha_prior = 0.1
-        mod.hparams.alpha_mse = 1.
+        mod.hparams.alpha_mse_rec = 0.75
+        mod.hparams.alpha_mse_for = 0.25
         
         profiler_kwargs = {'max_epochs': 200 }
 
