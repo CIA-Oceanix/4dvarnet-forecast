@@ -1002,8 +1002,7 @@ class LitModel(pl.LightningModule):
             #loss_mse   = solver_4DVarNet.compute_WeightedLoss((outputs - targets_GT), self.w_loss)
 
             loss_mse = self.hparams.alpha_mse_rec * loss_mse_rec + self.hparams.alpha_mse_for * loss_mse_for 
-            loss_mse = self.hparams.alpha_mse_rec * loss_mse_rec + self.hparams.alpha_mse_for * loss_mse_for 
-            loss = loss_mse * 0.5 * self.hparams.alpha_prior * (loss_prior + loss_prior_gt)
+            loss = loss_mse + 0.5 * self.hparams.alpha_prior * (loss_prior + loss_prior_gt)
             
             # metrics
             mse       = loss_mse.detach()
