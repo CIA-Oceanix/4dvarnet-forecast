@@ -85,7 +85,7 @@ class time_series:
   values = 0.
   time   = 0.
   
-flag_load_data = False #True#
+flag_load_data = True# False #
 
 if   flag_load_data == False :
     ## data generation: L63 series
