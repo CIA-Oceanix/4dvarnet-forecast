@@ -1531,10 +1531,10 @@ if __name__ == '__main__':
             print(".. MSE ALL.   : %.3f / %.3f"%(mse,nmse))
             print(".. MSE ObsData: %.3f / %.3f"%(mse_r,nmse_r))
             print(".. MSE Interp : %.3f / %.3f"%(mse_i,nmse_i))     
-                
-        import xarray as xr
-        xrdata = xr.Dataset( data_vars={'l63-rec': (["n", "D", "dT"],mod.x_rec),'l63-gt': (["n", "D", "dT"],X_test)})
-        xrdata.to_netcdf(path=pathCheckPOint.replace('.ckpt','_res.nc'), mode='w')
+            
+        if 1*1 :
+            xrdata = xr.Dataset( data_vars={'l63-rec': (["n", "D", "dT"],mod.x_rec),'l63-gt': (["n", "D", "dT"],X_test)})
+            xrdata.to_netcdf(path='/tmp/res_l63_4dvar_classic_res.nc', mode='w')
         
     elif flagProcess == 3: ## testing trainable fixed-point scheme
         dimGradSolver = 25
