@@ -817,10 +817,9 @@ class LitModel(pl.LightningModule):
         self.hparams.k_batch         = 1
         
         self.hparams.alpha_prior   = 0.5
-        self.hparams.alpha_mse_rec = 1.e0
-        self.hparams.alpha_mse_for = 1.e1
+        self.hparams.alpha_mse_rec = 10*0.75#1.e0
+        self.hparams.alpha_mse_for = 10.*0.25#1.e1
         
-
         self.hparams.w_loss          = torch.nn.Parameter(torch.Tensor(w_loss), requires_grad=False)
         self.hparams.automatic_optimization = False#True#
 
@@ -1085,7 +1084,7 @@ if __name__ == '__main__':
             mod = LitModel()
             
             mod.hparams.n_grad          = 5
-            mod.hparams.k_n_grad        = 3
+            mod.hparams.k_n_grad        = 2
             mod.hparams.iter_update     = [0, 100, 200, 300, 500, 700, 800]  # [0,2,4,6,9,15]
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 15, 15, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-3, 1e-4, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
