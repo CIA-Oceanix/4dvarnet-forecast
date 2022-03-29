@@ -120,11 +120,11 @@ if   flag_load_data == False :
         
         xrdata = xr.Dataset( \
             data_vars={'X_train': (('idx_train', 'time', 'l63'), dataTrainingNoNaN), \
-                       'X_test': (('idx_test', 'time'), 'l63', dataTestNoNaN) },
-            coords={'idx_train': np.arange(dataTrainingNoNaN.shape[0]),
-                    'idx_test': np.arange(dataTestNoNaN.shape[0]),
-                    'l63': np.arange(3), 
-                    'time': np.arange(dT)})
+                       'X_test': (('idx_test', 'time', 'l63'), dataTestNoNaN) })
+#            coords={'idx_train': np.arange(dataTrainingNoNaN.shape[0]),
+#                    'idx_test': np.arange(dataTestNoNaN.shape[0]),
+#                    'l63': np.arange(3), 
+#                    'time': np.arange(dT)})
                     
         xrdata.to_netcdf(path='/tmp/test.nc', mode='w')
 else:
