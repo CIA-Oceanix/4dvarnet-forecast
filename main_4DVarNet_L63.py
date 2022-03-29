@@ -1468,7 +1468,7 @@ if __name__ == '__main__':
         print(mod.hparams)
         mod.alpha_prior = 0.75
         mod.alpha_obs = 0.25
-        mod.lam = 1.e5
+        mod.lam = 1.e4
         mod.n_iter_descent = 2000
     
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
