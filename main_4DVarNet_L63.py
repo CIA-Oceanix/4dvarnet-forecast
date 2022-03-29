@@ -116,7 +116,7 @@ if   flag_load_data == False :
     if flag_save_dataset == True :
         
         print( dataTrainingNoNaN.shape )
-        xrdata = xr.Dataset( \
+        xrdata = xr.Dataset( 
             data_vars={'X_train': (('idx_train', 'l63', 'time'), dataTrainingNoNaN), \
                        'X_test': (('idx_test', 'l63', 'time'), dataTestNoNaN) },
             coords={'idx_train': np.arange(dataTrainingNoNaN.shape[0]),
