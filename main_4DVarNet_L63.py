@@ -1466,9 +1466,9 @@ if __name__ == '__main__':
         mod = LitModel_4dvar_classic()            
         
         print(mod.hparams)
-        mod.alpha_prior = 0.75
-        mod.alpha_obs = 0.25
-        mod.lam = 1.e4
+        mod.alpha_prior = 1e3
+        mod.alpha_obs = 1e3
+        mod.lam = 0.2
         mod.n_iter_descent = 2000
     
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
