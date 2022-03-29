@@ -1136,9 +1136,6 @@ class LitModel_4dvar_classic(pl.LightningModule):
     
     def validation_step(self, val_batch, batch_idx):
         loss, out, metrics = self.compute_loss(val_batch, phase='val')
-        for kk in range(0,self.hparams.k_n_grad-1):
-            loss1, out, metrics = self.compute_loss(val_batch, phase='val',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
-            loss = loss1
 
         #self.log('val_loss', loss)
         self.log('val_loss', stdTr**2 * metrics['mse'] )
@@ -1148,9 +1145,6 @@ class LitModel_4dvar_classic(pl.LightningModule):
     def test_step(self, test_batch, batch_idx):
         loss, out, metrics = self.compute_loss(test_batch, phase='test')
         
-        for kk in range(0,self.hparams.k_n_grad-1):
-            loss1, out, metrics = self.compute_loss(test_batch, phase='test',batch_init=out[0].detach(),hidden=out[1],cell=out[2],normgrad=out[3])
-
         #out_ssh,out_ssh_obs = out
         #self.log('test_loss', loss)
         self.log("test_mse", stdTr**2 * metrics['mse'] , on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
