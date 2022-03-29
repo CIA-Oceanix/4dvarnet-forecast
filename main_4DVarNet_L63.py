@@ -1124,7 +1124,7 @@ if __name__ == '__main__':
             filename_chkpt = filename_chkpt+'forecast_%03d-'%dt_forecast
         
         if mod.hparams.alpha_mse_rec == 0. :
-            filename_chkpt = filename_chkpt+'-norec'
+            filename_chkpt = filename_chkpt+'-norec-'
             
         if flag_x1_only == True :
             filename_chkpt = filename_chkpt+'x1_only-'
