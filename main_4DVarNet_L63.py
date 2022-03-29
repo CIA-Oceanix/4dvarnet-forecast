@@ -1220,7 +1220,6 @@ class LitModel_4dvar_classic(pl.LightningModule):
             if self.flag_ode_forecast == True :
                 x_for = self.phi.ode_int( x_curr[:,:,dT-dt_forecast-1] , dt_forecast )
                 
-                print( x_for.size() )                
                 outputs[:,:,dT-dt_forecast-1:] = x_for.view(-1,3,dt_forecast+1,1)
                     
                 
@@ -1484,7 +1483,7 @@ if __name__ == '__main__':
         mod.alpha_prior = 1e4
         mod.alpha_obs = 1e5
         mod.lam = 0.2
-        mod.n_iter_descent = 2000
+        mod.n_iter_descent = 10000
     
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
 
