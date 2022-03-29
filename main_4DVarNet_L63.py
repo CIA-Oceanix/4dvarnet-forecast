@@ -1209,7 +1209,7 @@ class LitModel_4dvar_classic(pl.LightningModule):
 
                 if( np.mod(iter,100) == 0 ):
                     if self.flag_ode_forecast == True :
-                        mse = torch.mean( (x_curr[:,:,dT-dt_forecast-1,:] - targets_GT[:,:,dT-dt_forecast-1,:] )**2  )
+                        mse = torch.mean( (x_curr[:,:,:dT-dt_forecast-1,:] - targets_GT[:,:,:dT-dt_forecast-1,:] )**2  )
                     else:
                         mse = torch.mean( (x_curr - targets_GT )**2  )
 
