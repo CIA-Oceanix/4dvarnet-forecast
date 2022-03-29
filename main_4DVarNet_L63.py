@@ -1160,7 +1160,8 @@ class LitModel_4dvar_classic(pl.LightningModule):
 
         x_test_rec = stdTr * x_test_rec + meanTr        
         self.x_rec = x_test_rec.squeeze()
-
+        print( self.x_rec.shape )
+    
         return [{'mse':0.,'preds': 0.}]
 
     def compute_loss(self, batch, phase, batch_init = None , hidden = None , cell = None , normgrad = 0.0):
