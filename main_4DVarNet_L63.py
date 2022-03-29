@@ -1040,13 +1040,76 @@ class LitModel(pl.LightningModule):
         
         return loss,out, metrics
 
+
+class Ode_l63(torch.nn.Module):
+    def __init__(self):
+          super(Ode_l63, self).__init__()
+          self.sigma = torch.nn.Parameter(torch.Tensor([np.random.randn()]))
+          self.rho    = torch.nn.Parameter(torch.Tensor([np.random.randn()]))
+          self.beta   = torch.nn.Parameter(torch.Tensor([np.random.randn()]))
+
+          self.sigma  = torch.nn.Parameter(torch.Tensor([10.]))
+          self.rho    = torch.nn.Parameter(torch.Tensor([28.]))
+          self.beta   = torch.nn.Parameter(torch.Tensor([8./3.]))
+
+          self.dt        = 0.01
+          self.IntScheme = 'rk4'
+          self.stdTr     = stdTr
+          self.meanTr    = meanTr                      
+    def _odeL63(self, xin):
+        x1  = xin[:,0,:]
+        x2  = xin[:,1,:]
+        x3  = xin[:,2,:]
+        
+        dx_1 = (self.sigma*(x2-x1)).view(-1,1,xin.size(2))
+        dx_2 = (x1*(self.rho-x3)-x2).view(-1,1,xin.size(2))
+        dx_3 = (x1*x2 - self.beta*x3).view(-1,1,xin.size(2))
+        
+        dpred = torch.cat((dx_1,dx_2,dx_3),dim=1)
+        return dpred
+
+    def _EulerSolver(self, x):
+        return x + self.dt * self._odeL63(x)
+
+    def _RK4Solver(self, x):
+        k1 = self._odeL63(x)
+        x2 = x + 0.5 * self.dt * k1
+        k2 = self._odeL63(x2)
+      
+        x3 = x + 0.5 * self.dt * k2
+        k3 = self._odeL63(x3)
+          
+        x4 = x + self.dt * k3
+        k4 = self._odeL63(x4)
+
+        return x + self.dt * (k1+2.*k2+2.*k3+k4)/6.
+  
+    def forward(self, x):
+        X = self.stdTr * x.view(-1,x.size(1),x.size(2))
+        X = X + self.meanTr
+        
+        if self.IntScheme == 'euler':
+            xpred = self._EulerSolver( X[:,:,0:x.size(2)-1] )
+        else:
+            xpred = self._RK4Solver( X[:,:,0:x.size(2)-1] )
+
+        xpred = xpred - self.meanTr
+        xpred = xpred / self.stdTr
+
+        xnew  = torch.cat((x[:,:,0].view(-1,x.size(1),1),xpred),dim=2)
+        
+        xnew = xnew.view(-1,x.size(1),x.size(2),1)
+        
+        return xnew
+
+
 class LitModel_4dvar_classic(pl.LightningModule):
     def __init__(self,conf=HParam(),*args, **kwargs):
         super().__init__()
         self.save_hyperparameters()
 
         # main model
-        self.phi = Phi_r() 
+        self.phi = Ode_l63() 
         self.lam_grad = 0.1
         self.alpha_obs = 1.
         self.alpha_prior = 1.
