@@ -1478,7 +1478,7 @@ if __name__ == '__main__':
         print(mod.hparams)
         mod.alpha_prior = 1e4
         mod.alpha_obs = 1e5
-        mod.lam = 0.2
+        mod.lam = 0.4
         mod.n_iter_descent = 20000
         mod.flag_ode_forecast = True#
     
