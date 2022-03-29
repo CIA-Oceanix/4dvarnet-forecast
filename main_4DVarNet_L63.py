@@ -1114,6 +1114,7 @@ class LitModel_4dvar_classic(pl.LightningModule):
         self.alpha_prior = 1.
         self.n_iter_descent = 100
         
+        self.x_rec    = None # variable to store output of test method
 
     def forward(self):
         return 1
@@ -1457,7 +1458,7 @@ if __name__ == '__main__':
         
         print(mod.hparams)
         mod.alpha_prior = 1e4
-        mod.alpha_obs = 2e4
+        mod.alpha_obs = 5e4
         mod.lam = 0.5
         mod.n_iter_descent = 20000
     
