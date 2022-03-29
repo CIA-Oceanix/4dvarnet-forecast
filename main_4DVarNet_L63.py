@@ -1197,11 +1197,11 @@ class LitModel_4dvar_classic(pl.LightningModule):
 
                 if( np.mod(iter,100) == 0 ):
                   mse = torch.mean( (x_curr - targets_GT )**2  )
-                  print(".... iter %d: loss %.3f dyn_loss %.3f obs_loss %.3f mse %.3f"%(iter,loss,loss_prior,loss_obs,mse))  
+                  print(".... iter %d: loss %.3f dyn_loss %.3f obs_loss %.3f mse %.3f"%(iter,loss,loss_prior,loss_obs,stdTr**2 * mse))  
 
                 # compute gradient w.r.t. X and update X
                 loss.backward()
-                print( torch.sqrt( torch.mean(  x_curr.grad.data ** 2 ) ))
+                #print( torch.sqrt( torch.mean(  x_curr.grad.data ** 2 ) ))
                 x_curr = x_curr - self.lam * x_curr.grad.data
                 
                 
@@ -1466,8 +1466,8 @@ if __name__ == '__main__':
         mod = LitModel_4dvar_classic()            
         
         print(mod.hparams)
-        mod.alpha_prior = 1e3
-        mod.alpha_obs = 1e3
+        mod.alpha_prior = 1e4
+        mod.alpha_obs = 1e4
         mod.lam = 0.2
         mod.n_iter_descent = 2000
     
