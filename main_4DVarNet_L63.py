@@ -85,11 +85,11 @@ class time_series:
   values = 0.
   time   = 0.
   
-flag_load_data = False # True# 
+flag_load_data = False #  True# 
 
 if flag_load_data == False :
     
-    if 1*1:
+    if 1*0 :
         ## data generation: L63 series
         GD = GD()    
         y0 = np.array([8.0,0.0,30.0])
@@ -98,7 +98,7 @@ if flag_load_data == False :
         S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[0.,5+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=np.arange(0,5+0.000001,GD.dt_integration),method='RK45')
         
         y0 = S.y[:,-1];
-        S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[GD.dt_integration,GD.nb_loop_test+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=tt,method='RK45')
+        S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[GD.dt_integration,GD.nb_loop_test*GD.dt_integration+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=tt,method='RK45')
         S = S.y.transpose()
         
         print( S.shape, flush=True)
@@ -118,18 +118,18 @@ if flag_load_data == False :
         ## data generation: L63 series
         GD = GD()    
         y0 = np.array([8.0,0.0,30.0])
-        tt = np.arange(GD.dt_integration,GD.nb_loop_test*GD.dt_integration+0.000001,GD.dt_integration)
         #S = odeint(AnDA_Lorenz_63,x0,np.arange(0,5+0.000001,GD.dt_integration),args=(GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta));
         S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[0.,10+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=np.arange(0,5+0.000001,GD.dt_integration),method='RK45')
         
         print(S.y.shape)
         GD.nb_loop_test = 2000
         nb_seq = 10
+        tt = np.arange(GD.dt_integration,GD.nb_loop_test*GD.dt_integration+0.000001,GD.dt_integration)
         
         for nn in range(0,10):
 
             y0 = S.y[:,500+nn*100]
-            S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[GD.dt_integration,GD.nb_loop_test+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=tt,method='RK45')
+            S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[GD.dt_integration,GD.nb_loop_test*GD.dt_integration+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=tt,method='RK45')
             S = S.y.transpose()
             print( S.y.shape, flush=True)
               
