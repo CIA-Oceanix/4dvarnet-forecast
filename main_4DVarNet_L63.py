@@ -880,6 +880,7 @@ class LitModel(pl.LightningModule):
         self.hparams.k_batch         = 1
         
         self.hparams.alpha_prior   = 0.5
+        self.hparams.alpha_mse     = 1.#10*0.75#1.e0
         self.hparams.alpha_mse_rec = 10.#10*0.75#1.e0
         self.hparams.alpha_mse_for = 0.#*0.25#1.e1
         
@@ -1040,6 +1041,7 @@ class LitModel(pl.LightningModule):
 
             if self.hparams.dim_aug_state == 0 : 
                 if flag_x1_only == False:
+                    loss_mse = torch.mean((outputs - targets_GT) ** 2)
                     loss_mse_rec = torch.mean((outputs[:,:,:dT-dt_forecast,:] - targets_GT[:,:,:dT-dt_forecast,:]) ** 2)
                     loss_mse_for = torch.mean((outputs[:,:,dT-dt_forecast:,:] - targets_GT[:,:,dT-dt_forecast:,:]) ** 2)
                 else:
@@ -1051,7 +1053,7 @@ class LitModel(pl.LightningModule):
                 loss_prior_gt = torch.mean((self.model.phi_r(targets_GT) - targets_GT) ** 2)
             else:
                 if flag_x1_only == False:
-                    #loss_mse_rec = torch.mean((outputs[:,:3,:,:] - targets_GT[:,:,:,:]) ** 2)
+                    loss_mse = torch.mean((outputs[:,:3,:,:] - targets_GT[:,:,:,:]) ** 2)
                     loss_mse_rec = torch.mean((outputs[:,:3,:dT-dt_forecast,:] - targets_GT[:,:,:dT-dt_forecast,:]) ** 2)
                     loss_mse_for = torch.mean((outputs[:,:3,dT-dt_forecast:,:] - targets_GT[:,:,dT-dt_forecast:,:]) ** 2)
                 else:
@@ -1065,7 +1067,10 @@ class LitModel(pl.LightningModule):
                 
             #loss_mse   = solver_4DVarNet.compute_WeightedLoss((outputs - targets_GT), self.w_loss)
 
-            loss_mse = self.hparams.alpha_mse_rec * loss_mse_rec + self.hparams.alpha_mse_for * loss_mse_for 
+            if flagForecast == True :
+                loss_mse = self.hparams.alpha_mse_rec * loss_mse_rec + self.hparams.alpha_mse_for * loss_mse_for
+            else:
+                loss_mse = self.hparams.alpha_mse * loss_mse
             loss = loss_mse + 0.5 * self.hparams.alpha_prior * (loss_prior + loss_prior_gt)
             
             # metrics
@@ -1354,6 +1359,7 @@ if __name__ == '__main__':
             mod.hparams.lr_update       = [1e-3, 1e-4, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
         
         mod.hparams.alpha_prior = 0.1
+        mod.hparams.alpha_mse = 1.0#0.75
         mod.hparams.alpha_mse_rec = 0.1#0.75
         mod.hparams.alpha_mse_for = 0.5#0.25
         
