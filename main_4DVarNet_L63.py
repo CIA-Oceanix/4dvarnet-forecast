@@ -1431,7 +1431,7 @@ if __name__ == '__main__':
         pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=70-val_loss=4.22.ckpt'
         
         
-        pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=81-val_loss=4.41.ckpt'
+        pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=81-val_loss=4.22.ckpt'
         
         print('.... load pre-trained model :'+pathCheckPOint)
         
