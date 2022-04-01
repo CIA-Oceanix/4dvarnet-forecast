@@ -48,7 +48,7 @@ rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
 flagForecast = True#False#
-dt_forecast = 55
+dt_forecast = 101#55
 flag_x1_only = False#True #
 
 print('........ Data generation')
@@ -1441,7 +1441,7 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse_rec = 0.75
         mod.hparams.alpha_mse_for = 0.25
         mod.hparams.n_grad = 5
-        mod.hparams.k_n_grad = 3
+        mod.hparams.k_n_grad = 2
     
         print(' Ngrad = %d / %d'%(mod.hparams.n_grad,mod.model.n_grad))
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
