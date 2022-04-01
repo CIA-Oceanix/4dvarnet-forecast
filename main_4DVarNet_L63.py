@@ -35,7 +35,7 @@ dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
 flagAEType = 'unet2'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
-dim_aug_state = 3#10#10 #False#
+dim_aug_state = 10#10#10 #False#
 
 batch_size = 128#2000#
 
@@ -162,7 +162,7 @@ if flag_load_data == False :
             xt.time   = tt
             # extract subsequences
             print('..... (%d) Extract %d+%d patches from a %dx%d sequence '%(nn,int(NbTraining/GD.nb_seq),int(NbTest/GD.nb_seq),S.shape[0],3))
-            dataTestNoNaN_nn     = image.extract_patches_2d(xt.values[15000::time_step,:],(dT,3),max_patches=int(NbTest/GD.nb_seq))
+            dataTestNoNaN_nn     = image.extract_patches_2d(xt.values[:15000:time_step,:],(dT,3),max_patches=int(NbTest/GD.nb_seq))
             
             if nn == 0 :
                 dataTestNoNaN = np.copy( dataTestNoNaN_nn )
@@ -1424,7 +1424,7 @@ if __name__ == '__main__':
         
 
         pathCheckPOint = 'resL63/exp02-2/model-l63-aug03-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=165-val_loss=0.57.ckpt'
-        #pathCheckPOint = 'resL63/exp02-2/model-l63-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=106-val_loss=0.64.ckpt'
+        pathCheckPOint = 'resL63/exp02-2/model-l63-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=106-val_loss=0.64.ckpt'
         #pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=107-val_loss=4.22.ckpt'
         
         print('.... load pre-trained model :'+pathCheckPOint)
