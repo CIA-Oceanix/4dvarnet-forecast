@@ -186,7 +186,7 @@ if flag_load_data == False :
         xrdata.to_netcdf(path='dataset_L63.nc', mode='w')
 else:
     print('.... Load dataset')
-    path_l63_dataset = 'dataset_L63.nc.nc'
+    path_l63_dataset = 'dataset_L63.nc'
     ncfile = Dataset(path_l63_dataset,"r")
     dataTrainingNoNaN = ncfile.variables['X_train'][:]
     dataTestNoNaN = ncfile.variables['X_test'][:]
