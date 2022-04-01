@@ -120,10 +120,10 @@ if flag_load_data == False :
         y0 = np.array([8.0,0.0,30.0])
         #S = odeint(AnDA_Lorenz_63,x0,np.arange(0,5+0.000001,GD.dt_integration),args=(GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta));
         
-        GD.nb_loop_seq = 30000
+        GD.nb_loop_seq = 15000
         GD.nb_seq = 100
         tt = np.arange(GD.dt_integration,GD.nb_loop_seq*GD.dt_integration+0.000001,GD.dt_integration)
-        S0 = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[0.,GD.nb_seq+5+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=np.arange(0,GD.nb_seq+5+0.000001,GD.dt_integration),method='RK45')
+        S0 = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[0.,2*GD.nb_seq+5+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=np.arange(0,2*GD.nb_seq+5+0.000001,GD.dt_integration),method='RK45')
         
         for nn in range(0,GD.nb_seq):
 
