@@ -85,7 +85,7 @@ class time_series:
   values = 0.
   time   = 0.
   
-flag_load_data = True# False #  
+flag_load_data = False #  True# 
 
 if flag_load_data == False :
     
@@ -120,7 +120,7 @@ if flag_load_data == False :
         y0 = np.array([8.0,0.0,30.0])
         #S = odeint(AnDA_Lorenz_63,x0,np.arange(0,5+0.000001,GD.dt_integration),args=(GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta));
         
-        GD.nb_loop_seq = 20000
+        GD.nb_loop_seq = 25000
         GD.nb_seq = 100
         tt = np.arange(GD.dt_integration,GD.nb_loop_seq*GD.dt_integration+0.000001,GD.dt_integration)
         S0 = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[0.,GD.nb_seq+5+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=np.arange(0,GD.nb_seq+5+0.000001,GD.dt_integration),method='RK45')
@@ -140,16 +140,35 @@ if flag_load_data == False :
             xt.time   = tt
             # extract subsequences
             print('..... (%d) Extract %d+%d patches from a %dx%d sequence '%(nn,int(NbTraining/GD.nb_seq),int(NbTest/GD.nb_seq),S.shape[0],3))
-            dataTrainingNoNaN_nn = image.extract_patches_2d(xt.values[0:12000:time_step,:],(dT,3),max_patches=int(NbTraining/GD.nb_seq))
-            dataTestNoNaN_nn     = image.extract_patches_2d(xt.values[15000::time_step,:],(dT,3),max_patches=int(NbTest/GD.nb_seq))
+            dataTrainingNoNaN_nn = image.extract_patches_2d(xt.values[0:15000:time_step,:],(dT,3),max_patches=int(NbTraining/GD.nb_seq))
             
             if nn == 0 :
                 dataTrainingNoNaN = np.copy( dataTrainingNoNaN_nn )
-                dataTestNoNaN = np.copy( dataTestNoNaN_nn )
             else:
                 dataTrainingNoNaN = np.concatenate((dataTrainingNoNaN,dataTrainingNoNaN_nn),axis=0)
-                dataTestNoNaN = np.concatenate((dataTestNoNaN,dataTestNoNaN_nn),axis=0)
                 
+        for nn in range(0,GD.nb_seq):
+
+            y0 = S0.y[:,500+100*GD.nb_seq+nn*100]
+            S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[GD.dt_integration,GD.nb_loop_seq*GD.dt_integration+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=tt,method='RK45')
+            S = S.y.transpose()
+              
+            ####################################################
+            ## Generation of training and test dataset
+            ## Extraction of time series of dT time steps            
+              
+            xt = time_series()
+            xt.values = S
+            xt.time   = tt
+            # extract subsequences
+            print('..... (%d) Extract %d+%d patches from a %dx%d sequence '%(nn,int(NbTraining/GD.nb_seq),int(NbTest/GD.nb_seq),S.shape[0],3))
+            dataTestNoNaN_nn     = image.extract_patches_2d(xt.values[15000::time_step,:],(dT,3),max_patches=int(NbTest/GD.nb_seq))
+            
+            if nn == 0 :
+                dataTestNoNaN = np.copy( dataTestNoNaN_nn )
+            else:
+                dataTestNoNaN = np.concatenate((dataTestNoNaN,dataTestNoNaN_nn),axis=0)
+
     flag_save_dataset = True
     if flag_save_dataset == True :
         
@@ -164,7 +183,7 @@ if flag_load_data == False :
 #                    'l63': np.arange(3), 
 #                    'time': np.arange(dT)})
                     
-        xrdata.to_netcdf(path='/tmp/test.nc', mode='w')
+        xrdata.to_netcdf(path='/tmp/test2.nc', mode='w')
 else:
     print('.... Load dataset')
     path_l63_dataset = '/tmp/test.nc'
