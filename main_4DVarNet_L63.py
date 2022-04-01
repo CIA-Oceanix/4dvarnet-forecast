@@ -131,7 +131,6 @@ if flag_load_data == False :
             y0 = S0.y[:,500+nn*100]
             S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[GD.dt_integration,GD.nb_loop_seq*GD.dt_integration+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=tt,method='RK45')
             S = S.y.transpose()
-            print( S.shape, flush=True)
               
             ####################################################
             ## Generation of training and test dataset
@@ -141,6 +140,7 @@ if flag_load_data == False :
             xt.values = S
             xt.time   = tt
             # extract subsequences
+            print('..... (%d) Extract %d+%d patches from a %dx%d sequence '%(nn,int(NbTraining/nb_seq),int(NbTest/nb_seq),S.shape[0],3))
             dataTrainingNoNaN_nn = image.extract_patches_2d(xt.values[0:12500:time_step,:],(dT,3),max_patches=int(NbTraining/nb_seq))
             dataTestNoNaN_nn     = image.extract_patches_2d(xt.values[15000::time_step,:],(dT,3),max_patches=int(NbTest/nb_seq))
             
