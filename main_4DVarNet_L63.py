@@ -141,8 +141,8 @@ if flag_load_data == False :
             xt.values = S
             xt.time   = tt
             # extract subsequences
-            dataTrainingNoNaN_nn = image.extract_patches_2d(xt.values[0:12000:time_step,:],(dT,3),max_patches=(NbTraining/nb_seq).astype(int))
-            dataTestNoNaN_nn     = image.extract_patches_2d(xt.values[15000::time_step,:],(dT,3),max_patches=(NbTest/nb_seq).astype(int))
+            dataTrainingNoNaN_nn = image.extract_patches_2d(xt.values[0:12000:time_step,:],(dT,3),max_patches=int(NbTraining/nb_seq))
+            dataTestNoNaN_nn     = image.extract_patches_2d(xt.values[15000::time_step,:],(dT,3),max_patches=int(NbTest/nb_seq))
             
             if nn == 0 :
                 dataTrainingNoNaN = np.copy( dataTrainingNoNaN_nn )
