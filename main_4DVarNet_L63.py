@@ -123,10 +123,11 @@ if flag_load_data == False :
         S0 = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[0.,nb_seq+5+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=np.arange(0,nb_seq+5+0.000001,GD.dt_integration),method='RK45')
         
         print(S0.y.shape)
-        GD.nb_loop_seq = 20000
+        GD.nb_loop_seq = 10000
+        GD.nb_seq = 100
         tt = np.arange(GD.dt_integration,GD.nb_loop_seq*GD.dt_integration+0.000001,GD.dt_integration)
         
-        for nn in range(0,10):
+        for nn in range(0,GD.nb_seq):
 
             y0 = S0.y[:,500+nn*100]
             S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[GD.dt_integration,GD.nb_loop_seq*GD.dt_integration+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=tt,method='RK45')
@@ -150,7 +151,6 @@ if flag_load_data == False :
             else:
                 dataTrainingNoNaN = np.concatenate((dataTrainingNoNaN,dataTrainingNoNaN_nn),axis=0)
                 dataTestNoNaN = np.concatenate((dataTestNoNaN,dataTestNoNaN_nn),axis=0)
-                print( dataTestNoNaN.shape )
                 
     flag_save_dataset = True
     if flag_save_dataset == True :
