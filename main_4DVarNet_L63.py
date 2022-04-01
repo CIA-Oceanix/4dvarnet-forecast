@@ -35,7 +35,7 @@ dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
 flagAEType = 'unet2'# 'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
-dim_aug_state = 10#10#10 #False#
+dim_aug_state = 3#10#10#10 #False#
 
 batch_size = 128#2000#
 
@@ -1417,6 +1417,7 @@ if __name__ == '__main__':
     elif flagProcess == 1: ## test trained model from pre-trained model
 
         pathCheckPOint = 'resL63/exp02-2/model-l63-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=28-val_loss=0.66.ckpt'
+        pathCheckPOint = 'resL63/exp02-2/model-l63-aug03-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=50-val_loss=0.71.ckpt'
         
         #pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_103-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=15-val_loss=9.55.ckpt'
         #pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=20-val_loss=2.51.ckpt'
