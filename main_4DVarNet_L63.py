@@ -121,7 +121,7 @@ if flag_load_data == False :
         #S = odeint(AnDA_Lorenz_63,x0,np.arange(0,5+0.000001,GD.dt_integration),args=(GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta));
         S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[0.,10+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=np.arange(0,10+0.000001,GD.dt_integration),method='RK45')
         
-        print(S.shape)
+        print(S.y.shape)
         GD.nb_loop_test = 2000
         nb_seq = 10
         tt = np.arange(GD.dt_integration,GD.nb_loop_test*GD.dt_integration+0.000001,GD.dt_integration)
