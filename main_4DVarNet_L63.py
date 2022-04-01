@@ -48,7 +48,7 @@ rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
 flagForecast = True#False#
-dt_forecast = 105#55
+dt_forecast = 104#55
 flag_x1_only = False#True #
 
 print('........ Data generation')
