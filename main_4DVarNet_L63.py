@@ -31,7 +31,7 @@ from sklearn.feature_extraction import image
 
 flagProcess = 1
 
-dimGradSolver = 25
+dimGradSolver = 50
 rateDropout = 0.2
 DimAE = 10
 flagAEType = 'unet2'# 'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
