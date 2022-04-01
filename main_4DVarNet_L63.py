@@ -1403,41 +1403,17 @@ if __name__ == '__main__':
         #pathCheckPOint = 'resL63/exp02/model-l63-exp02-igrad05_02-dgrad25-drop_20-epoch=96-val_loss=1.70.ckpt'
         #pathCheckPOint = 'resL63/exp02/model-l63-exp02-igrad15_01-dgrad25-drop_00-epoch=93-val_loss=1.18.ckpt'
         
-        pathCheckPOint = 'resL63/exp02-2/model-l63-unet-exp02-2-igrad10_02-dgrad25-drop_20-epoch=95-val_loss=0.81.ckpt'
-        
-        #pathCheckPOint = 'resL63/exp02-2/model-l63-ode-exp02-2-igrad05_02-dgrad25-drop_20-epoch=405-val_loss=5.89.ckpt'
-        
-        #pathCheckPOint = 'resL63/exp02-2/model-l63-unet-exp02-2-Noise01-igrad10_02-dgrad25-drop20-epoch=95-val_loss=0.82.ckpt'
-        pathCheckPOint = 'resL63/exp02-2/model-l63-unet-exp02-2-Noise01-igrad10_01-dgrad25-drop20-epoch=73-val_loss=0.95.ckpt'
 
-        #pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_050-unet-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=198-val_loss=4.18.ckpt'
-        #pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_050-unet-exp02-2-Noise01-igrad10_02-dgrad25-drop20-epoch=17-val_loss=3.83.ckpt'
         
-        pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_050-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=46-val_loss=3.39.ckpt'
-        
-        pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_050-aug03-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=169-val_loss=2.13.ckpt'
-        
-        #pathCheckPOint = 'resL63/exp02-2/model-l63-aug03-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=75-val_loss=0.63.ckpt'
-        pathCheckPOint = 'resL63/exp02-2/model-l63-aug03-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=107-val_loss=0.57.ckpt'
-        
-        
-        pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2+wc_ode-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=111-val_loss=2.03.ckpt'
-        pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_050-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=127-val_loss=1.98.ckpt'
-        
-        pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=73-val_loss=71.93.ckpt'
-        pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-x1_only-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=43-val_loss=40.65.ckpt'
-        
-        pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=103-val_loss=1.96.ckpt'
-        pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=70-val_loss=4.22.ckpt'
-        
-        
-        pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=107-val_loss=4.22.ckpt'
+        pathCheckPOint = 'resL63/exp02-2/model-l63-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=106-val_loss=0.64.ckpt'
+        #pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=107-val_loss=4.22.ckpt'
         
         print('.... load pre-trained model :'+pathCheckPOint)
         
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
         
         print(mod.hparams)
+        mod.hparams.alpha_mse = 1.
         mod.hparams.alpha_mse_rec = 0.75
         mod.hparams.alpha_mse_for = 0.25
         mod.hparams.n_grad = 5
