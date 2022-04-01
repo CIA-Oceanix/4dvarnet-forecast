@@ -47,7 +47,7 @@ sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
-flagForecast = True#False#
+flagForecast = False#True#
 dt_forecast = 55
 flag_x1_only = False#True #
 
@@ -85,7 +85,7 @@ class time_series:
   values = 0.
   time   = 0.
   
-flag_load_data = False #  True# 
+flag_load_data = True# False #  
 
 if flag_load_data == False :
     
@@ -166,6 +166,7 @@ if flag_load_data == False :
                     
         xrdata.to_netcdf(path='/tmp/test.nc', mode='w')
 else:
+    print('.... Load dataset')
     path_l63_dataset = '/tmp/test.nc'
     ncfile = Dataset(path_l63_dataset,"r")
     dataTrainingNoNaN = ncfile.variables['X_train'][:]
