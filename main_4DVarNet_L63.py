@@ -31,7 +31,7 @@ from sklearn.feature_extraction import image
 
 flagProcess = 0
 
-dimGradSolver = 25
+dimGradSolver = 50
 rateDropout = 0.2
 DimAE = 10
 flagAEType = 'unet2'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
@@ -48,7 +48,7 @@ rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
 flagForecast = True#False#
-dt_forecast = 55#103
+dt_forecast = 103#55#
 flag_x1_only = False#True #
 
 print('........ Data generation')
