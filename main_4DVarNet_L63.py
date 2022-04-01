@@ -89,7 +89,7 @@ flag_load_data = False # True#
 
 if flag_load_data == False :
     
-    if 1*0:
+    if 1*1:
         ## data generation: L63 series
         GD = GD()    
         y0 = np.array([8.0,0.0,30.0])
@@ -101,7 +101,7 @@ if flag_load_data == False :
         S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[GD.dt_integration,GD.nb_loop_test+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=tt,method='RK45')
         S = S.y.transpose()
         
-        print( S.y.shape, flush=True)
+        print( S.shape, flush=True)
         
         ####################################################
         ## Generation of training and test dataset
