@@ -29,7 +29,7 @@ from scipy.integrate import solve_ivp
 #from AnDA_codes.AnDA_dynamical_models import AnDA_Lorenz_63, AnDA_Lorenz_96
 from sklearn.feature_extraction import image
 
-flagProcess = 1
+flagProcess = 0
 
 dimGradSolver = 50
 rateDropout = 0.2
@@ -47,7 +47,7 @@ sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
-flagForecast = True#False#
+flagForecast = False#True#
 dt_forecast = 55#103#55#
 flag_x1_only = False#True #
 
