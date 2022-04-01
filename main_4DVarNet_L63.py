@@ -34,7 +34,7 @@ flagProcess = 1
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
-flagAEType = 'unet2'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
+flagAEType = 'unet2'# 'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
 dim_aug_state = 10#10#10 #False#
 
 batch_size = 128#2000#
@@ -47,7 +47,7 @@ sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
-flagForecast = False#True#
+flagForecast = True#False#
 dt_forecast = 103#55#
 flag_x1_only = False#True #
 
@@ -1416,18 +1416,9 @@ if __name__ == '__main__':
         
     elif flagProcess == 1: ## test trained model from pre-trained model
 
-        pathCheckPOint = 'resL63/exp02/model-l63-exp02-igrad05_01-dgrad25-drop_00-epoch=197-val_loss=1.37.ckpt'
-        pathCheckPOint = 'resL63/exp02/model-l63-exp02-igrad05_01-dgrad25-drop_00-epoch=488-val_loss=2.14.ckpt'
-        #pathCheckPOint = 'resL63/exp02/model-l63-exp02-igrad05_02-dgrad25-drop_20-epoch=35-val_loss=2.08.ckpt'
-        #pathCheckPOint = 'resL63/exp02/model-l63-exp02-igrad05_02-dgrad25-drop_20-epoch=96-val_loss=1.70.ckpt'
-        #pathCheckPOint = 'resL63/exp02/model-l63-exp02-igrad15_01-dgrad25-drop_00-epoch=93-val_loss=1.18.ckpt'
-        
-
-        #pathCheckPOint = 'resL63/exp02-2/model-l63-aug03-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=165-val_loss=0.57.ckpt'
-        #pathCheckPOint = 'resL63/exp02-2/model-l63-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=106-val_loss=0.64.ckpt'
         pathCheckPOint = 'resL63/exp02-2/model-l63-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=13-val_loss=0.77.ckpt'
-        #pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=107-val_loss=4.22.ckpt'
         
+        pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_103-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=15-val_loss=9.55.ckpt'
         print('.... load pre-trained model :'+pathCheckPOint)
         
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
