@@ -35,7 +35,7 @@ dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
 flagAEType = 'unet2'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
-dim_aug_state = 3#10#10 #False#
+dim_aug_state = 10#10#10 #False#
 
 batch_size = 128#2000#
 
@@ -47,7 +47,7 @@ sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
-flagForecast = False#True#
+flagForecast = True#False#
 dt_forecast = 103#55
 flag_x1_only = False#True #
 
