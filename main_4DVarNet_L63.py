@@ -1360,8 +1360,8 @@ if __name__ == '__main__':
         
         mod.hparams.alpha_prior = 0.1
         mod.hparams.alpha_mse = 1.0#0.75
-        mod.hparams.alpha_mse_rec = 0.1#0.75
-        mod.hparams.alpha_mse_for = 0.5#0.25
+        mod.hparams.alpha_mse_rec = (dT-dt_forecast)/dT#0.75
+        mod.hparams.alpha_mse_for = dt_forecast/dT#0.5#0.25
         
         profiler_kwargs = {'max_epochs': 200 }
 
@@ -1441,7 +1441,7 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse_rec = 0.75
         mod.hparams.alpha_mse_for = 0.25
         mod.hparams.n_grad = 5
-        mod.hparams.k_n_grad = 2
+        mod.hparams.k_n_grad = 3
     
         print(' Ngrad = %d / %d'%(mod.hparams.n_grad,mod.model.n_grad))
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
