@@ -1051,7 +1051,7 @@ class LitModel(pl.LightningModule):
                 # grad initialization to zero
                 opt.zero_grad()
          
-        return {"val_loss": loss,'preds':out[0].detach().cpu(),'idx':out[4].detach().cpu()}
+        return {"training_loss": loss,'preds':out[0].detach().cpu(),'idx':out[4].detach().cpu()}
     
     def validation_step(self, val_batch, batch_idx):
         loss, out, metrics = self.compute_loss(val_batch, phase='val')
@@ -1089,7 +1089,7 @@ class LitModel(pl.LightningModule):
         
         self.x_rec_training = x_rec_curr[idx_rec_curr,:,:,:]
         
-        loss_val = torch.stack([x['loss'] for x in outputs]).mean()
+        loss_val = torch.stack([x['training_loss'] for x in outputs]).mean()
         self.log('train_loss_epoch', loss_val)
 
     def validation_epoch_end(self, outputs):
