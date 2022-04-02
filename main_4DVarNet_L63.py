@@ -1116,7 +1116,7 @@ class LitModel(pl.LightningModule):
  
         #inputs_init = inputs_init_
         if batch_init is None :
-            if self.ncurret_epoch == 0:
+            if self.current_epoch == 0:
                 inputs_init_ = 1. * inputs_init_
             elif phase == 'train' :
                 print( self.x_rec_training.shape )
