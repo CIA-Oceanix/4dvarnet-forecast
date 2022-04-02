@@ -29,6 +29,8 @@ from scipy.integrate import solve_ivp
 #from AnDA_codes.AnDA_dynamical_models import AnDA_Lorenz_63, AnDA_Lorenz_96
 from sklearn.feature_extraction import image
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 flagProcess = 0
 
 dimGradSolver = 25
@@ -1080,15 +1082,14 @@ class LitModel(pl.LightningModule):
 #    def training_epoch_end(self, training_step_outputs):
 #        # do something with all training_step outputs
         print('.. \n')
-
     
     def training_epoch_end(self, outputs):
         x_rec_curr = torch.cat([chunk['preds'] for chunk in outputs]).numpy()
         idx_rec_curr = torch.cat([chunk['idx'] for chunk in outputs]).numpy()
         idx_rec_curr = idx_rec_curr.astype(int)
         
-        self.x_rec_training = x_rec_curr[idx_rec_curr,:,:,:]
-        
+        #self.x_rec_training = x_rec_curr[idx_rec_curr,:,:,:]
+                
         loss_val = torch.stack([x['training_loss'] for x in outputs]).mean()
         self.log('train_loss_epoch', loss_val)
 
@@ -1116,8 +1117,12 @@ class LitModel(pl.LightningModule):
  
         #inputs_init = inputs_init_
         if batch_init is None :
-            if self.hparams.dim_aug_state == 0 :    
-                inputs_init = inputs_init_
+            if self.hparams.dim_aug_state == 0 :   
+                if self.ncurret_epoch == 0:
+                    inputs_init = inputs_init_
+                elif phase == 'train' :
+                    idx_tr = idx.numpy().astype(int)
+                    inputs_init = torch.Tensor(self.x_rec_training[idx_tr,:,:,:]).to(device)
             else:                
                 init_aug_state = 0. * inputs_init_[:,0,:,:]
                 init_aug_state = init_aug_state.view(-1,1,inputs_init_.size(2),1)
@@ -1295,7 +1300,7 @@ class LitModel_4dvar_classic(pl.LightningModule):
 
         print('...  No training step for classic 4DVar method')
         
-        #if self.current_epoch == 0 :     
+        #if self.ncurret_epoch == 0 :     
         #    self.save_hyperparameters()
         
     def training_step(self, train_batch, batch_idx, optimizer_idx=0):
@@ -1448,6 +1453,9 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse = 1.0#0.75
         mod.hparams.alpha_mse_rec = (dT-dt_forecast)/dT #0.75
         mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
+
+        mod.x_rec_training = x_train_Init[:idx_val,:,:,:].numpy()
+        mod.x_rec_training = x_train_Init[idx_val:,:,:,:].numpy()
         
         profiler_kwargs = {'max_epochs': 200 }
 
