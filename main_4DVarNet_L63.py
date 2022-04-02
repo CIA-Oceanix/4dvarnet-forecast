@@ -1487,7 +1487,7 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
 
         mod.hparams.noise_rnd_aug_init = 0.
-        mod.hparams.rate_rnd_init = 0.75
+        mod.hparams.rate_rnd_init = 0.
         
         mod.x_rec_training = x_train_Init[:idx_val,:,:,:]
         mod.x_rec_val = x_train_Init[idx_val:,:,:,:]
@@ -1495,7 +1495,7 @@ if __name__ == '__main__':
         profiler_kwargs = {'max_epochs': 200 }
 
         suffix_exp = 'exp%02d-testloaders'%flagTypeMissData
-        filename_chkpt = 'model-l63-dlstm'
+        filename_chkpt = 'model-l63-dlstm-'
         
         if flagForecast == True :
             filename_chkpt = filename_chkpt+'forecast_%03d-'%dt_forecast
