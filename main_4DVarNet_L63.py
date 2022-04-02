@@ -1454,8 +1454,8 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse_rec = (dT-dt_forecast)/dT #0.75
         mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
 
-        mod.x_rec_training = x_train_Init[:idx_val,:,:,:].numpy()
-        mod.x_rec_training = x_train_Init[idx_val:,:,:,:].numpy()
+        mod.x_rec_training = x_train_Init[:idx_val,:,:,:]
+        mod.x_rec_training = x_train_Init[idx_val:,:,:,:]
         
         profiler_kwargs = {'max_epochs': 200 }
 
