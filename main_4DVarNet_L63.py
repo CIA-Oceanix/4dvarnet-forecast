@@ -1085,7 +1085,8 @@ class LitModel(pl.LightningModule):
     def training_epoch_end(self, outputs):
         x_rec_curr = torch.cat([chunk['preds'] for chunk in outputs]).numpy()
         idx_rec_curr = torch.cat([chunk['idx'] for chunk in outputs]).numpy()
-
+        idx_rec_curr = idx_rec_curr.astype(int)
+        
         self.x_rec_training = x_rec_curr[idx_rec_curr,:,:,:]
         
         loss_val = torch.stack([x['loss'] for x in outputs]).mean()
