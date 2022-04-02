@@ -1135,7 +1135,7 @@ class LitModel(pl.LightningModule):
                 ind0_init = idx_init[ ind0 ]
                 
                 if phase == 'train' :                     
-                    inputs_init[ind0,:,:,:] = torch.Tensor(self.x_rec_training[ind0_init,:3,:,:]).to(device)
+                    inputs_init[ind0,:,:,:] = torch.Tensor(self.x_rec_training[ind0_init,:,:,:]).to(device)
                     
         else:
             inputs_init = batch_init
