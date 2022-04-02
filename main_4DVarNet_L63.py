@@ -925,6 +925,9 @@ class LitModel(pl.LightningModule):
         self.hparams.alpha_mse_rec = 10.#10*0.75#1.e0
         self.hparams.alpha_mse_for = 0.#*0.25#1.e1
         
+        self.hparams.rate_rnd_init = 0.2 # 
+        self.hparams.noise_rnd_aug_init = 0.1
+        
         self.hparams.w_loss          = torch.nn.Parameter(torch.Tensor(w_loss), requires_grad=False)
         self.hparams.automatic_optimization = False#True#
 
@@ -1123,20 +1126,21 @@ class LitModel(pl.LightningModule):
                 #init_aug_state = init_aug_state.view(-1,1,inputs_init_.size(2),1)
                 #init_aug_state = init_aug_state.repeat(1,dim_aug_state,1,1)
                 
-                init_aug_state = 0.1 * torch.randn((inputs_init_.size(0),self.hparams.dim_aug_state,inputs_init_.size(2),inputs_init_.size(3)))
+                init_aug_state = self.noise_rnd_aug_init * torch.randn((inputs_init_.size(0),self.hparams.dim_aug_state,inputs_init_.size(2),inputs_init_.size(3)))
                 inputs_init = torch.cat( (inputs_init_,init_aug_state.to(device)) , dim = 1 )
 
             if self.current_epoch > 0:
                 idx_init = idx.cpu().numpy().astype(int)
                 ind0 = np.random.permutation(inputs_init_.size(0))
-                n0 = int( 0.2 * inputs_init_.size(0) )
+                n0 = int( self.rate_rnd_init * inputs_init_.size(0) )
                 
                 ind0 = ind0[:n0]
                 ind0_init = idx_init[ ind0 ]
                 
                 if phase == 'train' :                     
                     inputs_init[ind0,:,:,:] = torch.Tensor(self.x_rec_training[ind0_init,:,:,:]).to(device)
-                    
+                elif phase == 'val' :
+                    inputs_init[ind0,:,:,:] = torch.Tensor(self.x_rec_val[ind0_init,:,:,:]).to(device)                    
         else:
             inputs_init = batch_init
         
@@ -1150,7 +1154,17 @@ class LitModel(pl.LightningModule):
                         
         if phase == 'train' :                
             inputs_init = inputs_init.detach()
-            
+        
+        # set gradient normalization factor
+        if normgrad == 0. :
+            input_init_grad = 1.* inputs_init_
+            if self.hparams.dim_aug_state > 0 :   
+                input_init_grad
+                init_aug_state = 0.0 * torch.randn((inputs_init_.size(0),self.hparams.dim_aug_state,inputs_init_.size(2),inputs_init_.size(3)))
+                input_init_grad = torch.cat( (inputs_init_,init_aug_state.to(device)) , dim = 1 )
+                
+            x_k_plus_1, hidden_, cell_, normgrad = self.model.solver_step(input_init_grad, inputs_obs, masks,hidden, cell, normgrad)
+        
         with torch.set_grad_enabled(True):
             # with torch.set_grad_enabled(phase == 'train'):
             inputs_init = torch.autograd.Variable(inputs_init, requires_grad=True)
@@ -1468,7 +1482,7 @@ if __name__ == '__main__':
         
         profiler_kwargs = {'max_epochs': 200 }
 
-        suffix_exp = 'exp%02d-rand02-testloaders'%flagTypeMissData
+        suffix_exp = 'exp%02d-testloaders'%flagTypeMissData
         filename_chkpt = 'model-l63-'
         
         if flagForecast == True :
@@ -1481,8 +1495,12 @@ if __name__ == '__main__':
             filename_chkpt = filename_chkpt+'x1_only-'
             
         if dim_aug_state > 0 :
-            filename_chkpt = filename_chkpt+'aug%02d-'%dim_aug_state
-                  
+            filename_chkpt = filename_chkpt+'aug%02d'%dim_aug_state
+            if mod.hparams.noise_rnd_aug_init > 0. :
+                filename_chkpt = filename_chkpt+'%03d'%(int(100.*mod.hparams.noise_rnd_aug_init))
+        if  mod.hparams.rate_rnd_init > 0. :
+            filename_chkpt = filename_chkpt+'sopt%02d'%(int(100.*mod.hparams.rate_rnd_init))
+            
         filename_chkpt = filename_chkpt+flagAEType+'-'  
             
         filename_chkpt = filename_chkpt + suffix_exp+'-Noise%02d'%(sigNoise)
