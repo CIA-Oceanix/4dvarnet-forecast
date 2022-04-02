@@ -1087,7 +1087,7 @@ class LitModel(pl.LightningModule):
         idx_rec_curr = torch.cat([chunk['idx'] for chunk in outputs]).numpy()
         idx_rec_curr = idx_rec_curr.astype(int)
         
-        #self.x_rec_training = x_rec_curr[idx_rec_curr,:,:,:]
+        self.x_rec_training = x_rec_curr[idx_rec_curr,:,:,:]
                 
         loss_val = torch.stack([x['training_loss'] for x in outputs]).mean()
         self.log('train_loss_epoch', loss_val)
@@ -1116,12 +1116,15 @@ class LitModel(pl.LightningModule):
  
         #inputs_init = inputs_init_
         if batch_init is None :
-            if self.current_epoch == 0:
-                inputs_init_ = 1. * inputs_init_
-            elif phase == 'train' :
-                idx_tr = idx.cpu().numpy().astype(int)
-                inputs_init_ = torch.Tensor(self.x_rec_training[idx_tr,:,:,:]).to(device)
-            
+            if self.current_epoch > 0:
+                idx_init = idx.cpu().numpy().astype(int)
+                ind0 = np.random.permutation(inputs_init_.size(0))
+                n0 = int( 0.2 * inputs_init_.size(0) )
+                ind0 = idx_init[ ind0[:n0] ]
+                
+                if phase == 'train' :                    
+                    inputs_init_[ind0] = torch.Tensor(self.x_rec_training[ind0,:,:,:]).to(device)
+                    
             if self.hparams.dim_aug_state == 0 :   
                 inputs_init = inputs_init_
             else:                
