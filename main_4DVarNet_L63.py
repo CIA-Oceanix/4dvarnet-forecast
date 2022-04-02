@@ -1046,7 +1046,7 @@ class LitModel(pl.LightningModule):
 
             # run current model
             print('.. Update dataset (x_init for training and validation dataset)')
-            self.test(mod, test_dataloaders=dataloaders['train'])
+            trainer.test(mod, test_dataloaders=dataloaders['train'])
             self.x_rec_training =  ( self.x_rec - meanTr ) /stdTr
             
             x_train_Init_new = x_train_Init
@@ -1055,7 +1055,7 @@ class LitModel(pl.LightningModule):
             idx_rand = idx_rand.repeat(1,x_train_Init.shape[1],x_train_Init.shape[2],x_train_Init.shape[3])
             x_train_Init_new[:idx_val,:,:,:] = x_train_Init[:idx_val,:,:,:] * idx_rand + (1. - idx_rand ) * self.x_rec_training
 
-            self.test(mod, test_dataloaders=dataloaders['val'])
+            trainer.test(mod, test_dataloaders=dataloaders['val'])
             self.x_rec_val =  ( self.x_rec - meanTr ) /stdTr
 
             idx_rand = np.random.binomial(1,0.1,(x_train_Init[idx_val:,:,:,:].shape[0],1,1,1))
