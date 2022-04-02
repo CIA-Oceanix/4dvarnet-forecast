@@ -1126,13 +1126,13 @@ class LitModel(pl.LightningModule):
                 #init_aug_state = init_aug_state.view(-1,1,inputs_init_.size(2),1)
                 #init_aug_state = init_aug_state.repeat(1,dim_aug_state,1,1)
                 
-                init_aug_state = self.noise_rnd_aug_init * torch.randn((inputs_init_.size(0),self.hparams.dim_aug_state,inputs_init_.size(2),inputs_init_.size(3)))
+                init_aug_state = self.hparams.noise_rnd_aug_init * torch.randn((inputs_init_.size(0),self.hparams.dim_aug_state,inputs_init_.size(2),inputs_init_.size(3)))
                 inputs_init = torch.cat( (inputs_init_,init_aug_state.to(device)) , dim = 1 )
 
             if self.current_epoch > 0:
                 idx_init = idx.cpu().numpy().astype(int)
                 ind0 = np.random.permutation(inputs_init_.size(0))
-                n0 = int( self.rate_rnd_init * inputs_init_.size(0) )
+                n0 = int( self.hparams.rate_rnd_init * inputs_init_.size(0) )
                 
                 ind0 = ind0[:n0]
                 ind0_init = idx_init[ ind0 ]
