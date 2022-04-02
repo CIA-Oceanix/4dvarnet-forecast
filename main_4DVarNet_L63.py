@@ -1120,7 +1120,7 @@ class LitModel(pl.LightningModule):
                 inputs_init_ = 1. * inputs_init_
             elif phase == 'train' :
                 print( self.x_rec_training.shape )
-                idx_tr = idx.numpy().astype(int)
+                idx_tr = idx.cpu().numpy().astype(int)
                 inputs_init_ = torch.Tensor(self.x_rec_training[idx_tr,:,:,:]).to(device)
             
             if self.hparams.dim_aug_state == 0 :   
