@@ -1119,7 +1119,7 @@ class LitModel(pl.LightningModule):
             if self.current_epoch > 0:
                 idx_init = idx.cpu().numpy().astype(int)
                 ind0 = np.random.permutation(inputs_init_.size(0))
-                n0 = int( 0.2 * inputs_init_.size(0) )
+                n0 = int( 0. * inputs_init_.size(0) )
                 
                 ind0 = ind0[:n0]
                 ind0_init = idx_init[ ind0 ]
@@ -1467,7 +1467,7 @@ if __name__ == '__main__':
         
         profiler_kwargs = {'max_epochs': 200 }
 
-        suffix_exp = 'exp%02d-2-testloaders'%flagTypeMissData
+        suffix_exp = 'exp%02d-norandaug-testloaders'%flagTypeMissData
         filename_chkpt = 'model-l63-'
         
         if flagForecast == True :
