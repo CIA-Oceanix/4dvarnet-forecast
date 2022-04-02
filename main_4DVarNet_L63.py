@@ -1161,6 +1161,7 @@ class LitModel(pl.LightningModule):
             if self.hparams.dim_aug_state > 0 :   
                 init_aug_state = 0.0 * torch.randn((inputs_init_.size(0),self.hparams.dim_aug_state,inputs_init_.size(2),inputs_init_.size(3)))
                 input_init_grad = torch.cat( (inputs_init_,init_aug_state.to(device)) , dim = 1 )
+            
             input_init_grad = torch.autograd.Variable(input_init_grad, requires_grad=True)    
             x_k_plus_1, hidden_, cell_, normgrad = self.model.solver_step(input_init_grad, inputs_obs, masks,hidden, cell, normgrad)
         
