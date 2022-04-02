@@ -1457,7 +1457,7 @@ if __name__ == '__main__':
       
     if flagProcess == 0: ## training model from scratch
         
-        flagLoadModel = True #False#
+        flagLoadModel = False#True #
         if flagLoadModel == True:
             
             pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=105-val_loss=2.08.ckpt'
@@ -1487,7 +1487,7 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
 
         mod.hparams.noise_rnd_aug_init = 0.
-        mod.hparams.rate_rnd_init = 0.1
+        mod.hparams.rate_rnd_init = 0.75
         
         mod.x_rec_training = x_train_Init[:idx_val,:,:,:]
         mod.x_rec_val = x_train_Init[idx_val:,:,:,:]
