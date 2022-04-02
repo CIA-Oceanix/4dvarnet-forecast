@@ -1116,17 +1116,6 @@ class LitModel(pl.LightningModule):
  
         #inputs_init = inputs_init_
         if batch_init is None :
-            if self.current_epoch > 0:
-                idx_init = idx.cpu().numpy().astype(int)
-                ind0 = np.random.permutation(inputs_init_.size(0))
-                n0 = int( 0. * inputs_init_.size(0) )
-                
-                ind0 = ind0[:n0]
-                ind0_init = idx_init[ ind0 ]
-                
-                if phase == 'train' :       
-                    inputs_init_[ind0,:,:,:] = torch.Tensor(self.x_rec_training[ind0_init,:3,:,:]).to(device)
-                    
             if self.hparams.dim_aug_state == 0 :   
                 inputs_init = inputs_init_
             else:                
@@ -1136,6 +1125,18 @@ class LitModel(pl.LightningModule):
                 
                 init_aug_state = 0.1 * torch.randn((inputs_init_.size(0),self.hparams.dim_aug_state,inputs_init_.size(2),inputs_init_.size(3)))
                 inputs_init = torch.cat( (inputs_init_,init_aug_state.to(device)) , dim = 1 )
+
+            if self.current_epoch > 0:
+                idx_init = idx.cpu().numpy().astype(int)
+                ind0 = np.random.permutation(inputs_init_.size(0))
+                n0 = int( 0.2 * inputs_init_.size(0) )
+                
+                ind0 = ind0[:n0]
+                ind0_init = idx_init[ ind0 ]
+                
+                if phase == 'train' :                     
+                    inputs_init[ind0,:,:,:] = torch.Tensor(self.x_rec_training[ind0_init,:3,:,:]).to(device)
+                    
         else:
             inputs_init = batch_init
         
@@ -1467,7 +1468,7 @@ if __name__ == '__main__':
         
         profiler_kwargs = {'max_epochs': 200 }
 
-        suffix_exp = 'exp%02d-norandaug-testloaders'%flagTypeMissData
+        suffix_exp = 'exp%02d-rand02-testloaders'%flagTypeMissData
         filename_chkpt = 'model-l63-'
         
         if flagForecast == True :
