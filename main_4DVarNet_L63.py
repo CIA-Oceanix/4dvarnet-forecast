@@ -1120,6 +1120,7 @@ class LitModel(pl.LightningModule):
                 if self.ncurret_epoch == 0:
                     inputs_init = inputs_init_
                 elif phase == 'train' :
+                    print( self.x_rec_training.shape )
                     idx_tr = idx.numpy().astype(int)
                     inputs_init = torch.Tensor(self.x_rec_training[idx_tr,:,:,:]).to(device)
             else:                
@@ -1454,7 +1455,7 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
 
         mod.x_rec_training = x_train_Init[:idx_val,:,:,:]
-        mod.x_rec_training = x_train_Init[idx_val:,:,:,:]
+        mod.x_rec_val = x_train_Init[idx_val:,:,:,:]
         
         profiler_kwargs = {'max_epochs': 200 }
 
