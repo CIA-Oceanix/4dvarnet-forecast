@@ -41,7 +41,7 @@ dim_aug_state = 10#10#10#10 #False#
 
 batch_size = 128#2000#
 
-NbTraining = 10000
+NbTraining = 1000#0
 NbTest     = 2000#256
 time_step = 1
 dT        = 200
@@ -1116,13 +1116,15 @@ class LitModel(pl.LightningModule):
  
         #inputs_init = inputs_init_
         if batch_init is None :
+            if self.ncurret_epoch == 0:
+                inputs_init_ = 1. * inputs_init_
+            elif phase == 'train' :
+                print( self.x_rec_training.shape )
+                idx_tr = idx.numpy().astype(int)
+                inputs_init_ = torch.Tensor(self.x_rec_training[idx_tr,:,:,:]).to(device)
+            
             if self.hparams.dim_aug_state == 0 :   
-                if self.ncurret_epoch == 0:
-                    inputs_init = inputs_init_
-                elif phase == 'train' :
-                    print( self.x_rec_training.shape )
-                    idx_tr = idx.numpy().astype(int)
-                    inputs_init = torch.Tensor(self.x_rec_training[idx_tr,:,:,:]).to(device)
+                inputs_init = inputs_init_
             else:                
                 init_aug_state = 0. * inputs_init_[:,0,:,:]
                 init_aug_state = init_aug_state.view(-1,1,inputs_init_.size(2),1)
