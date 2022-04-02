@@ -1062,6 +1062,7 @@ class LitModel(pl.LightningModule):
             idx_rand = idx_rand.repeat(1,x_train_Init.shape[1],x_train_Init.shape[2],x_train_Init.shape[3])
             x_train_Init_new[idx_val:,:,:,:] = x_train_Init[idx_val:,:,:,:] * idx_rand + (1. - idx_rand ) * self.x_rec_val
 
+            x_train_Init_new = x_train_Init_new.respahe(-1,x_train_Init_new.shape[1],x_train_Init_new.shape[2],1)
             # update dataloader            
             training_dataset_new     = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init_new[:idx_val:,:,:,:]),torch.Tensor(x_train_obs[:idx_val:,:,:,:]),torch.Tensor(mask_train[:idx_val:,:,:,:]),torch.Tensor(x_train[:idx_val:,:,:,:])) # create your datset
             val_dataset         = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init[idx_val::,:,:,:]),torch.Tensor(x_train_obs[idx_val::,:,:,:]),torch.Tensor(mask_train[idx_val::,:,:,:]),torch.Tensor(x_train[idx_val::,:,:,:])) # create your datset
