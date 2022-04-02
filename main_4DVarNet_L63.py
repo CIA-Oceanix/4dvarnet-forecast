@@ -1125,12 +1125,7 @@ class LitModel(pl.LightningModule):
                 ind0_init = idx_init[ ind0 ]
                 
                 if phase == 'train' :       
-                    
-                    #print( inputs_init_[ind0,:,:,:].size() )
-                    #print( self.x_rec_training[ind0_init,:3,:,:].shape )
                     inputs_init_[ind0,:,:,:] = torch.Tensor(self.x_rec_training[ind0_init,:3,:,:]).to(device)
-                    #inputs_init_ = inputs_init_.detach()
-                    #inputs_init_[ind0,:,:,:] = torch.Tensor(self.x_rec_training[ind0_init,:3,:,:]).to(device)
                     
             if self.hparams.dim_aug_state == 0 :   
                 inputs_init = inputs_init_
@@ -1139,7 +1134,7 @@ class LitModel(pl.LightningModule):
                 #init_aug_state = init_aug_state.view(-1,1,inputs_init_.size(2),1)
                 #init_aug_state = init_aug_state.repeat(1,dim_aug_state,1,1)
                 
-                init_aug_state = 0. * torch.randn((inputs_init_.size(0),self.hparams.dim_aug_state,inputs_init_.size(2),inputs_init_.size(3)))
+                init_aug_state = 0.1 * torch.randn((inputs_init_.size(0),self.hparams.dim_aug_state,inputs_init_.size(2),inputs_init_.size(3)))
                 inputs_init = torch.cat( (inputs_init_,init_aug_state.to(device)) , dim = 1 )
         else:
             inputs_init = batch_init
