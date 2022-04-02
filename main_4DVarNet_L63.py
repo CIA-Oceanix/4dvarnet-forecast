@@ -41,7 +41,7 @@ dim_aug_state = 10#10#10#10 #False#
 
 batch_size = 128#2000#
 
-NbTraining = 1000#10000
+NbTraining = 10000
 NbTest     = 2000#256
 time_step = 1
 dT        = 200
@@ -1190,7 +1190,7 @@ class LitModel(pl.LightningModule):
             if (phase == 'val') or (phase == 'test'):                
                 outputs = outputs.detach()
         
-        out = [outputs,hidden_new, cell_new, normgrad_,idx.detach()]
+        out = [outputs,hidden_new, cell_new, normgrad_,idx]
         
         return loss,out, metrics
 
