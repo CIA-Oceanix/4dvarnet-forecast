@@ -1081,7 +1081,7 @@ class LitModel(pl.LightningModule):
 
 #    def training_epoch_end(self, training_step_outputs):
 #        # do something with all training_step outputs
-        print('.. \n')
+        #print('.. \n')
     
     def training_epoch_end(self, outputs):
         x_rec_curr = torch.cat([chunk['preds'] for chunk in outputs]).numpy()
@@ -1324,9 +1324,9 @@ class LitModel_4dvar_classic(pl.LightningModule):
         #return {'preds': out_ssh.detach().cpu(),'obs_ssh': out_ssh_obs.detach().cpu()}
         return {'preds': out[0].detach().cpu()}
 
-    def training_epoch_end(self, training_step_outputs):
-        # do something with all training_step outputs
-        print('.. \n')
+#    def training_epoch_end(self, training_step_outputs):
+#        # do something with all training_step outputs
+#        #print('.. \n')
 
     
     def test_epoch_end(self, outputs):
