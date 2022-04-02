@@ -1048,7 +1048,8 @@ class LitModel(pl.LightningModule):
             print('.. Update dataset (x_init for training and validation dataset)')
             trainer.test(mod, test_dataloaders=dataloaders['train'])
             self.x_rec_training =  ( self.x_rec - meanTr ) /stdTr
-            self.x_rec_training = self.x_rec_training.respahe(-1,self.x_rec_training.shape[1],self.x_rec_training.shape[2],1)
+            self.x_rec_training = self.x_rec_training.reshape(-1,self.x_rec_training.shape[1],self.x_rec_training.shape[2],1)
+            print( self.x_rec_training.shape )
             
             x_train_Init_new = x_train_Init
             
@@ -1058,12 +1059,13 @@ class LitModel(pl.LightningModule):
 
             trainer.test(mod, test_dataloaders=dataloaders['val'])
             self.x_rec_val =  ( self.x_rec - meanTr ) /stdTr
-            self.x_rec_val = self.x_rec_val.respahe(-1,self.x_rec_val.shape[1],self.x_rec_val.shape[2],1)
+            self.x_rec_val = self.x_rec_val.reshape(-1,self.x_rec_val.shape[1],self.x_rec_val.shape[2],1)
+            print( self.x_rec_val.shape )
 
             idx_rand = np.random.binomial(1,0.1,(x_train_Init[idx_val:,:,:,:].shape[0],1,1,1))
             idx_rand = np.tile( idx_rand , (1,x_train_Init.shape[1],x_train_Init.shape[2],x_train_Init.shape[3]) )
             x_train_Init_new[idx_val:,:,:,:] = x_train_Init[idx_val:,:,:,:] * idx_rand + (1. - idx_rand ) * self.x_rec_val
-            print()
+            print(x_train_Init_new.shape)
 
             # update dataloader            
             training_dataset_new     = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init_new[:idx_val:,:,:,:]),torch.Tensor(x_train_obs[:idx_val:,:,:,:]),torch.Tensor(mask_train[:idx_val:,:,:,:]),torch.Tensor(x_train[:idx_val:,:,:,:])) # create your datset
