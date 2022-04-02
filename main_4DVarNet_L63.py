@@ -1190,7 +1190,7 @@ class LitModel(pl.LightningModule):
             if (phase == 'val') or (phase == 'test'):                
                 outputs = outputs.detach()
         
-        out = [outputs,hidden_new, cell_new, normgrad_,idx]
+        out = [outputs,hidden_new, cell_new, normgrad_,idx.detach()]
         
         return loss,out, metrics
 
