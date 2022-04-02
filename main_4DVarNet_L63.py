@@ -378,9 +378,9 @@ print('..... Test dataset    : %dx%dx%dx%d'%(x_test.shape[0],x_test.shape[1],x_t
 ## dataloader
 idx_val = x_train.shape[0]-500
 
-training_dataset     = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init[:idx_val:,:,:,:]),torch.Tensor(x_train_obs[:idx_val:,:,:,:]),torch.Tensor(mask_train[:idx_val:,:,:,:]),torch.Tensor(x_train[:idx_val:,:,:,:])) # create your datset
-val_dataset         = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init[idx_val::,:,:,:]),torch.Tensor(x_train_obs[idx_val::,:,:,:]),torch.Tensor(mask_train[idx_val::,:,:,:]),torch.Tensor(x_train[idx_val::,:,:,:])) # create your datset
-test_dataset         = torch.utils.data.TensorDataset(torch.Tensor(x_test_Init),torch.Tensor(x_test_obs),torch.Tensor(mask_test),torch.Tensor(x_test)) # create your datset
+training_dataset     = torch.utils.data.TensorDataset(torch.Tensor(np.arange(0,idx_val)),torch.Tensor(x_train_Init[:idx_val:,:,:,:]),torch.Tensor(x_train_obs[:idx_val:,:,:,:]),torch.Tensor(mask_train[:idx_val:,:,:,:]),torch.Tensor(x_train[:idx_val:,:,:,:])) # create your datset
+val_dataset         = torch.utils.data.TensorDataset(torch.Tensor(np.arange(0,500)),torch.Tensor(x_train_Init[idx_val::,:,:,:]),torch.Tensor(x_train_obs[idx_val::,:,:,:]),torch.Tensor(mask_train[idx_val::,:,:,:]),torch.Tensor(x_train[idx_val::,:,:,:])) # create your datset
+test_dataset         = torch.utils.data.TensorDataset(torch.Tensor(np.arange(0,x_test_Init.shape[0])),torch.Tensor(x_test_Init),torch.Tensor(x_test_obs),torch.Tensor(mask_test),torch.Tensor(x_test)) # create your datset
 
 dataloaders = {
     'train': torch.utils.data.DataLoader(training_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True),
@@ -937,7 +937,7 @@ class LitModel(pl.LightningModule):
         self.curr = 0
 
         self.automatic_optimization = self.hparams.automatic_optimization
-        
+                
 
     def forward(self):
         return 1
@@ -975,7 +975,7 @@ class LitModel(pl.LightningModule):
         #if self.current_epoch == 0 :     
         #    self.save_hyperparameters()
         # update training data loaders
-        if self.current_epoch > 0 : #self.current_epoch % 1 == 0:
+        if 0*0: #self.current_epoch > 0 : #self.current_epoch % 1 == 0:
             training_dataset     = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init[:idx_val:,:,:,:]),torch.Tensor(x_train_obs[:idx_val:,:,:,:]),torch.Tensor(mask_train[:idx_val:,:,:,:]),torch.Tensor(x_train[:idx_val:,:,:,:])) # create your datset
             val_dataset         = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init[idx_val::,:,:,:]),torch.Tensor(x_train_obs[idx_val::,:,:,:]),torch.Tensor(mask_train[idx_val::,:,:,:]),torch.Tensor(x_train[idx_val::,:,:,:])) # create your datset
             test_dataset         = torch.utils.data.TensorDataset(torch.Tensor(x_test_Init),torch.Tensor(x_test_obs),torch.Tensor(mask_test),torch.Tensor(x_test)) # create your datset
@@ -1051,7 +1051,7 @@ class LitModel(pl.LightningModule):
                 # grad initialization to zero
                 opt.zero_grad()
          
-        return loss
+        return {"val_loss": loss,'preds':out[0].detach().cpu(),'idx':out[4].detach().cpu()}
     
     def validation_step(self, val_batch, batch_idx):
         loss, out, metrics = self.compute_loss(val_batch, phase='val')
@@ -1062,7 +1062,8 @@ class LitModel(pl.LightningModule):
         #self.log('val_loss', loss)
         self.log('val_loss', stdTr**2 * metrics['mse'] )
         self.log("val_mse", stdTr**2 * metrics['mse'] , on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
-        return loss
+        #return self.log('val_loss', loss)
+        return {"val_loss": loss,'preds':out[0].detach().cpu()}
 
     def test_step(self, test_batch, batch_idx):
         loss, out, metrics = self.compute_loss(test_batch, phase='test')
@@ -1081,6 +1082,22 @@ class LitModel(pl.LightningModule):
         print('.. \n')
 
     
+    def training_epoch_end(self, outputs):
+        x_rec_curr = torch.cat([chunk['preds'] for chunk in outputs]).numpy()
+        idx_rec_curr = torch.cat([chunk['idx'] for chunk in outputs]).numpy()
+
+        self.x_rec_training = x_rec_curr[idx_rec_curr,:,:,:]
+        
+        loss_val = torch.stack([x['loss'] for x in outputs]).mean()
+        self.log('train_loss_epoch', loss_val)
+
+    def validation_epoch_end(self, outputs):
+        x_rec_curr = torch.cat([chunk['preds'] for chunk in outputs]).numpy()
+        self.x_rec_val = x_rec_curr
+                
+        loss_val = torch.stack([x['val_loss'] for x in outputs]).mean()
+        self.log('val_loss_epoch', loss_val)
+        
     def test_epoch_end(self, outputs):
         x_test_rec = torch.cat([chunk['preds'] for chunk in outputs]).numpy()
         
@@ -1094,7 +1111,7 @@ class LitModel(pl.LightningModule):
 
     def compute_loss(self, batch, phase, batch_init = None , hidden = None , cell = None , normgrad = 0.0):
 
-        inputs_init_,inputs_obs,masks,targets_GT = batch
+        idx,inputs_init_,inputs_obs,masks,targets_GT = batch
  
         #inputs_init = inputs_init_
         if batch_init is None :
@@ -1168,7 +1185,7 @@ class LitModel(pl.LightningModule):
             if (phase == 'val') or (phase == 'test'):                
                 outputs = outputs.detach()
         
-        out = [outputs,hidden_new, cell_new, normgrad_]
+        out = [outputs,hidden_new, cell_new, normgrad_,idx]
         
         return loss,out, metrics
 
