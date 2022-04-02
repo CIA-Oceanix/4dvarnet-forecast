@@ -1023,7 +1023,6 @@ class LitModel(pl.LightningModule):
                 'val': torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True),
                 'test': torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True),
             }            
-        print('.. \n')
         
     def training_step(self, train_batch, batch_idx, optimizer_idx=0):
         opt = self.optimizers()
