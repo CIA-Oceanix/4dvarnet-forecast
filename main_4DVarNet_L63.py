@@ -1156,18 +1156,16 @@ class LitModel(pl.LightningModule):
             inputs_init = inputs_init.detach()
         
         # set gradient normalization factor
-        if 1*1 : #normgrad == 0. :
+        if normgrad == 0. :
             with torch.set_grad_enabled(True):
                 input_init_grad = 1.* inputs_init_
                 if self.hparams.dim_aug_state > 0 :   
                     init_aug_state = 0.0 * torch.randn((inputs_init_.size(0),self.hparams.dim_aug_state,inputs_init_.size(2),inputs_init_.size(3)))
                     input_init_grad = torch.cat( (inputs_init_,init_aug_state.to(device)) , dim = 1 )
-                
-                input_init_grad = input_init_grad.detach()
-                
+                                
                 input_init_grad = torch.autograd.Variable(1. * input_init_grad, requires_grad=True)    
-                outputs_, hidden_new_, cell_new_, normgrad = self.model(input_init_grad, inputs_obs, masks, hidden = hidden , cell = cell , normgrad = normgrad )
-                #x_k_plus_1, hidden_, cell_, normgrad = self.model.solver_step(input_init_grad, inputs_obs, masks,hidden = None, cell = None, normgrad = 0.)
+                #outputs_, hidden_new_, cell_new_, normgrad = self.model(input_init_grad, inputs_obs, masks, hidden = hidden , cell = cell , normgrad = normgrad )
+                x_k_plus_1, hidden_, cell_, normgrad = self.model.solver_step(input_init_grad, inputs_obs, masks,hidden = None, cell = None, normgrad = 0.)
         
         with torch.set_grad_enabled(True):
             # with torch.set_grad_enabled(phase == 'train'):
