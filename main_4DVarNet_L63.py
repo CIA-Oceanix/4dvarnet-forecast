@@ -1502,7 +1502,7 @@ if __name__ == '__main__':
         if dim_aug_state > 0 :
             filename_chkpt = filename_chkpt+'aug%02d'%dim_aug_state
             if mod.hparams.noise_rnd_aug_init > 0. :
-                filename_chkpt = filename_chkpt+'%03d-'%(int(100.*mod.hparams.noise_rnd_aug_init))
+                filename_chkpt = filename_chkpt+'_%03d-'%(int(100.*mod.hparams.noise_rnd_aug_init))
             else:
                 filename_chkpt = filename_chkpt+'-'
                 
