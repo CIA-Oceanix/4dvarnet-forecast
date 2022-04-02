@@ -1457,17 +1457,18 @@ if __name__ == '__main__':
       
     if flagProcess == 0: ## training model from scratch
         
-        flagLoadModel = False#True #
+        flagLoadModel = True #False#
         if flagLoadModel == True:
             
             pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=105-val_loss=2.08.ckpt'
             pathCheckPOint = 'resL63/exp02-2/model-l63-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=117-val_loss=0.55.ckpt'
+            pathCheckPOint = 'resL63/exp02-2/model-l63-aug10-unet2-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=48-val_loss=0.57.ckpt'
             
             print('.... load pre-trained model :'+pathCheckPOint)
             mod = LitModel.load_from_checkpoint(pathCheckPOint)
 
             mod.hparams.n_grad          = 5
-            mod.hparams.k_n_grad        = 4
+            mod.hparams.k_n_grad        = 2
             mod.hparams.iter_update     = [0, 100, 200, 300, 500, 700, 800]  # [0,2,4,6,9,a15]
             mod.hparams.nb_grad_update  = [10, 10, 10, 10, 10, 5, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-4, 1e-5, 1e-6, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
@@ -1499,6 +1500,8 @@ if __name__ == '__main__':
         if flagForecast == True :
             filename_chkpt = filename_chkpt+'forecast_%03d-'%dt_forecast
         
+        if flagLoadModel == True:
+            filename_chkpt = filename_chkpt+'ft-'
         if mod.hparams.alpha_mse_rec == 0. :
             filename_chkpt = filename_chkpt+'-norec-'
             
