@@ -1073,7 +1073,7 @@ class LitModel(pl.LightningModule):
         loss, out, metrics = self.compute_loss(test_batch, phase='test')
         
         for kk in range(0,self.hparams.k_n_grad-1):
-            loss1, out, metrics = self.compute_loss(test_batch, phase='test',batch_init=out[0].detach(),hidden=out[1],cell=out[2],normgrad=out[3])
+            loss1, out, metrics = self.compute_loss(test_batch, phase='test',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
 
         #out_ssh,out_ssh_obs = out
         #self.log('test_loss', loss)
@@ -1122,10 +1122,6 @@ class LitModel(pl.LightningModule):
             if self.hparams.dim_aug_state == 0 :   
                 inputs_init = inputs_init_
             else:                
-                #init_aug_state = 0. * inputs_init_[:,0,:,:]
-                #init_aug_state = init_aug_state.view(-1,1,inputs_init_.size(2),1)
-                #init_aug_state = init_aug_state.repeat(1,dim_aug_state,1,1)
-                
                 init_aug_state = self.hparams.noise_rnd_aug_init * torch.randn((inputs_init_.size(0),self.hparams.dim_aug_state,inputs_init_.size(2),inputs_init_.size(3)))
                 inputs_init = torch.cat( (inputs_init_,init_aug_state.to(device)) , dim = 1 )
 
@@ -1154,7 +1150,9 @@ class LitModel(pl.LightningModule):
                         
         if phase == 'train' :                
             inputs_init = inputs_init.detach()
-        
+            inputs_obs = inputs_obs.detach()
+            masks = masks.detach()
+            
         # set gradient normalization factor
         if normgrad == 0. :
             with torch.set_grad_enabled(True):
@@ -1166,6 +1164,11 @@ class LitModel(pl.LightningModule):
                 input_init_grad = torch.autograd.Variable(1. * input_init_grad, requires_grad=True)    
                 #outputs_, hidden_new_, cell_new_, normgrad = self.model(input_init_grad, inputs_obs, masks, hidden = hidden , cell = cell , normgrad = normgrad )
                 x_k_plus_1, hidden_, cell_, normgrad = self.model.solver_step(input_init_grad, inputs_obs, masks,hidden = None, cell = None, normgrad = 0.)
+                del x_k_plus_1
+                del hidden_
+                del cell_
+                del input_init_grad
+                del init_aug_state
         
         with torch.set_grad_enabled(True):
             # with torch.set_grad_enabled(phase == 'train'):
@@ -1213,9 +1216,12 @@ class LitModel(pl.LightningModule):
             mse       = loss_mse.detach()
             metrics   = dict([('mse',mse)])
             #print(mse.cpu().detach().numpy())
-            if (phase == 'val') or (phase == 'test'):                
-                outputs = outputs.detach()
-        
+            #if (phase == 'val') or (phase == 'test'):                
+
+        outputs = outputs.detach()
+        hidden_new = hidden_new.detach()
+        cell_new = cell_new.detach()
+                
         out = [outputs,hidden_new, cell_new, normgrad_,idx]
         
         return loss,out, metrics
