@@ -974,6 +974,54 @@ class LitModel(pl.LightningModule):
         
         #if self.current_epoch == 0 :     
         #    self.save_hyperparameters()
+        # update training data loaders
+        if self.current_epoch > 0 : #self.current_epoch % 1 == 0:
+            training_dataset     = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init[:idx_val:,:,:,:]),torch.Tensor(x_train_obs[:idx_val:,:,:,:]),torch.Tensor(mask_train[:idx_val:,:,:,:]),torch.Tensor(x_train[:idx_val:,:,:,:])) # create your datset
+            val_dataset         = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init[idx_val::,:,:,:]),torch.Tensor(x_train_obs[idx_val::,:,:,:]),torch.Tensor(mask_train[idx_val::,:,:,:]),torch.Tensor(x_train[idx_val::,:,:,:])) # create your datset
+            test_dataset         = torch.utils.data.TensorDataset(torch.Tensor(x_test_Init),torch.Tensor(x_test_obs),torch.Tensor(mask_test),torch.Tensor(x_test)) # create your datset
+            
+            dataloaders = {
+                'train': torch.utils.data.DataLoader(training_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True),
+                'val': torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True),
+                'test': torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True),
+            }            
+
+            # run current model
+            print('.. Update dataset (x_init for training and validation dataset)')
+            trainer.test(mod, test_dataloaders=dataloaders['train'])
+            self.x_rec_training =  ( self.x_rec - meanTr ) /stdTr
+            self.x_rec_training = self.x_rec_training.reshape(-1,self.x_rec_training.shape[1],self.x_rec_training.shape[2],1)
+            print('1111')
+            print(self.x_rec_training.shape )
+            
+            x_train_Init_new = x_train_Init
+            print(x_train_Init_new.shape)
+            
+            idx_rand = np.random.binomial(1,0.1,(x_train_Init[:idx_val,:,:,:].shape[0],1,1,1))
+            idx_rand = np.tile( idx_rand , (1,x_train_Init.shape[1],x_train_Init.shape[2],x_train_Init.shape[3]) )
+            x_train_Init_new[:idx_val,:,:,:] = x_train_Init[:idx_val,:,:,:] * idx_rand + (1. - idx_rand ) * self.x_rec_training
+
+            trainer.test(mod, test_dataloaders=dataloaders['val'])
+            self.x_rec_val =  ( self.x_rec - meanTr ) /stdTr
+            self.x_rec_val = self.x_rec_val.reshape(-1,self.x_rec_val.shape[1],self.x_rec_val.shape[2],1)
+            print( self.x_rec_val.shape )
+
+            idx_rand = np.random.binomial(1,0.1,(x_train_Init[idx_val:,:,:,:].shape[0],1,1,1))
+            idx_rand = np.tile( idx_rand , (1,x_train_Init.shape[1],x_train_Init.shape[2],x_train_Init.shape[3]) )
+            x_train_Init_new[idx_val:,:,:,:] = x_train_Init[idx_val:,:,:,:] * idx_rand + (1. - idx_rand ) * self.x_rec_val
+            print('2222')
+            print(x_train_Init_new.shape)
+
+            # update dataloader            
+            training_dataset_new     = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init_new[:idx_val:,:,:,:]),torch.Tensor(x_train_obs[:idx_val:,:,:,:]),torch.Tensor(mask_train[:idx_val:,:,:,:]),torch.Tensor(x_train[:idx_val:,:,:,:])) # create your datset
+            val_dataset         = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init[idx_val::,:,:,:]),torch.Tensor(x_train_obs[idx_val::,:,:,:]),torch.Tensor(mask_train[idx_val::,:,:,:]),torch.Tensor(x_train[idx_val::,:,:,:])) # create your datset
+            
+            dataloaders = {
+                'train': torch.utils.data.DataLoader(training_dataset_new, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True),
+                'val': torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True),
+                'test': torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True),
+            }            
+        print('.. \n')
         
     def training_step(self, train_batch, batch_idx, optimizer_idx=0):
         opt = self.optimizers()
@@ -1028,58 +1076,10 @@ class LitModel(pl.LightningModule):
         #return {'preds': out_ssh.detach().cpu(),'obs_ssh': out_ssh_obs.detach().cpu()}
         return {'preds': out[0].detach().cpu()}
 
-    def training_epoch_end(self, training_step_outputs):
-        # do something with all training_step outputs
+#    def training_epoch_end(self, training_step_outputs):
+#        # do something with all training_step outputs
         print('.. \n')
 
-        # update training data loaders
-        if 1*1 : #self.current_epoch % 1 == 0:
-            training_dataset     = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init[:idx_val:,:,:,:]),torch.Tensor(x_train_obs[:idx_val:,:,:,:]),torch.Tensor(mask_train[:idx_val:,:,:,:]),torch.Tensor(x_train[:idx_val:,:,:,:])) # create your datset
-            val_dataset         = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init[idx_val::,:,:,:]),torch.Tensor(x_train_obs[idx_val::,:,:,:]),torch.Tensor(mask_train[idx_val::,:,:,:]),torch.Tensor(x_train[idx_val::,:,:,:])) # create your datset
-            test_dataset         = torch.utils.data.TensorDataset(torch.Tensor(x_test_Init),torch.Tensor(x_test_obs),torch.Tensor(mask_test),torch.Tensor(x_test)) # create your datset
-            
-            dataloaders = {
-                'train': torch.utils.data.DataLoader(training_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True),
-                'val': torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True),
-                'test': torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True),
-            }            
-
-            # run current model
-            print('.. Update dataset (x_init for training and validation dataset)')
-            trainer.test(mod, test_dataloaders=dataloaders['train'])
-            self.x_rec_training =  ( self.x_rec - meanTr ) /stdTr
-            self.x_rec_training = self.x_rec_training.reshape(-1,self.x_rec_training.shape[1],self.x_rec_training.shape[2],1)
-            print('1111')
-            print(self.x_rec_training.shape )
-            
-            x_train_Init_new = x_train_Init
-            print(x_train_Init_new.shape)
-            
-            idx_rand = np.random.binomial(1,0.1,(x_train_Init[:idx_val,:,:,:].shape[0],1,1,1))
-            idx_rand = np.tile( idx_rand , (1,x_train_Init.shape[1],x_train_Init.shape[2],x_train_Init.shape[3]) )
-            x_train_Init_new[:idx_val,:,:,:] = x_train_Init[:idx_val,:,:,:] * idx_rand + (1. - idx_rand ) * self.x_rec_training
-
-            trainer.test(mod, test_dataloaders=dataloaders['val'])
-            self.x_rec_val =  ( self.x_rec - meanTr ) /stdTr
-            self.x_rec_val = self.x_rec_val.reshape(-1,self.x_rec_val.shape[1],self.x_rec_val.shape[2],1)
-            print( self.x_rec_val.shape )
-
-            idx_rand = np.random.binomial(1,0.1,(x_train_Init[idx_val:,:,:,:].shape[0],1,1,1))
-            idx_rand = np.tile( idx_rand , (1,x_train_Init.shape[1],x_train_Init.shape[2],x_train_Init.shape[3]) )
-            x_train_Init_new[idx_val:,:,:,:] = x_train_Init[idx_val:,:,:,:] * idx_rand + (1. - idx_rand ) * self.x_rec_val
-            print('2222')
-            print(x_train_Init_new.shape)
-
-            # update dataloader            
-            training_dataset_new     = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init_new[:idx_val:,:,:,:]),torch.Tensor(x_train_obs[:idx_val:,:,:,:]),torch.Tensor(mask_train[:idx_val:,:,:,:]),torch.Tensor(x_train[:idx_val:,:,:,:])) # create your datset
-            val_dataset         = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init[idx_val::,:,:,:]),torch.Tensor(x_train_obs[idx_val::,:,:,:]),torch.Tensor(mask_train[idx_val::,:,:,:]),torch.Tensor(x_train[idx_val::,:,:,:])) # create your datset
-            
-            dataloaders = {
-                'train': torch.utils.data.DataLoader(training_dataset_new, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True),
-                'val': torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True),
-                'test': torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True),
-            }            
-        print('.. \n')
     
     def test_epoch_end(self, outputs):
         x_test_rec = torch.cat([chunk['preds'] for chunk in outputs]).numpy()
