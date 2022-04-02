@@ -1159,10 +1159,9 @@ class LitModel(pl.LightningModule):
         if normgrad == 0. :
             input_init_grad = 1.* inputs_init_
             if self.hparams.dim_aug_state > 0 :   
-                input_init_grad
                 init_aug_state = 0.0 * torch.randn((inputs_init_.size(0),self.hparams.dim_aug_state,inputs_init_.size(2),inputs_init_.size(3)))
                 input_init_grad = torch.cat( (inputs_init_,init_aug_state.to(device)) , dim = 1 )
-                
+            input_init_grad = torch.autograd.Variable(input_init_grad, requires_grad=True)    
             x_k_plus_1, hidden_, cell_, normgrad = self.model.solver_step(input_init_grad, inputs_obs, masks,hidden, cell, normgrad)
         
         with torch.set_grad_enabled(True):
@@ -1477,6 +1476,9 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse_rec = (dT-dt_forecast)/dT #0.75
         mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
 
+        mod.hparams.noise_rnd_aug_init = 0.
+        mod.hparams.rate_rnd_init = 0.
+        
         mod.x_rec_training = x_train_Init[:idx_val,:,:,:]
         mod.x_rec_val = x_train_Init[idx_val:,:,:,:]
         
@@ -1497,9 +1499,12 @@ if __name__ == '__main__':
         if dim_aug_state > 0 :
             filename_chkpt = filename_chkpt+'aug%02d'%dim_aug_state
             if mod.hparams.noise_rnd_aug_init > 0. :
-                filename_chkpt = filename_chkpt+'%03d'%(int(100.*mod.hparams.noise_rnd_aug_init))
+                filename_chkpt = filename_chkpt+'%03d-'%(int(100.*mod.hparams.noise_rnd_aug_init))
+            else:
+                filename_chkpt = filename_chkpt+'-'
+                
         if  mod.hparams.rate_rnd_init > 0. :
-            filename_chkpt = filename_chkpt+'sopt%02d'%(int(100.*mod.hparams.rate_rnd_init))
+            filename_chkpt = filename_chkpt+'sopt%02d-'%(int(100.*mod.hparams.rate_rnd_init))
             
         filename_chkpt = filename_chkpt+flagAEType+'-'  
             
