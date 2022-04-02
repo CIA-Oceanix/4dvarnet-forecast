@@ -1052,6 +1052,7 @@ class LitModel(pl.LightningModule):
             print( self.x_rec_training.shape )
             
             x_train_Init_new = x_train_Init
+            print(x_train_Init_new.shape)
             
             idx_rand = np.random.binomial(1,0.1,(x_train_Init[:idx_val,:,:,:].shape[0],1,1,1))
             idx_rand = np.tile( idx_rand , (1,x_train_Init.shape[1],x_train_Init.shape[2],x_train_Init.shape[3]) )
