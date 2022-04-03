@@ -1150,7 +1150,7 @@ class LitModel(pl.LightningModule):
                 init_aug_state = self.hparams.noise_rnd_aug_init * torch.randn((inputs_init_.size(0),self.hparams.dim_aug_state,inputs_init_.size(2),inputs_init_.size(3)))
                 inputs_init = torch.cat( (inputs_init_,init_aug_state.to(device)) , dim = 1 )
 
-            if ( self.current_epoch > 0 ) & ( self.current_epoch % 5 > 0 ) :
+            if ( self.current_epoch > 0 ) & ( self.current_epoch % 3 > 0 ) :
                 idx_init = idx.cpu().numpy().astype(int)
                 
                 if phase == 'train' :                     
@@ -1514,7 +1514,7 @@ if __name__ == '__main__':
         else:
             mod = LitModel()
             
-            mod.hparams.n_grad          = 2#1#5
+            mod.hparams.n_grad          = 5#1#5
             mod.hparams.k_n_grad        = 1
             mod.hparams.iter_update     = [0, 100, 200, 300, 500, 700, 800]  # [0,2,4,6,9,15]
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 15, 15, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
