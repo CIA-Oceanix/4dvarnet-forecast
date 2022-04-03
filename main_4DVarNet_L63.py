@@ -1150,13 +1150,13 @@ class LitModel(pl.LightningModule):
                 init_aug_state = self.hparams.noise_rnd_aug_init * torch.randn((inputs_init_.size(0),self.hparams.dim_aug_state,inputs_init_.size(2),inputs_init_.size(3)))
                 inputs_init = torch.cat( (inputs_init_,init_aug_state.to(device)) , dim = 1 )
 
-            if ( self.current_epoch > 10 ) & ( self.current_epoch % 3 > 0 ) :
+            if ( self.current_epoch > 10 ) :#& ( self.current_epoch % 3 > 0 ) :
                 idx_init = idx.cpu().numpy().astype(int)
                 
                 if phase == 'train' :                     
                     inputs_prev = torch.Tensor(self.x_rec_training[idx_init,:,:,:]).to(device)
-                    hidden = torch.Tensor(self.h_lstm_training[idx_init,:,:,:]).to(device)
-                    cell = torch.Tensor(self.c_lstm_training[idx_init,:,:,:]).to(device)
+                    hidden_prev = torch.Tensor(self.h_lstm_training[idx_init,:,:,:]).to(device)
+                    cell_prev = torch.Tensor(self.c_lstm_training[idx_init,:,:,:]).to(device)
                     
                     inputs_init = 1. * inputs_prev                
                 if 1*0:
@@ -1168,8 +1168,13 @@ class LitModel(pl.LightningModule):
                 
                     if phase == 'train' :                     
                         inputs_init[ind0,:,:,:] = torch.Tensor(self.x_rec_training[ind0_init,:,:,:]).to(device)
-                    elif phase == 'val' :
-                        inputs_init[ind0,:,:,:] = torch.Tensor(self.x_rec_val[ind0_init,:,:,:]).to(device)                    
+                        hidden = 0. * hidden_prev
+                        cell = 0. * cell_prev
+                        hidden[ind0,:,:,:] = hidden_prev[ind0,:,:,:] 
+                        cell[ind0,:,:,:] = cell_prev[ind0,:,:,:] 
+                    
+                    #elif phase == 'val' :
+                    #    inputs_init[ind0,:,:,:] = torch.Tensor(self.x_rec_val[ind0_init,:,:,:]).to(device)                    
         else:
             inputs_init = batch_init
         
