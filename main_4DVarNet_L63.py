@@ -1160,6 +1160,7 @@ class LitModel(pl.LightningModule):
                     
                     inputs_init = 1. * inputs_prev
                 
+                    print('4xxxx')
                 if 1*0:
                     ind0 = np.random.permutation(inputs_init_.size(0))
                     n0 = int( self.hparams.rate_rnd_init * inputs_init_.size(0) )
