@@ -31,7 +31,7 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 0
+flagProcess = 1
 
 dimGradSolver = 25
 rateDropout = 0.2
@@ -1058,10 +1058,20 @@ class LitModel(pl.LightningModule):
         return {"training_loss": loss,'preds':out[0].detach().cpu(),'idx':out[4].detach().cpu()}
     
     def validation_step(self, val_batch, batch_idx):
+        n_grad_curr = self.model.n_grad
+        k_n_grad_curr = self.hparams.k_n_grad
+                
+        self.model.n_grad = 5
+        self.hparams.k_n_grad = 2
+        
         loss, out, metrics = self.compute_loss(val_batch, phase='val')
         for kk in range(0,self.hparams.k_n_grad-1):
             loss1, out, metrics = self.compute_loss(val_batch, phase='val',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
             loss = loss1
+
+        
+        self.model.n_grad = n_grad_curr
+        self.hparams.k_n_grad = k_n_grad_curr
 
         #self.log('val_loss', loss)
         self.log('val_loss', stdTr**2 * metrics['mse'] )
@@ -1543,6 +1553,8 @@ if __name__ == '__main__':
         #pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=105-val_loss=2.08.ckpt'
         print('.... load pre-trained model :'+pathCheckPOint)
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstmaug10-sopt75-unet2-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=129-val_loss=0.63.ckpt'
+        
+        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-aug10-sopt75-unet2-exp02-testloaders-Noise01-igrad02_02-dgrad25-drop20-epoch=172-val_loss=0.84.ckpt'
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
         
         print(mod.hparams)
@@ -1550,7 +1562,7 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse_rec = 0.75
         mod.hparams.alpha_mse_for = 0.25
         mod.hparams.n_grad = 5
-        mod.hparams.k_n_grad = 10
+        mod.hparams.k_n_grad = 2
     
         print(' Ngrad = %d / %d'%(mod.hparams.n_grad,mod.model.n_grad))
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
