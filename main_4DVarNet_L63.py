@@ -1150,7 +1150,7 @@ class LitModel(pl.LightningModule):
                 init_aug_state = self.hparams.noise_rnd_aug_init * torch.randn((inputs_init_.size(0),self.hparams.dim_aug_state,inputs_init_.size(2),inputs_init_.size(3)))
                 inputs_init = torch.cat( (inputs_init_,init_aug_state.to(device)) , dim = 1 )
 
-            if ( self.current_epoch > 0 ) & ( self.current_epoch % 10 > 0 ) :
+            if ( self.current_epoch > 0 ) & ( self.current_epoch % 5 > 0 ) :
                 idx_init = idx.cpu().numpy().astype(int)
                 
                 if phase == 'train' :                     
@@ -1158,9 +1158,7 @@ class LitModel(pl.LightningModule):
                     hidden = torch.Tensor(self.h_lstm_training[idx_init,:,:,:]).to(device)
                     cell = torch.Tensor(self.c_lstm_training[idx_init,:,:,:]).to(device)
                     
-                    inputs_init = 1. * inputs_prev
-                
-                    print('4xxxx')
+                    inputs_init = 1. * inputs_prev                
                 if 1*0:
                     ind0 = np.random.permutation(inputs_init_.size(0))
                     n0 = int( self.hparams.rate_rnd_init * inputs_init_.size(0) )
@@ -1517,7 +1515,7 @@ if __name__ == '__main__':
             mod = LitModel()
             
             mod.hparams.n_grad          = 2#1#5
-            mod.hparams.k_n_grad        = 5
+            mod.hparams.k_n_grad        = 1
             mod.hparams.iter_update     = [0, 100, 200, 300, 500, 700, 800]  # [0,2,4,6,9,15]
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 15, 15, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-3, 1e-4, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
