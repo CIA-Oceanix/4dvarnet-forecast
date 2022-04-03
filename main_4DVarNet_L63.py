@@ -41,7 +41,7 @@ dim_aug_state = 10#10#10#10 #False#
 
 batch_size = 128#2000#
 
-NbTraining = 10000
+NbTraining = 1000
 NbTest     = 2000#256
 time_step = 1
 dT        = 200
@@ -1057,7 +1057,7 @@ class LitModel(pl.LightningModule):
                 # grad initialization to zero
                 opt.zero_grad()
          
-        return {"training_loss": loss,'preds':out[0].detach().cpu(),'idx':out[4].detach().cpu()}
+        return {"training_loss": loss,'preds':out[0].detach().cpu(),'h_lstm':out[1].detach().cpu(),'c_lstm':out[2].detach().cpu(),'idx':out[4].detach().cpu()}
     
     def validation_step(self, val_batch, batch_idx):
         n_grad_curr = self.model.n_grad
@@ -1099,10 +1099,16 @@ class LitModel(pl.LightningModule):
     
     def training_epoch_end(self, outputs):
         x_rec_curr = torch.cat([chunk['preds'] for chunk in outputs]).numpy()
+        h_rec_curr = torch.cat([chunk['h_lstm'] for chunk in outputs]).numpy()
+        c_rec_curr = torch.cat([chunk['c_lstm'] for chunk in outputs]).numpy()
+
+
         idx_rec_curr = torch.cat([chunk['idx'] for chunk in outputs]).numpy()
         idx_rec_curr = idx_rec_curr.astype(int)
         
         self.x_rec_training = x_rec_curr[idx_rec_curr,:,:,:]
+        self.h_lstm_training = h_rec_curr[idx_rec_curr,:,:,:]
+        self.c_lstm_training = c_rec_curr[idx_rec_curr,:,:,:]
                 
         loss_val = torch.stack([x['training_loss'] for x in outputs]).mean()
         self.log('train_loss_epoch', loss_val)
@@ -1144,18 +1150,27 @@ class LitModel(pl.LightningModule):
                 init_aug_state = self.hparams.noise_rnd_aug_init * torch.randn((inputs_init_.size(0),self.hparams.dim_aug_state,inputs_init_.size(2),inputs_init_.size(3)))
                 inputs_init = torch.cat( (inputs_init_,init_aug_state.to(device)) , dim = 1 )
 
-            if self.current_epoch > 0:
+            if ( self.current_epoch > 0 ) & ( self.current_epoch % 10 > 0 ) :
                 idx_init = idx.cpu().numpy().astype(int)
-                ind0 = np.random.permutation(inputs_init_.size(0))
-                n0 = int( self.hparams.rate_rnd_init * inputs_init_.size(0) )
-                
-                ind0 = ind0[:n0]
-                ind0_init = idx_init[ ind0 ]
                 
                 if phase == 'train' :                     
-                    inputs_init[ind0,:,:,:] = torch.Tensor(self.x_rec_training[ind0_init,:,:,:]).to(device)
-                elif phase == 'val' :
-                    inputs_init[ind0,:,:,:] = torch.Tensor(self.x_rec_val[ind0_init,:,:,:]).to(device)                    
+                    inputs_prev = torch.Tensor(self.x_rec_training[idx_init,:,:,:]).to(device)
+                    hidden = torch.Tensor(self.h_lstm_training[idx_init,:,:,:]).to(device)
+                    cell = torch.Tensor(self.c_lstm_training[idx_init,:,:,:]).to(device)
+                    
+                    inputs_init = 1. * inputs_prev
+                
+                if 1*0:
+                    ind0 = np.random.permutation(inputs_init_.size(0))
+                    n0 = int( self.hparams.rate_rnd_init * inputs_init_.size(0) )
+                
+                    ind0 = ind0[:n0]
+                    ind0_init = idx_init[ ind0 ]
+                
+                    if phase == 'train' :                     
+                        inputs_init[ind0,:,:,:] = torch.Tensor(self.x_rec_training[ind0_init,:,:,:]).to(device)
+                    elif phase == 'val' :
+                        inputs_init[ind0,:,:,:] = torch.Tensor(self.x_rec_val[ind0_init,:,:,:]).to(device)                    
         else:
             inputs_init = batch_init
         
