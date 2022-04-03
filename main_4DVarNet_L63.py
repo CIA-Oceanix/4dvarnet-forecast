@@ -1242,8 +1242,6 @@ class LitModel(pl.LightningModule):
             difff_loss_4dvar_init = F.relu( difff_loss_4dvar_init )
             
             loss = loss + self.hparams.alpha_4dvarloss_diff * difff_loss_4dvar_init
-            print( difff_loss_4dvar_init )
-            print( loss_mse )
             
         outputs = outputs.detach()
         hidden_new = hidden_new.detach()
@@ -1252,7 +1250,6 @@ class LitModel(pl.LightningModule):
         out = [outputs,hidden_new, cell_new, normgrad_,idx]
         
         return loss,out, metrics
-
 
 class Ode_l63(torch.nn.Module):
     def __init__(self):
@@ -1484,7 +1481,7 @@ if __name__ == '__main__':
       
     if flagProcess == 0: ## training model from scratch
         
-        flagLoadModel = True #False#
+        flagLoadModel = False#True #
         if flagLoadModel == True:
             
             pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=105-val_loss=2.08.ckpt'
@@ -1503,8 +1500,8 @@ if __name__ == '__main__':
         else:
             mod = LitModel()
             
-            mod.hparams.n_grad          = 1#5
-            mod.hparams.k_n_grad        = 1
+            mod.hparams.n_grad          = 1#1#5
+            mod.hparams.k_n_grad        = 10
             mod.hparams.iter_update     = [0, 100, 200, 300, 500, 700, 800]  # [0,2,4,6,9,15]
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 15, 15, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-3, 1e-4, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
