@@ -925,6 +925,8 @@ class LitModel(pl.LightningModule):
         self.hparams.alpha_mse_rec = 10.#10*0.75#1.e0
         self.hparams.alpha_mse_for = 0.#*0.25#1.e1
         
+        self.hparams.alpha_4dvarloss_diff = 0.1
+        
         self.hparams.rate_rnd_init = 0.2 # 
         self.hparams.noise_rnd_aug_init = 0.1
         
@@ -1123,6 +1125,13 @@ class LitModel(pl.LightningModule):
 
         return [{'mse':0.,'preds': 0.}]
 
+    def compute_4DvarCost(self,x,yobs,mask):
+        dy = self.model.model_H(x,yobs,mask)
+        dx = x - self.model.phi_r(x)
+        
+        loss_4dvar = self.model.model_VarCost( dx , dy )
+        
+        return loss_4dvar
     def compute_loss(self, batch, phase, batch_init = None , hidden = None , cell = None , normgrad = 0.0):
 
         idx,inputs_init_,inputs_obs,masks,targets_GT = batch
@@ -1228,6 +1237,14 @@ class LitModel(pl.LightningModule):
             #print(mse.cpu().detach().numpy())
             #if (phase == 'val') or (phase == 'test'):                
 
+            # loss 4dVar before/after iteration
+            difff_loss_4dvar_init = self.compute_4DvarCost(outputs, inputs_obs, masks) - self.compute_4DvarCost(inputs_init, inputs_obs, masks)            
+            difff_loss_4dvar_init = F.relu( difff_loss_4dvar_init )
+            
+            loss = loss + self.hparams.alpha_4dvarloss_diff * difff_loss_4dvar_init
+            print( difff_loss_4dvar_init )
+            print( loss_mse )
+            
         outputs = outputs.detach()
         hidden_new = hidden_new.detach()
         cell_new = cell_new.detach()
