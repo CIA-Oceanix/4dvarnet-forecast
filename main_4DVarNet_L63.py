@@ -1138,8 +1138,8 @@ class LitModel(pl.LightningModule):
             inputs_init = batch_init
         
             ## random init for 
-            hidden = hidden + self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
-            cell =  cell + self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
+            hidden = self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
+            cell =  self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
 
             #hidden = hidden.to(device)
             
