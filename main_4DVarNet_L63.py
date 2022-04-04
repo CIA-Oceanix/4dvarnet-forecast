@@ -1158,8 +1158,9 @@ class LitModel(pl.LightningModule):
                     hidden_prev = torch.Tensor(self.h_lstm_training[idx_init,:,:,:]).to(device)
                     cell_prev = torch.Tensor(self.c_lstm_training[idx_init,:,:,:]).to(device)
                     
-                    inputs_init = 1. * inputs_prev                
-                if 1*0:
+                    inputs_init = 1. * inputs_prev
+                    
+                if 1*1:
                     ind0 = np.random.permutation(inputs_init_.size(0))
                     n0 = int( self.hparams.rate_rnd_init * inputs_init_.size(0) )
                 
@@ -1511,16 +1512,16 @@ if __name__ == '__main__':
             print('.... load pre-trained model :'+pathCheckPOint)
             mod = LitModel.load_from_checkpoint(pathCheckPOint)
 
-            mod.hparams.n_grad          = 2
-            mod.hparams.k_n_grad        = 2
+            mod.hparams.n_grad          = 5
+            mod.hparams.k_n_grad        = 1
             mod.hparams.iter_update     = [0, 100, 200, 300, 500, 700, 800]  # [0,2,4,6,9,a15]
             mod.hparams.nb_grad_update  = [10, 10, 10, 10, 10, 5, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-4, 1e-5, 1e-6, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
         else:
             mod = LitModel()
             
-            mod.hparams.n_grad          = 5#1#5
-            mod.hparams.k_n_grad        = 1
+            mod.hparams.n_grad          = 2#1#5
+            mod.hparams.k_n_grad        = 5
             mod.hparams.iter_update     = [0, 100, 200, 300, 500, 700, 800]  # [0,2,4,6,9,15]
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 15, 15, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-3, 1e-4, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
