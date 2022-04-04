@@ -1084,6 +1084,9 @@ class LitModel(pl.LightningModule):
     def test_step(self, test_batch, batch_idx):
         loss, out, metrics = self.compute_loss(test_batch, phase='test')
         
+        self.model.n_grad = 5
+        self.hparams.k_n_grad = 2
+
         for kk in range(0,self.hparams.k_n_grad-1):
             loss1, out, metrics = self.compute_loss(test_batch, phase='test',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
 
