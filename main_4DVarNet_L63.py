@@ -1112,8 +1112,10 @@ class LitModel(pl.LightningModule):
         self.h_lstm_training = h_rec_curr[idx_rec_curr,:,:,:]
         self.c_lstm_training = c_rec_curr[idx_rec_curr,:,:,:]
                 
-        loss_val = torch.stack([x['training_loss'] for x in outputs]).mean()
-        self.log('train_loss_epoch', loss_val)
+        loss_training = torch.stack([x['training_loss'] for x in outputs]).mean()
+        print(outputs['training_loss']  )
+        print(loss_training)
+        self.log('train_loss_epoch', loss_training)
 
     def validation_epoch_end(self, outputs):
         x_rec_curr = torch.cat([chunk['preds'] for chunk in outputs]).numpy()
