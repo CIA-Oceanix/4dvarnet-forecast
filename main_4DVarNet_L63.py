@@ -1589,6 +1589,8 @@ if __name__ == '__main__':
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstmaug10-sopt75-unet2-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=129-val_loss=0.63.ckpt'
         
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-aug10-sopt75-unet2-exp02-testloaders-Noise01-igrad02_02-dgrad25-drop20-epoch=172-val_loss=0.84.ckpt'
+        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-1-aug10-unet2-exp02-testloaders-Noise01-igrad02_03-dgrad25-drop20-epoch=61-val_loss=0.60.ckpt'
+        
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
         
         print(mod.hparams)
