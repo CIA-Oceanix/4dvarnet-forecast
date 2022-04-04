@@ -1534,7 +1534,7 @@ if __name__ == '__main__':
         filename_chkpt = filename_chkpt+'-igrad%02d_%02d'%(mod.hparams.n_grad,mod.hparams.k_n_grad)+'-dgrad%d'%dimGradSolver
         filename_chkpt = filename_chkpt+'-drop%02d'%(100*rateDropout)
         if mod.hparams.noise_rnd_lstm_init > 0. :
-            filename_chkpt = filename_chkpt+'-rndt%02d'%(mod.hparams.noise_rnd_lstm_init)
+            filename_chkpt = filename_chkpt+'-rnd%02d'%(100.*mod.hparams.noise_rnd_lstm_init)
 
         print('.... chkpt: '+filename_chkpt)
         checkpoint_callback = ModelCheckpoint(monitor='val_loss',
