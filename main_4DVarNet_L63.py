@@ -1037,8 +1037,9 @@ class LitModel(pl.LightningModule):
         
         for kk in range(0,self.hparams.k_n_grad-1):
             loss1, out, metrics = self.compute_loss(train_batch, phase='train',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
-            print(loss1)
             loss = loss + loss1
+        print(loss)
+        print(stdTr**2 * loss)
         
         # log step metric        
         #self.log('train_mse', mse)
