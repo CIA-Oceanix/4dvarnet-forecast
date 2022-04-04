@@ -1527,7 +1527,7 @@ if __name__ == '__main__':
             mod.hparams.lr_update       = [1e-3, 1e-4, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
         
         mod.hparams.alpha_prior = 0.1
-        mod.hparams.alpha_mse = 1.0#0.75
+        mod.hparams.alpha_mse = 0.
         mod.hparams.alpha_mse_rec = (dT-dt_forecast)/dT #0.75
         mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
 
