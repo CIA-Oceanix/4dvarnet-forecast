@@ -1105,8 +1105,8 @@ class LitModel(pl.LightningModule):
             if self.hparams.dim_aug_state == 0 :   
                 inputs_init = inputs_init_
             else:                
-                init_aug_state = self.hparams.noise_rnd_aug_init * torch.randn((inputs_init_.size(0),self.hparams.dim_aug_state,inputs_init_.size(2),inputs_init_.size(3))).to(device)
-                inputs_init = self.hparams.noise_rnd_aug_init * torch.cat( (inputs_init_,init_aug_state.to(device)) , dim = 1 )
+                init_aug_state = 0. * self.hparams.noise_rnd_aug_init * torch.randn((inputs_init_.size(0),self.hparams.dim_aug_state,inputs_init_.size(2),inputs_init_.size(3))).to(device)
+                inputs_init = torch.cat( (inputs_init_,init_aug_state.to(device)) , dim = 1 )
 
             if ( self.current_epoch > 10 ) :#& ( self.current_epoch % 3 > 0 ) :
                 idx_init = idx.cpu().numpy().astype(int)
@@ -1132,8 +1132,8 @@ class LitModel(pl.LightningModule):
                         cell[ind0,:,:,:] = cell_prev[ind0,:,:,:] 
                     
                 ## random init for 
-                hidden = hidden + self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
-                cell = cell + self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
+                #hidden = hidden + self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
+                #cell = cell + self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
 
                    #elif phase == 'val' :
                     #    inputs_init[ind0,:,:,:] = torch.Tensor(self.x_rec_val[ind0_init,:,:,:]).to(device)                    
