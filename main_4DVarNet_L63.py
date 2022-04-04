@@ -1158,17 +1158,16 @@ class LitModel(pl.LightningModule):
                     hidden_prev = torch.Tensor(self.h_lstm_training[idx_init,:,:,:]).to(device)
                     cell_prev = torch.Tensor(self.c_lstm_training[idx_init,:,:,:]).to(device)
                     
-                    inputs_init = 1. * inputs_prev
+                    #inputs_init = 1. * inputs_prev
                     
                 if 1*1:
                     ind0 = np.random.permutation(inputs_init_.size(0))
-                    n0 = int( self.hparams.rate_rnd_init * inputs_init_.size(0) )
-                
+                    n0 = int( self.hparams.rate_rnd_init * inputs_init_.size(0) )                
                     ind0 = ind0[:n0]
-                    ind0_init = idx_init[ ind0 ]
+                    #ind0_init = idx_init[ ind0 ]
                 
                     if phase == 'train' :                     
-                        inputs_init[ind0,:,:,:] = torch.Tensor(self.x_rec_training[ind0_init,:,:,:]).to(device)
+                        inputs_init[ind0,:,:,:] = inputs_prev[ind0,:,:,:]
                         hidden = 0. * hidden_prev
                         cell = 0. * cell_prev
                         hidden[ind0,:,:,:] = hidden_prev[ind0,:,:,:] 
