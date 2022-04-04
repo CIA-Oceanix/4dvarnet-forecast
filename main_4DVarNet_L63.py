@@ -31,7 +31,7 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 1
+flagProcess = 0
 
 dimGradSolver = 25
 rateDropout = 0.2
@@ -1460,7 +1460,7 @@ if __name__ == '__main__':
       
     if flagProcess == 0: ## training model from scratch
         
-        flagLoadModel = True #False#
+        flagLoadModel = False# True#
         if flagLoadModel == True:
             
             pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=105-val_loss=2.08.ckpt'
@@ -1482,8 +1482,8 @@ if __name__ == '__main__':
         else:
             mod = LitModel()
             
-            mod.hparams.n_grad          = 2#1#5
-            mod.hparams.k_n_grad        = 3
+            mod.hparams.n_grad          = 5#1#5
+            mod.hparams.k_n_grad        = 2
             mod.hparams.iter_update     = [0, 200, 400, 300, 500, 700, 800]  # [0,2,4,6,9,15]
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 15, 15, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-3, 1e-4, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
@@ -1493,8 +1493,8 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse_rec = (dT-dt_forecast)/dT #0.75
         mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
 
-        mod.hparams.noise_rnd_lstm_init = 0.
-        mod.hparams.noise_rnd_aug_init = 0.
+        mod.hparams.noise_rnd_lstm_init = 0.01
+        mod.hparams.noise_rnd_aug_init = 0.01
 
         mod.hparams.rate_rnd_init = 0.25
         
@@ -1533,6 +1533,8 @@ if __name__ == '__main__':
         filename_chkpt = filename_chkpt + suffix_exp+'-Noise%02d'%(sigNoise)
         filename_chkpt = filename_chkpt+'-igrad%02d_%02d'%(mod.hparams.n_grad,mod.hparams.k_n_grad)+'-dgrad%d'%dimGradSolver
         filename_chkpt = filename_chkpt+'-drop%02d'%(100*rateDropout)
+        if mod.hparams.noise_rnd_lstm_init > 0. :
+            filename_chkpt = filename_chkpt+'-rndt%02d'%(mod.hparams.noise_rnd_lstm_init)
 
         print('.... chkpt: '+filename_chkpt)
         checkpoint_callback = ModelCheckpoint(monitor='val_loss',
@@ -1564,7 +1566,7 @@ if __name__ == '__main__':
         print(mod.hparams)
         
         mod.hparams.noise_rnd_aug_init = 0.01
-        mod.hparams.noise_rnd_lstm_init = 0.0#1
+        mod.hparams.noise_rnd_lstm_init = 0.01
         
         mod.hparams.alpha_mse = 1.
         mod.hparams.alpha_mse_rec = 0.75
