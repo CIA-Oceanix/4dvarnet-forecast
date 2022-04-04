@@ -31,7 +31,7 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 1
+flagProcess = 0
 
 dimGradSolver = 25
 rateDropout = 0.2
@@ -1466,7 +1466,7 @@ if __name__ == '__main__':
       
     if flagProcess == 0: ## training model from scratch
         
-        flagLoadModel = False#True #
+        flagLoadModel = True #False#
         if flagLoadModel == True:
             
             pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=105-val_loss=2.08.ckpt'
@@ -1474,11 +1474,14 @@ if __name__ == '__main__':
             pathCheckPOint = 'resL63/exp02-testloaders/model-l63-aug10-unet2-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=48-val_loss=0.57.ckpt'
             
             pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-aug10-sopt75-unet2-exp02-testloaders-Noise01-igrad02_02-dgrad25-drop20-epoch=171-val_loss=0.82.ckpt'
+            
+            pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-1-aug10-sopt25-unet2-exp02-testloaders-Noise01-igrad02_03-dgrad25-drop20-epoch=272-val_loss=0.57.ckpt'
+            
             print('.... load pre-trained model :'+pathCheckPOint)
             mod = LitModel.load_from_checkpoint(pathCheckPOint)
 
             mod.hparams.n_grad          = 5
-            mod.hparams.k_n_grad        = 1
+            mod.hparams.k_n_grad        = 2
             mod.hparams.iter_update     = [0, 100, 200, 300, 500, 700, 800]  # [0,2,4,6,9,a15]
             mod.hparams.nb_grad_update  = [10, 10, 10, 10, 10, 5, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-4, 1e-5, 1e-6, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
@@ -1496,7 +1499,9 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse_rec = (dT-dt_forecast)/dT #0.75
         mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
 
+        mod.hparams.noise_rnd_lstm_init = 0.
         mod.hparams.noise_rnd_aug_init = 0.
+
         mod.hparams.rate_rnd_init = 0.25
         
         
