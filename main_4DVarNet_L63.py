@@ -41,7 +41,7 @@ dim_aug_state = 10#10#10#10 #False#
 
 batch_size = 128#2000#
 
-NbTraining = 756#10000
+NbTraining = 10000 #756#
 NbTest     = 2000#256
 time_step = 1
 dT        = 200
@@ -1521,8 +1521,8 @@ if __name__ == '__main__':
             mod = LitModel()
             
             mod.hparams.n_grad          = 2#1#5
-            mod.hparams.k_n_grad        = 5
-            mod.hparams.iter_update     = [0, 100, 200, 300, 500, 700, 800]  # [0,2,4,6,9,15]
+            mod.hparams.k_n_grad        = 3
+            mod.hparams.iter_update     = [0, 200, 400, 300, 500, 700, 800]  # [0,2,4,6,9,15]
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 15, 15, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-3, 1e-4, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
         
@@ -1537,7 +1537,7 @@ if __name__ == '__main__':
         mod.x_rec_training = x_train_Init[:idx_val,:,:,:]
         mod.x_rec_val = x_train_Init[idx_val:,:,:,:]
         
-        profiler_kwargs = {'max_epochs': 200 }
+        profiler_kwargs = {'max_epochs': 400 }
 
         suffix_exp = 'exp%02d-testloaders'%flagTypeMissData
         filename_chkpt = 'model-l63-dlstm-1-'
