@@ -1151,8 +1151,8 @@ class LitModel(pl.LightningModule):
             mask_aug_state = mask_aug_state.to(device)
             mask_aug_state = mask_aug_state.view(-1,1,inputs_init_.size(2),1)
             mask_aug_state = mask_aug_state.repeat(1,dim_aug_state,1,1)
-            masks = torch.cat( (masks,init_aug_state) , dim = 1 )
-            inputs_obs = torch.cat( (inputs_obs,init_aug_state) , dim = 1 )
+            masks = torch.cat( (masks,mask_aug_state) , dim = 1 )
+            inputs_obs = torch.cat( (inputs_obs,mask_aug_state) , dim = 1 )
                         
         if phase == 'train' :                
             inputs_init = inputs_init.detach()
