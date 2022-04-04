@@ -41,7 +41,7 @@ dim_aug_state = 10#10#10#10 #False#
 
 batch_size = 128#2000#
 
-NbTraining = 10000 #756#
+NbTraining = 756#10000 #756#
 NbTest     = 2000#256
 time_step = 1
 dT        = 200
@@ -1097,7 +1097,6 @@ class LitModel(pl.LightningModule):
 
         idx,inputs_init_,inputs_obs,masks,targets_GT = batch
  
-        #inputs_init = inputs_init_
         if batch_init is None :
             if self.hparams.dim_aug_state == 0 :   
                 inputs_init = inputs_init_
@@ -1105,41 +1104,36 @@ class LitModel(pl.LightningModule):
                 init_aug_state = self.hparams.noise_rnd_aug_init * torch.randn((inputs_init_.size(0),self.hparams.dim_aug_state,inputs_init_.size(2),inputs_init_.size(3))).to(device)
                 inputs_init = torch.cat( (inputs_init_,init_aug_state.to(device)) , dim = 1 )
 
-            if ( self.current_epoch > 10 ) :#& ( self.current_epoch % 3 > 0 ) :
+            ## random init for 
+            hidden = self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
+            cell =  self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
+
+            if ( self.current_epoch > 2 ) :#& ( self.current_epoch % 3 > 0 ) :
                 idx_init = idx.cpu().numpy().astype(int)
                 
                 if phase == 'train' :                     
                     inputs_prev = torch.Tensor(self.x_rec_training[idx_init,:,:,:]).to(device)
                     hidden_prev = torch.Tensor(self.h_lstm_training[idx_init,:,:,:]).to(device)
                     cell_prev = torch.Tensor(self.c_lstm_training[idx_init,:,:,:]).to(device)
+                
+                    hidden_prev = hidden_prev + self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
+                    cell_prev = cell_prev + self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
                     
-                    #inputs_init = 1. * inputs_prev
-                    
-                if 1*1:
                     ind0 = np.random.permutation(inputs_init_.size(0))
                     n0 = int( self.hparams.rate_rnd_init * inputs_init_.size(0) )                
                     ind0 = ind0[:n0]
                     #ind0_init = idx_init[ ind0 ]
                 
-                    if phase == 'train' :                     
-                        inputs_init[ind0,:,:,:] = inputs_prev[ind0,:,:,:]
-                        hidden = 0. * hidden_prev
-                        cell = 0. * cell_prev
-                        hidden[ind0,:,:,:] = hidden_prev[ind0,:,:,:] 
-                        cell[ind0,:,:,:] = cell_prev[ind0,:,:,:] 
+                    inputs_init[ind0,:,:,:] = inputs_prev[ind0,:,:,:]
+                    hidden[ind0,:,:,:] = hidden_prev[ind0,:,:,:] 
+                    cell[ind0,:,:,:] = cell_prev[ind0,:,:,:] 
                     
-                ## random init for 
-                hidden = hidden + self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
-                cell = cell + self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
-
-                   #elif phase == 'val' :
-                    #    inputs_init[ind0,:,:,:] = torch.Tensor(self.x_rec_val[ind0_init,:,:,:]).to(device)                    
         else:
             inputs_init = batch_init
         
             ## random init for 
-            hidden = self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
-            cell =  self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
+            hidden = hidden + self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
+            cell = cell + self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
 
             #hidden = hidden.to(device)
             
