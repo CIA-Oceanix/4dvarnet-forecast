@@ -1038,8 +1038,6 @@ class LitModel(pl.LightningModule):
         for kk in range(0,self.hparams.k_n_grad-1):
             loss1, out, metrics = self.compute_loss(train_batch, phase='train',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
             loss = loss + loss1
-        print(loss)
-        print(stdTr**2 * loss)
         
         # log step metric        
         #self.log('train_mse', mse)
@@ -1258,7 +1256,7 @@ class LitModel(pl.LightningModule):
             # metrics
             mse       = loss_mse.detach()
             metrics   = dict([('mse',mse)])
-            #print(mse.cpu().detach().numpy())
+            print(mse.cpu().detach().numpy())
             #if (phase == 'val') or (phase == 'test'):                
 
             # loss 4dVar before/after iteration
@@ -1531,7 +1529,7 @@ if __name__ == '__main__':
             mod.hparams.lr_update       = [1e-3, 1e-4, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
         
         mod.hparams.alpha_prior = 0.1
-        mod.hparams.alpha_mse = 0.
+        mod.hparams.alpha_mse = 1.
         mod.hparams.alpha_mse_rec = (dT-dt_forecast)/dT #0.75
         mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
 
