@@ -41,7 +41,7 @@ dim_aug_state = 10#10#10#10 #False#
 
 batch_size = 128#2000#
 
-NbTraining = 256#10000
+NbTraining = 756#10000
 NbTest     = 2000#256
 time_step = 1
 dT        = 200
