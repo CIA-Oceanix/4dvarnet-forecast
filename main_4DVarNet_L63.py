@@ -1598,6 +1598,8 @@ if __name__ == '__main__':
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
         
         print(mod.hparams)
+        
+        mod.hparams.noise_rnd_aug_init = 0.
         mod.hparams.alpha_mse = 1.
         mod.hparams.alpha_mse_rec = 0.75
         mod.hparams.alpha_mse_for = 0.25
