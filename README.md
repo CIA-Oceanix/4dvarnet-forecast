@@ -29,3 +29,5 @@ data to be ensured and,  more generally, to use and operate it in the
 same conditions as regards security.
 The fact that you are presently reading this means that you have had
 knowledge of the CeCILL-C license and that you accept its terms.
+
+Simulated L63 dataset: https://www.dropbox.com/s/8e6zrgy0e15uyl4/dataset_L63.nc?dl=0
