@@ -1141,16 +1141,17 @@ class LitModel(pl.LightningModule):
             inputs_init = batch_init
         
             ## random init for 
-            hidden = hidden + self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
-            cell =  cell + self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
+            #hidden = hidden + self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
+            #cell =  cell + self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3))).to(device)
 
-            hidden = hidden.to(device)
+            #hidden = hidden.to(device)
             
         if self.hparams.dim_aug_state > 0 :               
             mask_aug_state = 0. * inputs_init_[:,0,:,:]
             mask_aug_state = mask_aug_state.to(device)
             mask_aug_state = mask_aug_state.view(-1,1,inputs_init_.size(2),1)
             mask_aug_state = mask_aug_state.repeat(1,dim_aug_state,1,1)
+            
             masks = torch.cat( (masks,mask_aug_state) , dim = 1 )
             inputs_obs = torch.cat( (inputs_obs,mask_aug_state) , dim = 1 )
                         
