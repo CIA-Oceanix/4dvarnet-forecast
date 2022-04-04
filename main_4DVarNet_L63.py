@@ -929,6 +929,7 @@ class LitModel(pl.LightningModule):
         
         self.hparams.rate_rnd_init = 0.2 # 
         self.hparams.noise_rnd_aug_init = 0.1
+        self.hparams.noise_rnd_lstm_init = 0.
         
         self.hparams.w_loss          = torch.nn.Parameter(torch.Tensor(w_loss), requires_grad=False)
         self.hparams.automatic_optimization = False#True#
@@ -982,52 +983,6 @@ class LitModel(pl.LightningModule):
         #if self.current_epoch == 0 :     
         #    self.save_hyperparameters()
         # update training data loaders
-        if 0*0: #self.current_epoch > 0 : #self.current_epoch % 1 == 0:
-            training_dataset     = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init[:idx_val:,:,:,:]),torch.Tensor(x_train_obs[:idx_val:,:,:,:]),torch.Tensor(mask_train[:idx_val:,:,:,:]),torch.Tensor(x_train[:idx_val:,:,:,:])) # create your datset
-            val_dataset         = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init[idx_val::,:,:,:]),torch.Tensor(x_train_obs[idx_val::,:,:,:]),torch.Tensor(mask_train[idx_val::,:,:,:]),torch.Tensor(x_train[idx_val::,:,:,:])) # create your datset
-            test_dataset         = torch.utils.data.TensorDataset(torch.Tensor(x_test_Init),torch.Tensor(x_test_obs),torch.Tensor(mask_test),torch.Tensor(x_test)) # create your datset
-            
-            dataloaders = {
-                'train': torch.utils.data.DataLoader(training_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True),
-                'val': torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True),
-                'test': torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True),
-            }            
-
-            # run current model
-            print('.. Update dataset (x_init for training and validation dataset)')
-            trainer.test(mod, test_dataloaders=dataloaders['train'])
-            self.x_rec_training =  ( self.x_rec - meanTr ) /stdTr
-            self.x_rec_training = self.x_rec_training.reshape(-1,self.x_rec_training.shape[1],self.x_rec_training.shape[2],1)
-            print('1111')
-            print(self.x_rec_training.shape )
-            
-            x_train_Init_new = x_train_Init
-            print(x_train_Init_new.shape)
-            
-            idx_rand = np.random.binomial(1,0.1,(x_train_Init[:idx_val,:,:,:].shape[0],1,1,1))
-            idx_rand = np.tile( idx_rand , (1,x_train_Init.shape[1],x_train_Init.shape[2],x_train_Init.shape[3]) )
-            x_train_Init_new[:idx_val,:,:,:] = x_train_Init[:idx_val,:,:,:] * idx_rand + (1. - idx_rand ) * self.x_rec_training
-
-            trainer.test(mod, test_dataloaders=dataloaders['val'])
-            self.x_rec_val =  ( self.x_rec - meanTr ) /stdTr
-            self.x_rec_val = self.x_rec_val.reshape(-1,self.x_rec_val.shape[1],self.x_rec_val.shape[2],1)
-            print( self.x_rec_val.shape )
-
-            idx_rand = np.random.binomial(1,0.1,(x_train_Init[idx_val:,:,:,:].shape[0],1,1,1))
-            idx_rand = np.tile( idx_rand , (1,x_train_Init.shape[1],x_train_Init.shape[2],x_train_Init.shape[3]) )
-            x_train_Init_new[idx_val:,:,:,:] = x_train_Init[idx_val:,:,:,:] * idx_rand + (1. - idx_rand ) * self.x_rec_val
-            print('2222')
-            print(x_train_Init_new.shape)
-
-            # update dataloader            
-            training_dataset_new     = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init_new[:idx_val:,:,:,:]),torch.Tensor(x_train_obs[:idx_val:,:,:,:]),torch.Tensor(mask_train[:idx_val:,:,:,:]),torch.Tensor(x_train[:idx_val:,:,:,:])) # create your datset
-            val_dataset         = torch.utils.data.TensorDataset(torch.Tensor(x_train_Init[idx_val::,:,:,:]),torch.Tensor(x_train_obs[idx_val::,:,:,:]),torch.Tensor(mask_train[idx_val::,:,:,:]),torch.Tensor(x_train[idx_val::,:,:,:])) # create your datset
-            
-            dataloaders = {
-                'train': torch.utils.data.DataLoader(training_dataset_new, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True),
-                'val': torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True),
-                'test': torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True),
-            }            
         
     def training_step(self, train_batch, batch_idx, optimizer_idx=0):
         opt = self.optimizers()
@@ -1151,7 +1106,8 @@ class LitModel(pl.LightningModule):
                 inputs_init = inputs_init_
             else:                
                 init_aug_state = self.hparams.noise_rnd_aug_init * torch.randn((inputs_init_.size(0),self.hparams.dim_aug_state,inputs_init_.size(2),inputs_init_.size(3)))
-                inputs_init = torch.cat( (inputs_init_,init_aug_state.to(device)) , dim = 1 )
+                inputs_init = self.hparams.noise_rnd_aug_init * torch.cat( (inputs_init_,init_aug_state.to(device)) , dim = 1 )
+
 
             if ( self.current_epoch > 10 ) :#& ( self.current_epoch % 3 > 0 ) :
                 idx_init = idx.cpu().numpy().astype(int)
@@ -1176,16 +1132,23 @@ class LitModel(pl.LightningModule):
                         hidden[ind0,:,:,:] = hidden_prev[ind0,:,:,:] 
                         cell[ind0,:,:,:] = cell_prev[ind0,:,:,:] 
                     
-                    #elif phase == 'val' :
+                ## random init for 
+                hidden = hidden + self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3)))
+                cell = cell + self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3)))
+
+                   #elif phase == 'val' :
                     #    inputs_init[ind0,:,:,:] = torch.Tensor(self.x_rec_val[ind0_init,:,:,:]).to(device)                    
         else:
             inputs_init = batch_init
         
-        if self.hparams.dim_aug_state > 0 :   
-            
-            init_aug_state = 0. * inputs_init_[:,0,:,:]
-            init_aug_state = init_aug_state.view(-1,1,inputs_init_.size(2),1)
-            init_aug_state = init_aug_state.repeat(1,dim_aug_state,1,1)
+            ## random init for 
+            hidden = self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3)))
+            cell =  self.hparams.noise_rnd_lstm_init * torch.randn((inputs_init_.size(0),self.model.model_Grad.DimState,inputs_init_.size(2),inputs_init_.size(3)))
+
+        if self.hparams.dim_aug_state > 0 :               
+            mask_aug_state = 0. * inputs_init_[:,0,:,:]
+            mask_aug_state = mask_aug_state.view(-1,1,inputs_init_.size(2),1)
+            mask_aug_state = mask_aug_state.repeat(1,dim_aug_state,1,1)
             masks = torch.cat( (masks,init_aug_state) , dim = 1 )
             inputs_obs = torch.cat( (inputs_obs,init_aug_state) , dim = 1 )
                         
@@ -1536,6 +1499,7 @@ if __name__ == '__main__':
         mod.hparams.noise_rnd_aug_init = 0.
         mod.hparams.rate_rnd_init = 0.25
         
+        
         mod.x_rec_training = x_train_Init[:idx_val,:,:,:]
         mod.x_rec_val = x_train_Init[idx_val:,:,:,:]
         
@@ -1592,7 +1556,7 @@ if __name__ == '__main__':
         
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-aug10-sopt75-unet2-exp02-testloaders-Noise01-igrad02_02-dgrad25-drop20-epoch=172-val_loss=0.84.ckpt'
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-1-aug10-unet2-exp02-testloaders-Noise01-igrad02_03-dgrad25-drop20-epoch=61-val_loss=0.60.ckpt'
-        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-1-aug10-sopt25-unet2-exp02-testloaders-Noise01-igrad02_03-dgrad25-drop20-epoch=209-val_loss=0.60.ckpt'
+        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-1-aug10-sopt25-unet2-exp02-testloaders-Noise01-igrad02_03-dgrad25-drop20-epoch=235-val_loss=0.59.ckpt'
         
         print('.... load pre-trained model :'+pathCheckPOint)
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
@@ -1600,6 +1564,8 @@ if __name__ == '__main__':
         print(mod.hparams)
         
         mod.hparams.noise_rnd_aug_init = 0.
+        mod.hparams.noise_rnd_lstm_init = 0.
+        
         mod.hparams.alpha_mse = 1.
         mod.hparams.alpha_mse_rec = 0.75
         mod.hparams.alpha_mse_for = 0.25
