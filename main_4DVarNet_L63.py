@@ -1585,12 +1585,13 @@ if __name__ == '__main__':
         
         #pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_103-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad50-drop20-epoch=33-val_loss=9.40.ckpt'
         #pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=105-val_loss=2.08.ckpt'
-        print('.... load pre-trained model :'+pathCheckPOint)
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstmaug10-sopt75-unet2-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=129-val_loss=0.63.ckpt'
         
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-aug10-sopt75-unet2-exp02-testloaders-Noise01-igrad02_02-dgrad25-drop20-epoch=172-val_loss=0.84.ckpt'
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-1-aug10-unet2-exp02-testloaders-Noise01-igrad02_03-dgrad25-drop20-epoch=61-val_loss=0.60.ckpt'
+        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-1-aug10-sopt25-unet2-exp02-testloaders-Noise01-igrad02_03-dgrad25-drop20-epoch=160-val_loss=0.74.ckpt'
         
+        print('.... load pre-trained model :'+pathCheckPOint)
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
         
         print(mod.hparams)
