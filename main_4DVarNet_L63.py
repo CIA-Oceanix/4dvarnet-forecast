@@ -1305,9 +1305,6 @@ class LitModel_DirectInv(pl.LightningModule):
         self.model = Phi_r()   
         self.x_rec    = None # variable to store output of test method
         self.x_rec_obs = None
-        self.curr = 0
-
-        self.automatic_optimization = self.hparams.automatic_optimization
                 
 
     def forward(self):
@@ -1351,19 +1348,7 @@ class LitModel_DirectInv(pl.LightningModule):
         #self.log("dev_loss", mse / var_Tr , on_step=True, on_epoch=True, prog_bar=True, sync_dist=True)
         #self.log("loss", loss , on_step=True, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log("tr_mse", stdTr**2 * metrics['mse'] , on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
-        
-        # initial grad value
-        if self.hparams.automatic_optimization == False :
-            # backward
-            self.manual_backward(loss)
-        
-            if (batch_idx + 1) % self.hparams.k_batch == 0:
-                # optimisation step
-                opt.step()
                 
-                # grad initialization to zero
-                opt.zero_grad()
-         
         return {"training_loss": loss}
     
     def validation_step(self, val_batch, batch_idx):
@@ -1403,7 +1388,7 @@ class LitModel_DirectInv(pl.LightningModule):
         idx,inputs_init,inputs_obs,masks,targets_GT = batch
              
         with torch.set_grad_enabled(True):
-            outputs = self.model(input_init)
+            outputs = self.model(inputs_init)
 
             if flag_x1_only == False:
                 loss_mse = torch.mean((outputs - targets_GT) ** 2)
