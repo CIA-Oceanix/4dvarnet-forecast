@@ -2058,7 +2058,6 @@ if __name__ == '__main__':
             print(".. MSE Interp : %.3f / %.3f"%(mse_i,nmse_i))
         
         trainer.test(mod, test_dataloaders=dataloaders['test'])
-        print(' Ngrad = %d / %d'%(mod.hparams.n_grad,mod.model.n_grad))
 
         # Reconstruction performance
         if flagForecast == True :
