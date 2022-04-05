@@ -1544,7 +1544,7 @@ if __name__ == '__main__':
         else:
             mod = LitModel()
             
-            mod.hparams.n_grad          = 3#1#5
+            mod.hparams.n_grad          = 2#1#5
             mod.hparams.k_n_grad        = 5
             mod.hparams.iter_update     = [0, 200, 400, 300, 500, 700, 800]  # [0,2,4,6,9,15]
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 15, 15, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
@@ -1567,7 +1567,7 @@ if __name__ == '__main__':
         profiler_kwargs = {'max_epochs': 400 }
 
         suffix_exp = 'exp%02d-testloaders'%flagTypeMissData
-        filename_chkpt = 'model-l63-dlstm-1-'
+        filename_chkpt = 'model-l63-dlstm-2-'
         
         if flagForecast == True :
             filename_chkpt = filename_chkpt+'forecast_%03d-'%dt_forecast

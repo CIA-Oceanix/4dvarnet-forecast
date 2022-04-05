@@ -221,7 +221,8 @@ class model_GradUpdateLSTM(torch.nn.Module):
         if len(self.shape) == 2: ## 1D Data
             layers.append(torch.nn.Conv1d(self.DimState, self.shape[0], 1, padding=0,bias=False))
         elif len(self.shape) == 3: ## 2D Data
-            layers.append(torch.nn.Conv2d(self.DimState, self.shape[0], (1,1), padding=0,bias=False))
+            #layers.append(torch.nn.Conv2d(self.DimState, self.shape[0], (1,1), padding=0,bias=False))
+            layers.append(torch.nn.Conv2d(self.shape[0]+self.DimState, self.shape[0], (1,1), padding=0,bias=False))
 
         return torch.nn.Sequential(*layers)
     def _make_LSTMGrad(self):
@@ -259,8 +260,9 @@ class model_GradUpdateLSTM(torch.nn.Module):
             else:
                 hidden_,cell_ = self.lstm(grad,[hidden,cell])
 
-        grad = self.dropout( hidden_ )
-        grad = self.convLayer( grad )
+        grad_lstm = self.dropout( hidden_ )
+        #grad = self.convLayer( grad_lstm )
+        grad =  self.convLayer( torch.cat((grad,grad_lstm),dim=1) )
 
         return grad,hidden_,cell_
 
