@@ -1511,6 +1511,7 @@ class LitModel_4dvar_classic(pl.LightningModule):
                 for iter in range(0,self.n_iter_descent):
                     # prior term
                     x_curr = self.phi.ode_int_inv( x_curr_init , dT-dt_forecast-1 ) 
+                    x_curr = x_curr.view(-1,3,dT-dt_forecast,1)
                     print(x_curr.size())
                     print(inputs_obs[:,:,:dT-dt_forecast,:].size())
                     
