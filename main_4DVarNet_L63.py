@@ -417,15 +417,15 @@ else:
     meanTr = ncfile.variables['meanTr'][:]
     stdTr = ncfile.variables['stdTr'][:]
         
-    x_train = x_train.reshape((-1,3,dT,1))
-    mask_train = mask_train.reshape((-1,3,dT,1))
-    x_train_Init = x_train_Init.reshape((-1,3,dT,1))
-    x_train_obs = x_train_obs.reshape((-1,3,dT,1))
+    x_train = x_train.data.reshape((-1,3,dT,1))
+    mask_train = mask_train.data.reshape((-1,3,dT,1))
+    x_train_Init = x_train_Init.data.reshape((-1,3,dT,1))
+    x_train_obs = x_train_obs.data.reshape((-1,3,dT,1))
     
-    x_test = x_test.reshape((-1,3,dT,1))
-    mask_test = mask_test.reshape((-1,3,dT,1))
-    x_test_Init = x_test_Init.reshape((-1,3,dT,1))
-    x_test_obs = x_test_obs.reshape((-1,3,dT,1))
+    x_test = x_test.data.reshape((-1,3,dT,1))
+    mask_test = mask_test.data.reshape((-1,3,dT,1))
+    x_test_Init = x_test_Init.data.reshape((-1,3,dT,1))
+    x_test_obs = x_test_obs.data.reshape((-1,3,dT,1))
 
     print('..... Training dataset: %dx%dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2],x_train.shape[3]))
     print('..... Test dataset    : %dx%dx%dx%d'%(x_test.shape[0],x_test.shape[1],x_test.shape[2],x_test.shape[3]))
