@@ -376,6 +376,25 @@ print('..... Training dataset: %dx%dx%dx%d'%(x_train.shape[0],x_train.shape[1],x
 print('..... Test dataset    : %dx%dx%dx%d'%(x_test.shape[0],x_test.shape[1],x_test.shape[2],x_test.shape[3]))
 
 
+
+flag_save_dataset = True
+if flag_save_dataset == True :
+        
+    xrdata = xr.Dataset( \
+        data_vars={'x_train': (('idx_train', 'time', 'l63'), x_train), \
+                   'mask_train': (('idx_train', 'time', 'l63'),mask_train), \
+                   'x_train_Init': (('idx_train', 'time', 'l63'),x_train_Init), \
+                   'x_train_obs': (('idx_train', 'time', 'l63'),x_train_obs), \
+                   'x_test': (('idx_test', 'time', 'l63'), x_test) , \
+                   'mask_test': (('idx_test', 'time', 'l63'),mask_test), \
+                   'x_test_Init': (('idx_test', 'time', 'l63'),x_test_Init), \
+                   'x_test_obs': (('idx_test', 'time', 'l63'),x_test_obs),
+                   'meanTr':meanTr,
+                   'stdTr':stdTr}, )
+    xrdata.to_netcdf(path='dataset_L63_All.nc', mode='w')
+
+
+
 ################################################
 ## dataloader
 idx_val = x_train.shape[0]-500
