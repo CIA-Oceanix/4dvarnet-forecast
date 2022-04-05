@@ -1724,7 +1724,7 @@ if __name__ == '__main__':
         mod.alpha_obs = 1.e5
         mod.lam = 2e-3 * batch_size  #2e-3 * batch_size 
         mod.n_iter_descent = 21000
-        mod.flag_ode_forecast = False#True#
+        mod.flag_ode_forecast = True#False#
     
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
 
