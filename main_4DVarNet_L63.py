@@ -53,86 +53,61 @@ flagForecast = False#True#
 dt_forecast = 55#103#55#
 flag_x1_only = False#True #
 
-print('........ Data generation')
-flagRandomSeed = 0
-if flagRandomSeed == 0:
-    print('........ Random seed set to 100')
-    np.random.seed(100)
-    torch.manual_seed(100)
+load_full_dataset = True
+if load_full_dataset == False:
 
-def AnDA_Lorenz_63(S,t,sigma,rho,beta):
-    """ Lorenz-63 dynamical model. """
-    x_1 = sigma*(S[1]-S[0]);
-    x_2 = S[0]*(rho-S[2])-S[1];
-    x_3 = S[0]*S[1] - beta*S[2];
-    dS  = np.array([x_1,x_2,x_3]);
-    return dS
-
-class GD:
-    model = 'Lorenz_63'
-    class parameters:
-        sigma = 10.0
-        rho   = 28.0
-        beta  = 8.0/3
-    dt_integration = 0.01 # integration time
-    dt_states = 1 # number of integeration times between consecutive states (for xt and catalog)
-    dt_obs = 8 # number of integration times between consecutive observations (for yo)
-    var_obs = np.array([0,1,2]) # indices of the observed variables
-    nb_loop_train = 10**2 # size of the catalog
-    nb_loop_test = 20000 # size of the true state and noisy observations
-    sigma2_catalog = 0.0 # variance of the model error to generate the catalog
-    sigma2_obs = 2.0 # variance of the observation error to generate observation
-
-class time_series:
-  values = 0.
-  time   = 0.
-  
-flag_load_data =True#  False #  
-
-if flag_load_data == False :
+    print('........ Data generation')
+    flagRandomSeed = 0
+    if flagRandomSeed == 0:
+        print('........ Random seed set to 100')
+        np.random.seed(100)
+        torch.manual_seed(100)
     
-    if 1*0 :
-        ## data generation: L63 series
-        GD = GD()    
-        y0 = np.array([8.0,0.0,30.0])
-        tt = np.arange(GD.dt_integration,GD.nb_loop_test*GD.dt_integration+0.000001,GD.dt_integration)
-        #S = odeint(AnDA_Lorenz_63,x0,np.arange(0,5+0.000001,GD.dt_integration),args=(GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta));
-        S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[0.,5+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=np.arange(0,5+0.000001,GD.dt_integration),method='RK45')
+    def AnDA_Lorenz_63(S,t,sigma,rho,beta):
+        """ Lorenz-63 dynamical model. """
+        x_1 = sigma*(S[1]-S[0]);
+        x_2 = S[0]*(rho-S[2])-S[1];
+        x_3 = S[0]*S[1] - beta*S[2];
+        dS  = np.array([x_1,x_2,x_3]);
+        return dS
+    
+    class GD:
+        model = 'Lorenz_63'
+        class parameters:
+            sigma = 10.0
+            rho   = 28.0
+            beta  = 8.0/3
+        dt_integration = 0.01 # integration time
+        dt_states = 1 # number of integeration times between consecutive states (for xt and catalog)
+        dt_obs = 8 # number of integration times between consecutive observations (for yo)
+        var_obs = np.array([0,1,2]) # indices of the observed variables
+        nb_loop_train = 10**2 # size of the catalog
+        nb_loop_test = 20000 # size of the true state and noisy observations
+        sigma2_catalog = 0.0 # variance of the model error to generate the catalog
+        sigma2_obs = 2.0 # variance of the observation error to generate observation
+    
+    class time_series:
+      values = 0.
+      time   = 0.
+      
+    flag_load_data =True#  False #  
+    
+    if flag_load_data == False :
         
-        y0 = S.y[:,-1];
-        S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[GD.dt_integration,GD.nb_loop_test+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=tt,method='RK45')
-        S = S.y.transpose()
-        
-        print( S.shape, flush=True)
-        
-        ####################################################
-        ## Generation of training and test dataset
-        ## Extraction of time series of dT time steps            
-          
-        xt = time_series()
-        xt.values = S
-        xt.time   = tt
-        # extract subsequences
-        dataTrainingNoNaN = image.extract_patches_2d(xt.values[0:12000:time_step,:],(dT,3),max_patches=NbTraining)
-        dataTestNoNaN     = image.extract_patches_2d(xt.values[15000::time_step,:],(dT,3),max_patches=NbTest)
-
-    else:
-        ## data generation: L63 series
-        GD = GD()    
-        y0 = np.array([8.0,0.0,30.0])
-        #S = odeint(AnDA_Lorenz_63,x0,np.arange(0,5+0.000001,GD.dt_integration),args=(GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta));
-        
-        GD.nb_loop_seq = 15000
-        GD.nb_seq = 100
-        tt = np.arange(GD.dt_integration,GD.nb_loop_seq*GD.dt_integration+0.000001,GD.dt_integration)
-        S0 = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[0.,2*GD.nb_seq+5+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=np.arange(0,2*GD.nb_seq+5+0.000001,GD.dt_integration),method='RK45')
-        
-        for nn in range(0,GD.nb_seq):
-
-            y0 = S0.y[:,500+nn*100]
-            S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[GD.dt_integration,GD.nb_loop_seq*GD.dt_integration+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=tt,method='RK45')
+        if 1*0 :
+            ## data generation: L63 series
+            GD = GD()    
+            y0 = np.array([8.0,0.0,30.0])
+            tt = np.arange(GD.dt_integration,GD.nb_loop_test*GD.dt_integration+0.000001,GD.dt_integration)
+            #S = odeint(AnDA_Lorenz_63,x0,np.arange(0,5+0.000001,GD.dt_integration),args=(GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta));
+            S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[0.,5+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=np.arange(0,5+0.000001,GD.dt_integration),method='RK45')
+            
+            y0 = S.y[:,-1];
+            S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[GD.dt_integration,GD.nb_loop_test+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=tt,method='RK45')
             S = S.y.transpose()
-              
+            
+            print( S.shape, flush=True)
+            
             ####################################################
             ## Generation of training and test dataset
             ## Extraction of time series of dT time steps            
@@ -141,259 +116,320 @@ if flag_load_data == False :
             xt.values = S
             xt.time   = tt
             # extract subsequences
-            print('..... (%d) Extract %d+%d patches from a %dx%d sequence '%(nn,int(NbTraining/GD.nb_seq),int(NbTest/GD.nb_seq),S.shape[0],3))
-            dataTrainingNoNaN_nn = image.extract_patches_2d(xt.values[0:15000:time_step,:],(dT,3),max_patches=int(NbTraining/GD.nb_seq))
+            dataTrainingNoNaN = image.extract_patches_2d(xt.values[0:12000:time_step,:],(dT,3),max_patches=NbTraining)
+            dataTestNoNaN     = image.extract_patches_2d(xt.values[15000::time_step,:],(dT,3),max_patches=NbTest)
+    
+        else:
+            ## data generation: L63 series
+            GD = GD()    
+            y0 = np.array([8.0,0.0,30.0])
+            #S = odeint(AnDA_Lorenz_63,x0,np.arange(0,5+0.000001,GD.dt_integration),args=(GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta));
             
-            if nn == 0 :
-                dataTrainingNoNaN = np.copy( dataTrainingNoNaN_nn )
-            else:
-                dataTrainingNoNaN = np.concatenate((dataTrainingNoNaN,dataTrainingNoNaN_nn),axis=0)
+            GD.nb_loop_seq = 15000
+            GD.nb_seq = 100
+            tt = np.arange(GD.dt_integration,GD.nb_loop_seq*GD.dt_integration+0.000001,GD.dt_integration)
+            S0 = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[0.,2*GD.nb_seq+5+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=np.arange(0,2*GD.nb_seq+5+0.000001,GD.dt_integration),method='RK45')
+            
+            for nn in range(0,GD.nb_seq):
+    
+                y0 = S0.y[:,500+nn*100]
+                S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[GD.dt_integration,GD.nb_loop_seq*GD.dt_integration+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=tt,method='RK45')
+                S = S.y.transpose()
+                  
+                ####################################################
+                ## Generation of training and test dataset
+                ## Extraction of time series of dT time steps            
+                  
+                xt = time_series()
+                xt.values = S
+                xt.time   = tt
+                # extract subsequences
+                print('..... (%d) Extract %d+%d patches from a %dx%d sequence '%(nn,int(NbTraining/GD.nb_seq),int(NbTest/GD.nb_seq),S.shape[0],3))
+                dataTrainingNoNaN_nn = image.extract_patches_2d(xt.values[0:15000:time_step,:],(dT,3),max_patches=int(NbTraining/GD.nb_seq))
                 
-        for nn in range(0,GD.nb_seq):
-
-            y0 = S0.y[:,500+100*GD.nb_seq+nn*100]
-            S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[GD.dt_integration,GD.nb_loop_seq*GD.dt_integration+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=tt,method='RK45')
-            S = S.y.transpose()
-              
-            ####################################################
-            ## Generation of training and test dataset
-            ## Extraction of time series of dT time steps            
-              
-            xt = time_series()
-            xt.values = S
-            xt.time   = tt
-            # extract subsequences
-            print('..... (%d) Extract %d+%d patches from a %dx%d sequence '%(nn,int(NbTraining/GD.nb_seq),int(NbTest/GD.nb_seq),S.shape[0],3))
-            dataTestNoNaN_nn     = image.extract_patches_2d(xt.values[:15000:time_step,:],(dT,3),max_patches=int(NbTest/GD.nb_seq))
-            
-            if nn == 0 :
-                dataTestNoNaN = np.copy( dataTestNoNaN_nn )
-            else:
-                dataTestNoNaN = np.concatenate((dataTestNoNaN,dataTestNoNaN_nn),axis=0)
-
-    flag_save_dataset = True
-    if flag_save_dataset == True :
-        
-        print( dataTrainingNoNaN.shape )
-        print( dataTestNoNaN.shape )
-        
-        xrdata = xr.Dataset( \
-            data_vars={'X_train': (('idx_train', 'time', 'l63'), dataTrainingNoNaN), \
-                       'X_test': (('idx_test', 'time', 'l63'), dataTestNoNaN) })
-#            coords={'idx_train': np.arange(dataTrainingNoNaN.shape[0]),
-#                    'idx_test': np.arange(dataTestNoNaN.shape[0]),
-#                    'l63': np.arange(3), 
-#                    'time': np.arange(dT)})
+                if nn == 0 :
+                    dataTrainingNoNaN = np.copy( dataTrainingNoNaN_nn )
+                else:
+                    dataTrainingNoNaN = np.concatenate((dataTrainingNoNaN,dataTrainingNoNaN_nn),axis=0)
                     
-        xrdata.to_netcdf(path='dataset_L63.nc', mode='w')
-else:
-    print('.... Load dataset')
-    path_l63_dataset = 'dataset_L63.nc'
-    ncfile = Dataset(path_l63_dataset,"r")
-    dataTrainingNoNaN = ncfile.variables['X_train'][:]
-    dataTestNoNaN = ncfile.variables['X_test'][:]
+            for nn in range(0,GD.nb_seq):
     
-    dataTrainingNoNaN = dataTrainingNoNaN[:NbTraining,:,:]
-    dataTestNoNaN = dataTestNoNaN[:NbTest,:,:]
-    #dataTestNoNaN = dataTestNoNaN[:128,:,:]  
+                y0 = S0.y[:,500+100*GD.nb_seq+nn*100]
+                S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[GD.dt_integration,GD.nb_loop_seq*GD.dt_integration+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=tt,method='RK45')
+                S = S.y.transpose()
+                  
+                ####################################################
+                ## Generation of training and test dataset
+                ## Extraction of time series of dT time steps            
+                  
+                xt = time_series()
+                xt.values = S
+                xt.time   = tt
+                # extract subsequences
+                print('..... (%d) Extract %d+%d patches from a %dx%d sequence '%(nn,int(NbTraining/GD.nb_seq),int(NbTest/GD.nb_seq),S.shape[0],3))
+                dataTestNoNaN_nn     = image.extract_patches_2d(xt.values[:15000:time_step,:],(dT,3),max_patches=int(NbTest/GD.nb_seq))
+                
+                if nn == 0 :
+                    dataTestNoNaN = np.copy( dataTestNoNaN_nn )
+                else:
+                    dataTestNoNaN = np.concatenate((dataTestNoNaN,dataTestNoNaN_nn),axis=0)
     
-# create missing data
-if flagTypeMissData == 0:
-    print('..... Observation pattern: Random sampling of osberved L63 components')
-    indRand         = np.random.permutation(dataTrainingNoNaN.shape[0]*dataTrainingNoNaN.shape[1]*dataTrainingNoNaN.shape[2])
-    indRand         = indRand[0:int(rateMissingData*len(indRand))]
-    dataTraining    = np.copy(dataTrainingNoNaN).reshape((dataTrainingNoNaN.shape[0]*dataTrainingNoNaN.shape[1]*dataTrainingNoNaN.shape[2],1))
-    dataTraining[indRand] = float('nan')
-    dataTraining    = np.reshape(dataTraining,(dataTrainingNoNaN.shape[0],dataTrainingNoNaN.shape[1],dataTrainingNoNaN.shape[2]))
-    
-    indRand         = np.random.permutation(dataTestNoNaN.shape[0]*dataTestNoNaN.shape[1]*dataTestNoNaN.shape[2])
-    indRand         = indRand[0:int(rateMissingData*len(indRand))]
-    dataTest        = np.copy(dataTestNoNaN).reshape((dataTestNoNaN.shape[0]*dataTestNoNaN.shape[1]*dataTestNoNaN.shape[2],1))
-    dataTest[indRand] = float('nan')
-    dataTest          = np.reshape(dataTest,(dataTestNoNaN.shape[0],dataTestNoNaN.shape[1],dataTestNoNaN.shape[2]))
-
-    genSuffixObs    = '_ObsRnd_%02d_%02d'%(100*rateMissingData,10*sigNoise**2)
-elif flagTypeMissData == 2:
-    print('..... Observation pattern: Only the first L63 component is osberved')
-    time_step_obs   = int(1./(1.-rateMissingData))
-    dataTraining    = np.zeros((dataTrainingNoNaN.shape))
-    dataTraining[:] = float('nan')
-    dataTraining[:,::time_step_obs,0] = dataTrainingNoNaN[:,::time_step_obs,0]
-    
-    dataTest    = np.zeros((dataTestNoNaN.shape))
-    dataTest[:] = float('nan')
-    dataTest[:,::time_step_obs,0] = dataTestNoNaN[:,::time_step_obs,0]
-
-    genSuffixObs    = '_ObsDim0_%02d_%02d'%(100*rateMissingData,10*sigNoise**2)
-   
-else:
-    print('..... Observation pattern: All  L63 components osberved')
-    time_step_obs   = int(1./(1.-rateMissingData))
-    dataTraining    = np.zeros((dataTrainingNoNaN.shape))
-    dataTraining[:] = float('nan')
-    dataTraining[:,::time_step_obs,:] = dataTrainingNoNaN[:,::time_step_obs,:]
-    
-    dataTest    = np.zeros((dataTestNoNaN.shape))
-    dataTest[:] = float('nan')
-    dataTest[:,::time_step_obs,:] = dataTestNoNaN[:,::time_step_obs,:]
-
-    genSuffixObs    = '_ObsSub_%02d_%02d'%(100*rateMissingData,10*sigNoise**2)
-    
-# set to NaN patch boundaries
-dataTraining[:,0:10,:] =  float('nan')
-dataTest[:,0:10,:]     =  float('nan')
-dataTraining[:,dT-10:dT,:] =  float('nan')
-dataTest[:,dT-10:dT,:]     =  float('nan')
-
-# 
-if flagForecast == True :
-    dataTraining[:,dT-dt_forecast:,:] =  float('nan')
-    dataTest[:,dT-dt_forecast:,:]     =  float('nan')
-    
-    print(dataTraining.shape)
-    print(dataTraining[10,dT-dt_forecast-5:dT-dt_forecast,0])
-
-# mask for NaN
-maskTraining = (dataTraining == dataTraining).astype('float')
-maskTest     = ( dataTest    ==  dataTest   ).astype('float')
-
-dataTraining = np.nan_to_num(dataTraining)
-dataTest     = np.nan_to_num(dataTest)
-
-# Permutation to have channel as #1 component
-dataTraining      = np.moveaxis(dataTraining,-1,1)
-maskTraining      = np.moveaxis(maskTraining,-1,1)
-dataTrainingNoNaN = np.moveaxis(dataTrainingNoNaN,-1,1)
-
-dataTest      = np.moveaxis(dataTest,-1,1)
-maskTest      = np.moveaxis(maskTest,-1,1)
-dataTestNoNaN = np.moveaxis(dataTestNoNaN,-1,1)
-
-# set to NaN patch boundaries
-#dataTraining[:,0:5,:] =  dataTrainingNoNaN[:,0:5,:]
-#dataTest[:,0:5,:]     =  dataTestNoNaN[:,0:5,:]
-
-############################################
-## raw data
-X_train         = dataTrainingNoNaN
-X_train_missing = dataTraining
-mask_train      = maskTraining
-
-X_test         = dataTestNoNaN
-X_test_missing = dataTest
-mask_test      = maskTest
-
-############################################
-## normalized data
-#meanTr          = np.mean(X_train_missing[:]) / np.mean(mask_train) 
-#stdTr           = np.sqrt( np.mean( (X_train_missing-meanTr)**2 ) / np.mean(mask_train) )
-
-meanTr          = np.mean(X_train[:],) 
-stdTr           = np.sqrt( np.mean( (X_train-meanTr)**2 ) )
-
-x_train_missing = ( X_train_missing - meanTr ) / stdTr
-x_test_missing  = ( X_test_missing - meanTr ) / stdTr
-
-x_train = (X_train - meanTr) / stdTr
-x_test  = (X_test - meanTr) / stdTr
-
-print('.... MeanTr = %.3f --- StdTr = %.3f '%(meanTr,stdTr))
-
-# Generate noisy observsation
-X_train_obs = X_train_missing + sigNoise * maskTraining * np.random.randn(X_train_missing.shape[0],X_train_missing.shape[1],X_train_missing.shape[2])
-X_test_obs  = X_test_missing  + sigNoise * maskTest * np.random.randn(X_test_missing.shape[0],X_test_missing.shape[1],X_test_missing.shape[2])
-
-x_train_obs = (X_train_obs - meanTr) / stdTr
-x_test_obs  = (X_test_obs - meanTr) / stdTr
-
-print('..... Training dataset: %dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2]))
-print('..... Test dataset    : %dx%dx%d'%(x_test.shape[0],x_test.shape[1],x_test.shape[2]))
-
-import scipy
-# Initialization
-flagInit = 1
-mx_train = np.sum( np.sum( X_train , axis = 2 ) , axis = 0 ) / (X_train.shape[0]*X_train.shape[2])
-
-if flagInit == 0: 
-  X_train_Init = mask_train * X_train_obs + (1. - mask_train) * (np.zeros(X_train_missing.shape) + meanTr)
-  X_test_Init  = mask_test * X_test_obs + (1. - mask_test) * (np.zeros(X_test_missing.shape) + meanTr)
-else:
-  X_train_Init = np.zeros(X_train.shape)
-  for ii in range(0,X_train.shape[0]):
-    # Initial linear interpolation for each component
-    XInit = np.zeros((X_train.shape[1],X_train.shape[2]))
-
-    for kk in range(0,3):
-      indt  = np.where( mask_train[ii,kk,:] == 1.0 )[0]
-      indt_ = np.where( mask_train[ii,kk,:] == 0.0 )[0]
-
-      if len(indt) > 1:
-        indt_[ np.where( indt_ < np.min(indt)) ] = np.min(indt)
-        indt_[ np.where( indt_ > np.max(indt)) ] = np.max(indt)
-        fkk = scipy.interpolate.interp1d(indt, X_train_obs[ii,kk,indt])
-        XInit[kk,indt]  = X_train_obs[ii,kk,indt]
-        XInit[kk,indt_] = fkk(indt_)
-      else:
-        XInit[kk,:] = XInit[kk,:] +  mx_train[kk]
-
-    X_train_Init[ii,:,:] = XInit
-
-  X_test_Init = np.zeros(X_test.shape)
-  for ii in range(0,X_test.shape[0]):
-    # Initial linear interpolation for each component
-    XInit = np.zeros((X_test.shape[1],X_test.shape[2]))
-
-    for kk in range(0,3):
-      indt  = np.where( mask_test[ii,kk,:] == 1.0 )[0]
-      indt_ = np.where( mask_test[ii,kk,:] == 0.0 )[0]
-
-      if len(indt) > 1:
-        indt_[ np.where( indt_ < np.min(indt)) ] = np.min(indt)
-        indt_[ np.where( indt_ > np.max(indt)) ] = np.max(indt)
-        fkk = scipy.interpolate.interp1d(indt, X_test_obs[ii,kk,indt])
-        XInit[kk,indt]  = X_test_obs[ii,kk,indt]
-        XInit[kk,indt_] = fkk(indt_)
-      else:
-        XInit[kk,:] = XInit[kk,:] +  mx_train[kk]
-
-    X_test_Init[ii,:,:] = XInit
-
-x_train_Init = ( X_train_Init - meanTr ) / stdTr
-x_test_Init = ( X_test_Init - meanTr ) / stdTr
-
-# reshape to 2D tensors
-x_train = x_train.reshape((-1,3,dT,1))
-mask_train = mask_train.reshape((-1,3,dT,1))
-x_train_Init = x_train_Init.reshape((-1,3,dT,1))
-x_train_obs = x_train_obs.reshape((-1,3,dT,1))
-
-x_test = x_test.reshape((-1,3,dT,1))
-mask_test = mask_test.reshape((-1,3,dT,1))
-x_test_Init = x_test_Init.reshape((-1,3,dT,1))
-x_test_obs = x_test_obs.reshape((-1,3,dT,1))
-
-print('..... Training dataset: %dx%dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2],x_train.shape[3]))
-print('..... Test dataset    : %dx%dx%dx%d'%(x_test.shape[0],x_test.shape[1],x_test.shape[2],x_test.shape[3]))
-
-
-
-flag_save_dataset = True
-if flag_save_dataset == True :
+        flag_save_dataset = True
+        if flag_save_dataset == True :
+            
+            print( dataTrainingNoNaN.shape )
+            print( dataTestNoNaN.shape )
+            
+            xrdata = xr.Dataset( \
+                data_vars={'X_train': (('idx_train', 'time', 'l63'), dataTrainingNoNaN), \
+                           'X_test': (('idx_test', 'time', 'l63'), dataTestNoNaN) })
+    #            coords={'idx_train': np.arange(dataTrainingNoNaN.shape[0]),
+    #                    'idx_test': np.arange(dataTestNoNaN.shape[0]),
+    #                    'l63': np.arange(3), 
+    #                    'time': np.arange(dT)})
+                        
+            xrdata.to_netcdf(path='dataset_L63.nc', mode='w')
+    else:
+        print('.... Load dataset')
+        path_l63_dataset = 'dataset_L63.nc'
+        ncfile = Dataset(path_l63_dataset,"r")
+        dataTrainingNoNaN = ncfile.variables['X_train'][:]
+        dataTestNoNaN = ncfile.variables['X_test'][:]
         
-    xrdata = xr.Dataset( \
-        data_vars={'x_train': (('idx_train', 'l63', 'time'), x_train.squeeze()), \
-                   'mask_train': (('idx_train', 'l63', 'time'),mask_train.squeeze()), \
-                   'x_train_Init': (('idx_train', 'l63' , 'time'),x_train_Init.squeeze()), \
-                   'x_train_obs': (('idx_train', 'l63' , 'time'),x_train_obs.squeeze()), \
-                   'x_test': (('idx_test', 'l63' , 'time'), x_test.squeeze()) , \
-                   'mask_test': (('idx_test' , 'l63' , 'time'),mask_test.squeeze()), \
-                   'x_test_Init': (('idx_test', 'l63' , 'time'),x_test_Init.squeeze()), \
-                   'x_test_obs': (('idx_test', 'l63' , 'time'),x_test_obs.squeeze()),
-                   'meanTr':meanTr,
-                   'stdTr':stdTr}, )
-    xrdata.to_netcdf(path='dataset_L63_All.nc', mode='w')
+        dataTrainingNoNaN = dataTrainingNoNaN[:NbTraining,:,:]
+        dataTestNoNaN = dataTestNoNaN[:NbTest,:,:]
+        #dataTestNoNaN = dataTestNoNaN[:128,:,:]  
+        
+    # create missing data
+    if flagTypeMissData == 0:
+        print('..... Observation pattern: Random sampling of osberved L63 components')
+        indRand         = np.random.permutation(dataTrainingNoNaN.shape[0]*dataTrainingNoNaN.shape[1]*dataTrainingNoNaN.shape[2])
+        indRand         = indRand[0:int(rateMissingData*len(indRand))]
+        dataTraining    = np.copy(dataTrainingNoNaN).reshape((dataTrainingNoNaN.shape[0]*dataTrainingNoNaN.shape[1]*dataTrainingNoNaN.shape[2],1))
+        dataTraining[indRand] = float('nan')
+        dataTraining    = np.reshape(dataTraining,(dataTrainingNoNaN.shape[0],dataTrainingNoNaN.shape[1],dataTrainingNoNaN.shape[2]))
+        
+        indRand         = np.random.permutation(dataTestNoNaN.shape[0]*dataTestNoNaN.shape[1]*dataTestNoNaN.shape[2])
+        indRand         = indRand[0:int(rateMissingData*len(indRand))]
+        dataTest        = np.copy(dataTestNoNaN).reshape((dataTestNoNaN.shape[0]*dataTestNoNaN.shape[1]*dataTestNoNaN.shape[2],1))
+        dataTest[indRand] = float('nan')
+        dataTest          = np.reshape(dataTest,(dataTestNoNaN.shape[0],dataTestNoNaN.shape[1],dataTestNoNaN.shape[2]))
+    
+        genSuffixObs    = '_ObsRnd_%02d_%02d'%(100*rateMissingData,10*sigNoise**2)
+    elif flagTypeMissData == 2:
+        print('..... Observation pattern: Only the first L63 component is osberved')
+        time_step_obs   = int(1./(1.-rateMissingData))
+        dataTraining    = np.zeros((dataTrainingNoNaN.shape))
+        dataTraining[:] = float('nan')
+        dataTraining[:,::time_step_obs,0] = dataTrainingNoNaN[:,::time_step_obs,0]
+        
+        dataTest    = np.zeros((dataTestNoNaN.shape))
+        dataTest[:] = float('nan')
+        dataTest[:,::time_step_obs,0] = dataTestNoNaN[:,::time_step_obs,0]
+    
+        genSuffixObs    = '_ObsDim0_%02d_%02d'%(100*rateMissingData,10*sigNoise**2)
+       
+    else:
+        print('..... Observation pattern: All  L63 components osberved')
+        time_step_obs   = int(1./(1.-rateMissingData))
+        dataTraining    = np.zeros((dataTrainingNoNaN.shape))
+        dataTraining[:] = float('nan')
+        dataTraining[:,::time_step_obs,:] = dataTrainingNoNaN[:,::time_step_obs,:]
+        
+        dataTest    = np.zeros((dataTestNoNaN.shape))
+        dataTest[:] = float('nan')
+        dataTest[:,::time_step_obs,:] = dataTestNoNaN[:,::time_step_obs,:]
+    
+        genSuffixObs    = '_ObsSub_%02d_%02d'%(100*rateMissingData,10*sigNoise**2)
+        
+    # set to NaN patch boundaries
+    dataTraining[:,0:10,:] =  float('nan')
+    dataTest[:,0:10,:]     =  float('nan')
+    dataTraining[:,dT-10:dT,:] =  float('nan')
+    dataTest[:,dT-10:dT,:]     =  float('nan')
+    
+    # 
+    if flagForecast == True :
+        dataTraining[:,dT-dt_forecast:,:] =  float('nan')
+        dataTest[:,dT-dt_forecast:,:]     =  float('nan')
+        
+        print(dataTraining.shape)
+        print(dataTraining[10,dT-dt_forecast-5:dT-dt_forecast,0])
+    
+    # mask for NaN
+    maskTraining = (dataTraining == dataTraining).astype('float')
+    maskTest     = ( dataTest    ==  dataTest   ).astype('float')
+    
+    dataTraining = np.nan_to_num(dataTraining)
+    dataTest     = np.nan_to_num(dataTest)
+    
+    # Permutation to have channel as #1 component
+    dataTraining      = np.moveaxis(dataTraining,-1,1)
+    maskTraining      = np.moveaxis(maskTraining,-1,1)
+    dataTrainingNoNaN = np.moveaxis(dataTrainingNoNaN,-1,1)
+    
+    dataTest      = np.moveaxis(dataTest,-1,1)
+    maskTest      = np.moveaxis(maskTest,-1,1)
+    dataTestNoNaN = np.moveaxis(dataTestNoNaN,-1,1)
+    
+    # set to NaN patch boundaries
+    #dataTraining[:,0:5,:] =  dataTrainingNoNaN[:,0:5,:]
+    #dataTest[:,0:5,:]     =  dataTestNoNaN[:,0:5,:]
+    
+    ############################################
+    ## raw data
+    X_train         = dataTrainingNoNaN
+    X_train_missing = dataTraining
+    mask_train      = maskTraining
+    
+    X_test         = dataTestNoNaN
+    X_test_missing = dataTest
+    mask_test      = maskTest
+    
+    ############################################
+    ## normalized data
+    #meanTr          = np.mean(X_train_missing[:]) / np.mean(mask_train) 
+    #stdTr           = np.sqrt( np.mean( (X_train_missing-meanTr)**2 ) / np.mean(mask_train) )
+    
+    meanTr          = np.mean(X_train[:],) 
+    stdTr           = np.sqrt( np.mean( (X_train-meanTr)**2 ) )
+    
+    x_train_missing = ( X_train_missing - meanTr ) / stdTr
+    x_test_missing  = ( X_test_missing - meanTr ) / stdTr
+    
+    x_train = (X_train - meanTr) / stdTr
+    x_test  = (X_test - meanTr) / stdTr
+    
+    print('.... MeanTr = %.3f --- StdTr = %.3f '%(meanTr,stdTr))
+    
+    # Generate noisy observsation
+    X_train_obs = X_train_missing + sigNoise * maskTraining * np.random.randn(X_train_missing.shape[0],X_train_missing.shape[1],X_train_missing.shape[2])
+    X_test_obs  = X_test_missing  + sigNoise * maskTest * np.random.randn(X_test_missing.shape[0],X_test_missing.shape[1],X_test_missing.shape[2])
+    
+    x_train_obs = (X_train_obs - meanTr) / stdTr
+    x_test_obs  = (X_test_obs - meanTr) / stdTr
+    
+    print('..... Training dataset: %dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2]))
+    print('..... Test dataset    : %dx%dx%d'%(x_test.shape[0],x_test.shape[1],x_test.shape[2]))
+    
+    import scipy
+    # Initialization
+    flagInit = 1
+    mx_train = np.sum( np.sum( X_train , axis = 2 ) , axis = 0 ) / (X_train.shape[0]*X_train.shape[2])
+    
+    if flagInit == 0: 
+      X_train_Init = mask_train * X_train_obs + (1. - mask_train) * (np.zeros(X_train_missing.shape) + meanTr)
+      X_test_Init  = mask_test * X_test_obs + (1. - mask_test) * (np.zeros(X_test_missing.shape) + meanTr)
+    else:
+      X_train_Init = np.zeros(X_train.shape)
+      for ii in range(0,X_train.shape[0]):
+        # Initial linear interpolation for each component
+        XInit = np.zeros((X_train.shape[1],X_train.shape[2]))
+    
+        for kk in range(0,3):
+          indt  = np.where( mask_train[ii,kk,:] == 1.0 )[0]
+          indt_ = np.where( mask_train[ii,kk,:] == 0.0 )[0]
+    
+          if len(indt) > 1:
+            indt_[ np.where( indt_ < np.min(indt)) ] = np.min(indt)
+            indt_[ np.where( indt_ > np.max(indt)) ] = np.max(indt)
+            fkk = scipy.interpolate.interp1d(indt, X_train_obs[ii,kk,indt])
+            XInit[kk,indt]  = X_train_obs[ii,kk,indt]
+            XInit[kk,indt_] = fkk(indt_)
+          else:
+            XInit[kk,:] = XInit[kk,:] +  mx_train[kk]
+    
+        X_train_Init[ii,:,:] = XInit
+    
+      X_test_Init = np.zeros(X_test.shape)
+      for ii in range(0,X_test.shape[0]):
+        # Initial linear interpolation for each component
+        XInit = np.zeros((X_test.shape[1],X_test.shape[2]))
+    
+        for kk in range(0,3):
+          indt  = np.where( mask_test[ii,kk,:] == 1.0 )[0]
+          indt_ = np.where( mask_test[ii,kk,:] == 0.0 )[0]
+    
+          if len(indt) > 1:
+            indt_[ np.where( indt_ < np.min(indt)) ] = np.min(indt)
+            indt_[ np.where( indt_ > np.max(indt)) ] = np.max(indt)
+            fkk = scipy.interpolate.interp1d(indt, X_test_obs[ii,kk,indt])
+            XInit[kk,indt]  = X_test_obs[ii,kk,indt]
+            XInit[kk,indt_] = fkk(indt_)
+          else:
+            XInit[kk,:] = XInit[kk,:] +  mx_train[kk]
+    
+        X_test_Init[ii,:,:] = XInit
+    
+    x_train_Init = ( X_train_Init - meanTr ) / stdTr
+    x_test_Init = ( X_test_Init - meanTr ) / stdTr
+    
+    # reshape to 2D tensors
+    x_train = x_train.reshape((-1,3,dT,1))
+    mask_train = mask_train.reshape((-1,3,dT,1))
+    x_train_Init = x_train_Init.reshape((-1,3,dT,1))
+    x_train_obs = x_train_obs.reshape((-1,3,dT,1))
+    
+    x_test = x_test.reshape((-1,3,dT,1))
+    mask_test = mask_test.reshape((-1,3,dT,1))
+    x_test_Init = x_test_Init.reshape((-1,3,dT,1))
+    x_test_obs = x_test_obs.reshape((-1,3,dT,1))
+    
+    print('..... Training dataset: %dx%dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2],x_train.shape[3]))
+    print('..... Test dataset    : %dx%dx%dx%d'%(x_test.shape[0],x_test.shape[1],x_test.shape[2],x_test.shape[3]))
+    
+    
+    
+    flag_save_dataset = False
+    if flag_save_dataset == True :
+            
+        xrdata = xr.Dataset( \
+            data_vars={'x_train': (('idx_train', 'l63', 'time'), x_train.squeeze()), \
+                       'mask_train': (('idx_train', 'l63', 'time'),mask_train.squeeze()), \
+                       'x_train_Init': (('idx_train', 'l63' , 'time'),x_train_Init.squeeze()), \
+                       'x_train_obs': (('idx_train', 'l63' , 'time'),x_train_obs.squeeze()), \
+                       'x_test': (('idx_test', 'l63' , 'time'), x_test.squeeze()) , \
+                       'mask_test': (('idx_test' , 'l63' , 'time'),mask_test.squeeze()), \
+                       'x_test_Init': (('idx_test', 'l63' , 'time'),x_test_Init.squeeze()), \
+                       'x_test_obs': (('idx_test', 'l63' , 'time'),x_test_obs.squeeze()),
+                       'meanTr':meanTr,
+                       'stdTr':stdTr}, )
+        xrdata.to_netcdf(path='dataset_L63_All.nc', mode='w')
+else:
+    print('.... Load full dataset')
+    
+    if flagForecast == True :
+        if dt_forecast == 55 :
+            path_l63_dataset = 'dataset_L63_Forecast55.nc'
+    else:
+        path_l63_dataset = 'XXXXX.nc'
+                        
+    ncfile = Dataset(path_l63_dataset,"r")
+    x_train = ncfile.variables['x_train'][:]
+    x_train_Init = ncfile.variables['x_train_Init'][:]
+    x_train_obs = ncfile.variables['x_train_obs'][:]
+    mask_train = ncfile.variables['mask_train'][:]
 
+    x_test = ncfile.variables['x_test'][:]
+    mask_test = ncfile.variables['mask_test'][:]
+    x_test_Init = ncfile.variables['x_test_Init'][:]
+    x_test_obs = ncfile.variables['x_test_obs'][:]
 
+    meanTr = ncfile.variables['meanTr'][:]
+    stdTr = ncfile.variables['stdTr'][:]
+        
+    x_train = x_train.reshape((-1,3,dT,1))
+    mask_train = mask_train.reshape((-1,3,dT,1))
+    x_train_Init = x_train_Init.reshape((-1,3,dT,1))
+    x_train_obs = x_train_obs.reshape((-1,3,dT,1))
+    
+    x_test = x_test.reshape((-1,3,dT,1))
+    mask_test = mask_test.reshape((-1,3,dT,1))
+    x_test_Init = x_test_Init.reshape((-1,3,dT,1))
+    x_test_obs = x_test_obs.reshape((-1,3,dT,1))
+
+    print('..... Training dataset: %dx%dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2],x_train.shape[3]))
+    print('..... Test dataset    : %dx%dx%dx%d'%(x_test.shape[0],x_test.shape[1],x_test.shape[2],x_test.shape[3]))
 
 ################################################
 ## dataloader
