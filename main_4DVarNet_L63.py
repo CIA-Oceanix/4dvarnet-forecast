@@ -1722,7 +1722,7 @@ if __name__ == '__main__':
         mod.alpha_prior = 1.e4
         mod.alpha_obs = 1.e5
         mod.lam = 2e-3 * batch_size  #2e-3 * batch_size 
-        mod.n_iter_descent = 42000
+        mod.n_iter_descent = 21000
         mod.flag_ode_forecast = True#
     
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
