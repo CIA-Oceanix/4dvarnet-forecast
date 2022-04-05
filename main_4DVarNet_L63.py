@@ -420,10 +420,7 @@ else:
     stdTr = ncfile.variables['stdTr'][:]
     meanTr = float(meanTr.data)    
     stdTr = float(stdTr.data)
-    
-    print(stdTr)
-    print(stdTr.shape)
-    
+        
     x_train = x_train.reshape((-1,3,dT,1))
     mask_train = mask_train.reshape((-1,3,dT,1))
     x_train_Init = x_train_Init.reshape((-1,3,dT,1))
