@@ -1566,8 +1566,8 @@ if __name__ == '__main__':
         
         print(mod.hparams)
         
-        mod.hparams.noise_rnd_aug_init = 0.01
-        mod.hparams.noise_rnd_lstm_init = 0.01
+        mod.hparams.noise_rnd_aug_init = 0.0
+        mod.hparams.noise_rnd_lstm_init = 0.0
         
         mod.hparams.alpha_mse = 1.
         mod.hparams.alpha_mse_rec = 0.75
