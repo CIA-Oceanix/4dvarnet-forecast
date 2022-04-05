@@ -1435,7 +1435,7 @@ class LitModel_4dvar_classic(pl.LightningModule):
 
     def compute_loss(self, batch, phase, batch_init = None , hidden = None , cell = None , normgrad = 0.0):
 
-        inputs_init_,inputs_obs,masks,targets_GT = batch
+        idx,inputs_init_,inputs_obs,masks,targets_GT = batch
  
         #inputs_init = inputs_init_
         if batch_init is None :
