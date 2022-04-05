@@ -31,7 +31,7 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 0
+flagProcess = 1
 
 dimGradSolver = 25
 rateDropout = 0.2
@@ -1789,20 +1789,20 @@ if __name__ == '__main__':
         
     elif flagProcess == 1: ## test trained model from pre-trained model
 
-        pathCheckPOint = 'resL63/exp02-2/model-l63-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=117-val_loss=0.55.ckpt'
+        #pathCheckPOint = 'resL63/exp02-2/model-l63-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=117-val_loss=0.55.ckpt'
         #pathCheckPOint = 'resL63/exp02-2/model-l63-aug03-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=50-val_loss=0.71.ckpt'
-        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-aug10_010-unet2-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=130-val_loss=0.54.ckpt'
+        #pathCheckPOint = 'resL63/exp02-testloaders/model-l63-aug10_010-unet2-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=130-val_loss=0.54.ckpt'
         
         #pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_103-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad50-drop20-epoch=33-val_loss=9.40.ckpt'
-        #pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=105-val_loss=2.08.ckpt'
-        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstmaug10-sopt75-unet2-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=129-val_loss=0.63.ckpt'
+        pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=105-val_loss=2.08.ckpt'
+        #pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstmaug10-sopt75-unet2-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=129-val_loss=0.63.ckpt'
         
-        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-aug10-sopt75-unet2-exp02-testloaders-Noise01-igrad02_02-dgrad25-drop20-epoch=172-val_loss=0.84.ckpt'
-        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-1-aug10-unet2-exp02-testloaders-Noise01-igrad02_03-dgrad25-drop20-epoch=61-val_loss=0.60.ckpt'
-        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-1-aug10-sopt25-unet2-exp02-testloaders-Noise01-igrad02_03-dgrad25-drop20-epoch=272-val_loss=0.57.ckpt'
-        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-1-ft-aug10-sopt25-unet2-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=06-val_loss=0.58.ckpt'
+        #pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-aug10-sopt75-unet2-exp02-testloaders-Noise01-igrad02_02-dgrad25-drop20-epoch=172-val_loss=0.84.ckpt'
+        #pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-1-aug10-unet2-exp02-testloaders-Noise01-igrad02_03-dgrad25-drop20-epoch=61-val_loss=0.60.ckpt'
+        #pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-1-aug10-sopt25-unet2-exp02-testloaders-Noise01-igrad02_03-dgrad25-drop20-epoch=272-val_loss=0.57.ckpt'
+        #pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-1-ft-aug10-sopt25-unet2-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=06-val_loss=0.58.ckpt'
         
-        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-1-aug10_001-sopt25-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-rnd01-epoch=300-val_loss=0.57.ckpt'
+        #pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-1-aug10_001-sopt25-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-rnd01-epoch=300-val_loss=0.57.ckpt'
         print('.... load pre-trained model :'+pathCheckPOint)
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
         
