@@ -31,7 +31,7 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 3
+flagProcess = 4
 
 dimGradSolver = 25
 rateDropout = 0.2
@@ -56,9 +56,8 @@ flag_x1_only = False#True #
 
 load_full_dataset = True#False#
 
-if flagProcess == 3 :
+if ( flagProcess == 3 ) | ( flagProcess == 4 ) :
     dim_aug_state = 0
-
 
 if load_full_dataset == False:
 
@@ -2023,6 +2022,91 @@ if __name__ == '__main__':
         trainer.fit(mod, dataloaders['train'], dataloaders['val'])
 
 
+    elif flagProcess == 4: ## test trained model (direct inversion)
+
+       
+        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dirinv-forecast_055-unet2-exp02-testloaders-Noise01-epoch=126-val_loss=8.63.ckpt'
+        print('.... load pre-trained model :'+pathCheckPOint)
+        mod = LitModel_DirectInv.load_from_checkpoint(pathCheckPOint)            
+        
+        
+        mod.hparams.alpha_mse = 1.
+        mod.hparams.alpha_mse_rec = 0.75
+        mod.hparams.alpha_mse_for = 0.25
+    
+ 
+        profiler_kwargs = {'max_epochs': 1}
+        trainer = pl.Trainer(gpus=1,  **profiler_kwargs)
+        
+        #trainer.fit(mod, dataloaders['train'], dataloaders['val'])
+        
+        if 1*1 :
+            trainer.test(mod, test_dataloaders=dataloaders['val'])
+            
+            # Reconstruction performance
+            X_val = X_train[idx_val::,:,:]
+            mask_val = mask_train[idx_val::,:,:,:].squeeze()
+            var_val  = np.mean( (X_val - np.mean(X_val,axis=0))**2 )
+            mse = np.mean( (mod.x_rec-X_val) **2 ) 
+            mse_i   = np.mean( (1.-mask_val.squeeze()) * (mod.x_rec-X_val) **2 ) / np.mean( (1.-mask_val) )
+            mse_r   = np.mean( mask_val.squeeze() * (mod.x_rec-X_val) **2 ) / np.mean( mask_val )
+            
+            nmse = mse / var_val
+            nmse_i = mse_i / var_val
+            nmse_r = mse_r / var_val
+            
+            print("..... Assimilation performance (validation data)")
+            print(".. MSE ALL.   : %.3f / %.3f"%(mse,nmse))
+            print(".. MSE ObsData: %.3f / %.3f"%(mse_r,nmse_r))
+            print(".. MSE Interp : %.3f / %.3f"%(mse_i,nmse_i))
+        
+        trainer.test(mod, test_dataloaders=dataloaders['test'])
+        print(' Ngrad = %d / %d'%(mod.hparams.n_grad,mod.model.n_grad))
+
+        # Reconstruction performance
+        if flagForecast == True :
+            var_test  = np.mean( (X_test - np.mean(X_test,axis=0))**2 )
+            mse_rec = np.mean( (mod.x_rec[:,:,:dT-dt_forecast]-X_test[:,:,:dT-dt_forecast]) **2 ) 
+            
+            nmse_rec = mse_rec / var_test
+            
+            print("..... Assimilation performance (test data)")
+            print(".. MSE rec   : %.3f / %.3f"%(mse_rec,nmse_rec))
+            
+            print("\n")
+            print('..... Forecasting performance (all):')
+            for nn in range(0,dt_forecast+1):
+                var_test_nn     = np.mean( (X_test[:,:,dT-dt_forecast+nn-1] - X_test[:,:,dT-dt_forecast-1])**2 )
+                mse_forecast = np.mean( (mod.x_rec[:,:,dT-dt_forecast+nn-1]-X_test[:,:,dT-dt_forecast+nn-1]) **2 ) 
+            
+                print('... dt [ %03d ] = %.3f / %.3f / %.3f '%(nn,mse_forecast,mse_forecast/var_test,mse_forecast/var_test_nn) )                
+            
+            print("\n")
+            print('..... Forecasting performance (x1):')
+            var_test_x1  = np.mean( (X_test[:,0,:] - np.mean(X_test[:,0,:],axis=0))**2 )
+            for nn in range(0,dt_forecast+1):
+                var_test_nn     = np.mean( (X_test[:,0,dT-dt_forecast+nn-1] - X_test[:,0,dT-dt_forecast-1])**2 )
+                mse_forecast = np.mean( (mod.x_rec[:,0,dT-dt_forecast+nn-1]-X_test[:,0,dT-dt_forecast+nn-1]) **2 ) 
+            
+                print('... dt [ %03d ] = %.3f / %.3f / %.3f '%(nn,mse_forecast,mse_forecast/var_test,mse_forecast/var_test_nn) )                
+        else:
+            var_test  = np.mean( (X_test - np.mean(X_test,axis=0))**2 )
+            mse = np.mean( (mod.x_rec-X_test) **2 ) 
+            mse_i   = np.mean( (1.-mask_test.squeeze()) * (mod.x_rec-X_test) **2 ) / np.mean( (1.-mask_test) )
+            mse_r   = np.mean( mask_test.squeeze() * (mod.x_rec-X_test) **2 ) / np.mean( mask_test )
+            
+            nmse = mse / var_test
+            nmse_i = mse_i / var_test
+            nmse_r = mse_r / var_test
+            
+            print("..... Assimilation performance (test data)")
+            print(".. MSE ALL.   : %.3f / %.3f"%(mse,nmse))
+            print(".. MSE ObsData: %.3f / %.3f"%(mse_r,nmse_r))
+            print(".. MSE Interp : %.3f / %.3f"%(mse_i,nmse_i))     
+                
+        import xarray as xr
+        xrdata = xr.Dataset( data_vars={'l63-rec': (["n", "D", "dT"],mod.x_rec),'l63-gt': (["n", "D", "dT"],X_test)})
+        xrdata.to_netcdf(path=pathCheckPOint.replace('.ckpt','_res.nc'), mode='w')
     elif flagProcess == 4: ## testing trainable fixed-point scheme
         dimGradSolver = 25
         rateDropout = 0.2
