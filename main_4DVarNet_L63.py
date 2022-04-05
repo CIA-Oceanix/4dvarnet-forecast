@@ -1719,7 +1719,7 @@ if __name__ == '__main__':
         mod = LitModel_4dvar_classic()            
         
         mod.alpha_prior = 1e4
-        mod.alpha_obs = 1e5
+        mod.alpha_obs = 2e5
         mod.lam = 2e-3 * batch_size 
         mod.n_iter_descent = 22000
         mod.flag_ode_forecast = True#
