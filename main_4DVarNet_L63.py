@@ -53,7 +53,7 @@ flagForecast = True#False#
 dt_forecast = 55#103#55#
 flag_x1_only = False#True #
 
-load_full_dataset = True
+load_full_dataset = False#True
 if load_full_dataset == False:
 
     print('........ Data generation')
