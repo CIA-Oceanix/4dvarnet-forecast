@@ -1466,7 +1466,8 @@ class LitModel_4dvar_classic(pl.LightningModule):
                         mse = torch.mean( (x_curr[:,:,dT-dt_forecast-1,:] - targets_GT[:,:,dT-dt_forecast-1,:] )**2  )
                     else:
                         mse = torch.mean( (x_curr - targets_GT )**2  )
-                    mse = torch.mean( (x_curr[:,:,dT-dt_forecast-1:,:] - targets_GT[:,:,dT-dt_forecast-1:,:] )**2  )
+                    mse = torch.mean( (x_curr[:,:,dT-dt_forecast-1,:] - targets_GT[:,:,dT-dt_forecast-1,:] )**2  )
+                    #mse = torch.mean( (x_curr[:,:,dT-dt_forecast-1:,:] - targets_GT[:,:,dT-dt_forecast-1:,:] )**2  )
 
                     print(".... iter %d: loss %.3f dyn_loss %.3f obs_loss %.3f mse %.3f"%(iter,1.e3*loss,1.e3*loss_prior,1.e3*loss_obs,stdTr**2 * mse))  
 
@@ -1724,7 +1725,7 @@ if __name__ == '__main__':
         mod.alpha_obs = 1.e5
         mod.lam = 2e-3 * batch_size  #2e-3 * batch_size 
         mod.n_iter_descent = 21000
-        mod.flag_ode_forecast = True#False#
+        mod.flag_ode_forecast = False#True#
     
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
 
