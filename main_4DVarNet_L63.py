@@ -381,14 +381,14 @@ flag_save_dataset = True
 if flag_save_dataset == True :
         
     xrdata = xr.Dataset( \
-        data_vars={'x_train': (('idx_train', 'time', 'l63'), x_train), \
-                   'mask_train': (('idx_train', 'time', 'l63'),mask_train), \
-                   'x_train_Init': (('idx_train', 'time', 'l63'),x_train_Init), \
-                   'x_train_obs': (('idx_train', 'time', 'l63'),x_train_obs), \
-                   'x_test': (('idx_test', 'time', 'l63'), x_test) , \
-                   'mask_test': (('idx_test', 'time', 'l63'),mask_test), \
-                   'x_test_Init': (('idx_test', 'time', 'l63'),x_test_Init), \
-                   'x_test_obs': (('idx_test', 'time', 'l63'),x_test_obs),
+        data_vars={'x_train': (('idx_train', 'time', 'l63'), x_train.squeeze()), \
+                   'mask_train': (('idx_train', 'time', 'l63'),mask_train.squeeze()), \
+                   'x_train_Init': (('idx_train', 'time', 'l63'),x_train_Init.squeeze()), \
+                   'x_train_obs': (('idx_train', 'time', 'l63'),x_train_obs.squeeze()), \
+                   'x_test': (('idx_test', 'time', 'l63'), x_test.squeeze()) , \
+                   'mask_test': (('idx_test', 'time', 'l63'),mask_test.squeeze()), \
+                   'x_test_Init': (('idx_test', 'time', 'l63'),x_test_Init.squeeze()), \
+                   'x_test_obs': (('idx_test', 'time', 'l63'),x_test_obs.squeeze()),
                    'meanTr':meanTr,
                    'stdTr':stdTr}, )
     xrdata.to_netcdf(path='dataset_L63_All.nc', mode='w')
