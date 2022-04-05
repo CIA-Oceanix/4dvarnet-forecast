@@ -53,7 +53,7 @@ flagForecast = True#False#
 dt_forecast = 55#103#55#
 flag_x1_only = False#True #
 
-load_full_dataset = False#True
+load_full_dataset = True#False#
 if load_full_dataset == False:
 
     print('........ Data generation')
@@ -400,7 +400,8 @@ else:
     if flagForecast == True :
         if dt_forecast == 55 :
             path_l63_dataset = 'dataset_L63_Forecast55.nc'
-            path_l63_dataset = 'dataset_L63_JamesExp1.nc'
+        elif dt_forecast == 104 :
+            path_l63_dataset = 'dataset_L63_Forecast104.nc'
     else:
         path_l63_dataset = 'dataset_L63_JamesExp1.nc'
                         
