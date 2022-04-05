@@ -1342,7 +1342,6 @@ class LitModel_DirectInv(pl.LightningModule):
         # update training data loaders
         
     def training_step(self, train_batch, batch_idx, optimizer_idx=0):
-        opt = self.optimizers()
                     
         # compute loss and metrics
         loss, out, metrics = self.compute_loss(train_batch, phase='train')
@@ -1353,7 +1352,7 @@ class LitModel_DirectInv(pl.LightningModule):
         #self.log("loss", loss , on_step=True, on_epoch=True, prog_bar=True, sync_dist=True)
         self.log("tr_mse", stdTr**2 * metrics['mse'] , on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
                 
-        return {"training_loss": loss}
+        return {"loss": loss}
     
     def validation_step(self, val_batch, batch_idx):
         
