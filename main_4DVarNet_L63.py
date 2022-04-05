@@ -1334,6 +1334,19 @@ class Ode_l63(torch.nn.Module):
 
         return x + self.dt * (k1+2.*k2+2.*k3+k4)/6.
   
+    def _RK4Solver_TimeInv(self, x):
+        k1 = self._odeL63(x)
+        x2 = x - 0.5 * self.dt * k1
+        k2 = self._odeL63(x2)
+      
+        x3 = x - 0.5 * self.dt * k2
+        k3 = self._odeL63(x3)
+          
+        x4 = x - self.dt * k3
+        k4 = self._odeL63(x4)
+
+        return x - self.dt * (k1+2.*k2+2.*k3+k4)/6.
+
     def ode_int(self, x0, N):
         X = self.stdTr * x0.view(-1,x0.size(1),1) + self.meanTr
         
@@ -1348,6 +1361,20 @@ class Ode_l63(torch.nn.Module):
             
         return out
      
+    def ode_int_inv(self, x0, N):
+        X = self.stdTr * x0.view(-1,x0.size(1),1) + self.meanTr
+        
+        out = 1. * X
+        
+        for nn in range(0,N):
+            X = self._RK4Solver_TimeInv( X )
+            out = torch.cat( (X,out) , dim = 2 )
+     
+        out = out - self.meanTr
+        out = out / self.stdTr
+            
+        return out
+
     def forward(self, x):
         X = self.stdTr * x.view(-1,x.size(1),x.size(2))
         X = X + self.meanTr
@@ -1379,6 +1406,7 @@ class LitModel_4dvar_classic(pl.LightningModule):
         self.alpha_prior = 1.
         self.n_iter_descent = 100
         self.dt_forecast = dt_forecast
+        self.flag_wc_4dVar = True
         
         self.x_rec    = None # variable to store output of test method
         self.flag_ode_forecast = False#True
@@ -1446,17 +1474,17 @@ class LitModel_4dvar_classic(pl.LightningModule):
             
         with torch.set_grad_enabled(True):
             # with torch.set_grad_enabled(phase == 'train'):
-            x_curr = torch.autograd.Variable(inputs_init, requires_grad=True)
-
-            for iter in range(0,self.n_iter_descent):
-                # prior term
-                if self.flag_ode_forecast == True :
-                    loss_prior = torch.mean( (x_curr[:,:,:dT-dt_forecast] - self.phi(x_curr[:,:,:dT-dt_forecast] ))**2  )
-                    loss_obs = torch.mean( (x_curr[:,:,:dT-dt_forecast] - inputs_obs[:,:,:dT-dt_forecast] )**2 * masks[:,:,:dT-dt_forecast] )
-                else:
-                    loss_prior = torch.mean( (x_curr - self.phi(x_curr ))**2  )
-                    loss_obs = torch.mean( (x_curr - inputs_obs )**2 * masks )
-                
+            if self.flag_wc_4dVar == True :
+                x_curr = torch.autograd.Variable(inputs_init, requires_grad=True)
+    
+                for iter in range(0,self.n_iter_descent):
+                    if self.flag_ode_forecast == True :
+                        loss_prior = torch.mean( (x_curr[:,:,:dT-dt_forecast] - self.phi(x_curr[:,:,:dT-dt_forecast] ))**2  )
+                        loss_obs = torch.mean( (x_curr[:,:,:dT-dt_forecast] - inputs_obs[:,:,:dT-dt_forecast] )**2 * masks[:,:,:dT-dt_forecast] )
+                    else:
+                        loss_prior = torch.mean( (x_curr - self.phi(x_curr ))**2  )
+                        loss_obs = torch.mean( (x_curr - inputs_obs )**2 * masks )
+                    
                 # overall loss
                 loss = self.alpha_obs * loss_obs + self.alpha_prior * loss_prior 
 
@@ -1476,6 +1504,31 @@ class LitModel_4dvar_classic(pl.LightningModule):
                 #print( torch.sqrt( torch.mean(  x_curr.grad.data ** 2 ) ))
                 x_curr = x_curr - self.lam * x_curr.grad.data
                 x_curr = torch.autograd.Variable(x_curr, requires_grad=True)
+            else:
+                # with torch.set_grad_enabled(phase == 'train'):
+                x_curr_init = torch.autograd.Variable(inputs_init[:,:,dT-dt_forecast-1,:], requires_grad=True)
+    
+                for iter in range(0,self.n_iter_descent):
+                    # prior term
+                    x_curr = self.phi.ode_int_inv( x_curr_init , dT-dt_forecast-1 ) 
+                    x_curr = torch.autograd.Variable(inputs_init, requires_grad=True)
+                    
+                    loss_prior = torch.mean( (x_curr[:,:,:dT-dt_forecast] - self.phi(x_curr[:,:,:dT-dt_forecast] ))**2  )
+                    loss_obs = torch.mean( (x_curr[:,:,:dT-dt_forecast] - inputs_obs[:,:,:dT-dt_forecast] )**2 * masks[:,:,:dT-dt_forecast] )
+                        
+                    # overall loss
+                    loss = self.alpha_obs * loss_obs + self.alpha_prior * loss_prior 
+    
+                    if( np.mod(iter,100) == 0 ):
+                        mse = torch.mean( (x_curr[:,:,dT-dt_forecast-1,:] - targets_GT[:,:,dT-dt_forecast-1,:] )**2  )
+    
+                        print(".... iter %d: loss %.3f dyn_loss %.3f obs_loss %.3f mse %.3f"%(iter,1.e3*loss,1.e3*loss_prior,1.e3*loss_obs,stdTr**2 * mse))  
+    
+                    # compute gradient w.r.t. X and update X
+                    loss.backward()
+                    #print( torch.sqrt( torch.mean(  x_curr.grad.data ** 2 ) ))
+                    x_curr_init = x_curr_init - self.lam * x_curr_init.grad.data
+                    x_curr_init = torch.autograd.Variable(x_curr_init, requires_grad=True)
 
             outputs = 1. * x_curr
             
@@ -1726,7 +1779,8 @@ if __name__ == '__main__':
         mod.lam = 2e-3 * batch_size  #2e-3 * batch_size 
         mod.n_iter_descent = 21000
         mod.flag_ode_forecast = False#True#
-    
+        mod.flag_wc_4dVar = True
+        
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
 
         profiler_kwargs = {'max_epochs': 1}
