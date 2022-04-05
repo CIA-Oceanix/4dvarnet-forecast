@@ -1982,6 +1982,7 @@ if __name__ == '__main__':
         
     elif flagProcess == 3: ## Learning of direct forecasting model
         
+        dim_aug_state = 0
         mod = LitModel_DirectInv()            
         
         mod.hparams.iter_update     = [0, 50, 100, 150, 500, 700, 800]  # [0,2,4,6,9,a15]
