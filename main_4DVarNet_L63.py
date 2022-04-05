@@ -31,7 +31,7 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 2
+flagProcess = 3
 
 dimGradSolver = 25
 rateDropout = 0.2
@@ -1291,6 +1291,146 @@ class LitModel(pl.LightningModule):
         
         return loss,out, metrics
 
+class LitModel_DirectInv(pl.LightningModule):
+    def __init__(self,conf=HParam(),*args, **kwargs):
+        super().__init__()
+        self.save_hyperparameters()
+
+        # hyperparameters
+        self.hparams.alpha_mse     = 1.#10*0.75#1.e0
+        self.hparams.alpha_mse_rec = 10.#10*0.75#1.e0
+        self.hparams.alpha_mse_for = 0.#*0.25#1.e1
+
+        # main model
+        self.model = Phi_r()   
+        self.x_rec    = None # variable to store output of test method
+        self.x_rec_obs = None
+        self.curr = 0
+
+        self.automatic_optimization = self.hparams.automatic_optimization
+                
+
+    def forward(self):
+        return 1
+
+    def configure_optimizers(self):
+        optimizer   = optim.Adam([{'params': self.model.parameters(), 'lr': self.hparams.lr_update[0]},
+                                    ], lr=0.)
+        return optimizer
+    
+        # enfore acnd check some hyperparameters 
+        #self.model.n_grad   = self.hparams.k_n_grad * self.hparams.n_grad 
+        
+    def on_train_epoch_start(self):
+        self.model.n_grad   = self.hparams.n_grad 
+
+        opt = self.optimizers()
+        if (self.current_epoch in self.hparams.iter_update) & (self.current_epoch > 0):
+            indx             = self.hparams.iter_update.index(self.current_epoch)
+            print('... Update Iterations number/learning rate #%d: lr = %f'%(self.current_epoch,self.hparams.lr_update[indx]))
+                        
+            mm = 0
+            lrCurrent = self.hparams.lr_update[indx]
+            lr = np.array([lrCurrent,lrCurrent,0.5*lrCurrent,0.])            
+            for pg in opt.param_groups:
+                pg['lr'] = lr[mm]# * self.hparams.learning_rate
+                mm += 1
+        
+        #if self.current_epoch == 0 :     
+        #    self.save_hyperparameters()
+        # update training data loaders
+        
+    def training_step(self, train_batch, batch_idx, optimizer_idx=0):
+        opt = self.optimizers()
+                    
+        # compute loss and metrics
+        loss, out, metrics = self.compute_loss(train_batch, phase='train')
+                
+        # log step metric        
+        #self.log('train_mse', mse)
+        #self.log("dev_loss", mse / var_Tr , on_step=True, on_epoch=True, prog_bar=True, sync_dist=True)
+        #self.log("loss", loss , on_step=True, on_epoch=True, prog_bar=True, sync_dist=True)
+        self.log("tr_mse", stdTr**2 * metrics['mse'] , on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
+        
+        # initial grad value
+        if self.hparams.automatic_optimization == False :
+            # backward
+            self.manual_backward(loss)
+        
+            if (batch_idx + 1) % self.hparams.k_batch == 0:
+                # optimisation step
+                opt.step()
+                
+                # grad initialization to zero
+                opt.zero_grad()
+         
+        return {"training_loss": loss}
+    
+    def validation_step(self, val_batch, batch_idx):
+        
+        loss, out, metrics = self.compute_loss(val_batch, phase='val')
+
+        #self.log('val_loss', loss)
+        self.log('val_loss', stdTr**2 * metrics['mse'] )
+        self.log("val_mse", stdTr**2 * metrics['mse'] , on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
+        #return self.log('val_loss', loss)
+        return {"val_loss": loss}
+
+    def test_step(self, test_batch, batch_idx):
+        loss, out, metrics = self.compute_loss(test_batch, phase='test')
+        
+
+        #out_ssh,out_ssh_obs = out
+        #self.log('test_loss', loss)
+        self.log("test_mse", stdTr**2 * metrics['mse'] , on_step=False, on_epoch=True, prog_bar=True, sync_dist=True)
+        #return {'preds': out_ssh.detach().cpu(),'obs_ssh': out_ssh_obs.detach().cpu()}
+        return {'preds': out.detach().cpu()}
+
+        
+    def test_epoch_end(self, outputs):
+        x_test_rec = torch.cat([chunk['preds'] for chunk in outputs]).numpy()
+        
+        if self.hparams.dim_aug_state > 0 :
+            x_test_rec = x_test_rec[:,:3,:]
+
+        x_test_rec = stdTr * x_test_rec + meanTr        
+        self.x_rec = x_test_rec.squeeze()
+
+        return [{'mse':0.,'preds': 0.}]
+
+    def compute_loss(self, batch, phase, batch_init = None , hidden = None , cell = None , normgrad = 0.0):
+
+        idx,inputs_init,inputs_obs,masks,targets_GT = batch
+             
+        with torch.set_grad_enabled(True):
+            outputs = self.model(input_init)
+
+            if flag_x1_only == False:
+                loss_mse = torch.mean((outputs - targets_GT) ** 2)
+                loss_mse_rec = torch.mean((outputs[:,:,:dT-dt_forecast,:] - targets_GT[:,:,:dT-dt_forecast,:]) ** 2)
+                loss_mse_for = torch.mean((outputs[:,:,dT-dt_forecast:,:] - targets_GT[:,:,dT-dt_forecast:,:]) ** 2)
+            else:
+                loss_mse_rec = torch.mean((outputs[:,0,:dT-dt_forecast,:] - targets_GT[:,0,:dT-dt_forecast,:]) ** 2)
+                loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:,:] - targets_GT[:,0,dT-dt_forecast:,:]) ** 2)
+                
+            if flagForecast == True :
+                loss_mse = self.hparams.alpha_mse_rec * loss_mse_rec + self.hparams.alpha_mse_for * loss_mse_for
+            else:
+                loss_mse = self.hparams.alpha_mse * loss_mse
+            loss = loss_mse 
+            
+            # metrics
+            mse       = loss_mse.detach()
+            metrics   = dict([('mse',mse)])
+            #print(mse.cpu().detach().numpy())
+            #if (phase == 'val') or (phase == 'test'):                
+            
+        outputs = outputs.detach()
+                
+        out = outputs
+        
+        return loss,out, metrics
+
 class Ode_l63(torch.nn.Module):
     def __init__(self):
           super(Ode_l63, self).__init__()
@@ -1776,10 +1916,10 @@ if __name__ == '__main__':
         
         mod.alpha_prior = 1.e4
         mod.alpha_obs = 1.e5
-        mod.lam = 2e-4 * batch_size  #2e-3 * batch_size 
+        mod.lam = 2e-3 * batch_size  #2e-3 * batch_size 
         mod.n_iter_descent = 21000
         mod.flag_ode_forecast = True#False#
-        mod.flag_wc_4dVar = 'sc'
+        mod.flag_wc_4dVar = 'wc'
         
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
 
@@ -1855,7 +1995,47 @@ if __name__ == '__main__':
             xrdata = xr.Dataset( data_vars={'l63-rec': (["n", "D", "dT"],mod.x_rec),'l63-gt': (["n", "D", "dT"],X_test)})
             xrdata.to_netcdf(path='/tmp/res_l63_4dvar_classic_res.nc', mode='w')
         
-    elif flagProcess == 3: ## testing trainable fixed-point scheme
+    elif flagProcess == 3: ## Learning of direct forecasting model
+        
+        mod = LitModel_DirectInv()            
+        
+        mod.hparams.iter_update     = [0, 50, 100, 150, 500, 700, 800]  # [0,2,4,6,9,a15]
+        mod.hparams.lr_update       = [1e-3, 1e-4, 1e-5, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
+
+        mod.hparams.alpha_mse = 1.
+        mod.hparams.alpha_mse_rec = (dT-dt_forecast)/dT #0.75
+        mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
+        
+        
+        profiler_kwargs = {'max_epochs': 200 }
+
+        suffix_exp = 'exp%02d-testloaders'%flagTypeMissData
+        filename_chkpt = 'model-l63-dirinv-'
+        
+        if flagForecast == True :
+            filename_chkpt = filename_chkpt+'forecast_%03d-'%dt_forecast
+        
+        if mod.hparams.alpha_mse_rec == 0. :
+            filename_chkpt = filename_chkpt+'-norec-'
+            
+        if flag_x1_only == True :
+            filename_chkpt = filename_chkpt+'x1_only-'
+                       
+        filename_chkpt = filename_chkpt+flagAEType+'-'  
+            
+        filename_chkpt = filename_chkpt + suffix_exp+'-Noise%02d'%(sigNoise)
+
+        print('.... chkpt: '+filename_chkpt)
+        checkpoint_callback = ModelCheckpoint(monitor='val_loss',
+                                              dirpath= './resL63/'+suffix_exp,
+                                              filename= filename_chkpt + '-{epoch:02d}-{val_loss:.2f}',
+                                              save_top_k=3,
+                                              mode='min')
+        trainer = pl.Trainer(gpus=1,  **profiler_kwargs,callbacks=[checkpoint_callback])
+        trainer.fit(mod, dataloaders['train'], dataloaders['val'])
+
+
+    elif flagProcess == 4: ## testing trainable fixed-point scheme
         dimGradSolver = 25
         rateDropout = 0.2
 
