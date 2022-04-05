@@ -1512,11 +1512,11 @@ class LitModel_4dvar_classic(pl.LightningModule):
                     # prior term
                     x_curr = self.phi.ode_int_inv( x_curr_init , dT-dt_forecast-1 ) 
                     
-                    loss_prior = torch.mean( (x_curr[:,:,:dT-dt_forecast] - self.phi(x_curr[:,:,:dT-dt_forecast] ))**2  )
+                    #loss_prior = torch.mean( (x_curr[:,:,:dT-dt_forecast] - self.phi(x_curr[:,:,:dT-dt_forecast] ))**2  )
                     loss_obs = torch.mean( (x_curr[:,:,:dT-dt_forecast] - inputs_obs[:,:,:dT-dt_forecast] )**2 * masks[:,:,:dT-dt_forecast] )
                         
                     # overall loss
-                    loss = self.alpha_obs * loss_obs + self.alpha_prior * loss_prior 
+                    loss = self.alpha_obs * loss_obs
     
                     if( np.mod(iter,100) == 0 ):
                         mse = torch.mean( (x_curr[:,:,dT-dt_forecast-1,:] - targets_GT[:,:,dT-dt_forecast-1,:] )**2  )
