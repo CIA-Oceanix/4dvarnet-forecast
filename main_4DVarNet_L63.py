@@ -1462,7 +1462,8 @@ class LitModel_4dvar_classic(pl.LightningModule):
 
                 if( np.mod(iter,100) == 0 ):
                     if self.flag_ode_forecast == True :
-                        mse = torch.mean( (x_curr[:,:,:dT-dt_forecast-1,:] - targets_GT[:,:,:dT-dt_forecast-1,:] )**2  )
+                        #mse = torch.mean( (x_curr[:,:,:dT-dt_forecast-1,:] - targets_GT[:,:,:dT-dt_forecast-1,:] )**2  )
+                        mse = torch.mean( (x_curr[:,:,dT-dt_forecast-1,:] - targets_GT[:,:,dT-dt_forecast-1,:] )**2  )
                     else:
                         mse = torch.mean( (x_curr - targets_GT )**2  )
 
@@ -1718,7 +1719,7 @@ if __name__ == '__main__':
         
         mod = LitModel_4dvar_classic()            
         
-        mod.alpha_prior = 1.e3
+        mod.alpha_prior = 1.e4
         mod.alpha_obs = 1.e5
         mod.lam = 2e-3 * batch_size  #2e-3 * batch_size 
         mod.n_iter_descent = 42000
