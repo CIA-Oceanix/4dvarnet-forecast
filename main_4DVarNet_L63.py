@@ -1474,7 +1474,7 @@ class LitModel_4dvar_classic(pl.LightningModule):
             
         with torch.set_grad_enabled(True):
             # with torch.set_grad_enabled(phase == 'train'):
-            if self.flag_wc_4dVar == True :
+            if self.flag_wc_4dVar == 'wc' :
                 x_curr = torch.autograd.Variable(inputs_init, requires_grad=True)
     
                 for iter in range(0,self.n_iter_descent):
@@ -1485,26 +1485,26 @@ class LitModel_4dvar_classic(pl.LightningModule):
                         loss_prior = torch.mean( (x_curr - self.phi(x_curr ))**2  )
                         loss_obs = torch.mean( (x_curr - inputs_obs )**2 * masks )
                     
-                # overall loss
-                loss = self.alpha_obs * loss_obs + self.alpha_prior * loss_prior 
-
-                if( np.mod(iter,100) == 0 ):
-                    if self.flag_ode_forecast == True :
-                        #mse = torch.mean( (x_curr[:,:,:dT-dt_forecast-1,:] - targets_GT[:,:,:dT-dt_forecast-1,:] )**2  )
+                    # overall loss
+                    loss = self.alpha_obs * loss_obs + self.alpha_prior * loss_prior 
+    
+                    if( np.mod(iter,100) == 0 ):
+                        if self.flag_ode_forecast == True :
+                            #mse = torch.mean( (x_curr[:,:,:dT-dt_forecast-1,:] - targets_GT[:,:,:dT-dt_forecast-1,:] )**2  )
+                            mse = torch.mean( (x_curr[:,:,dT-dt_forecast-1,:] - targets_GT[:,:,dT-dt_forecast-1,:] )**2  )
+                        else:
+                            mse = torch.mean( (x_curr - targets_GT )**2  )
                         mse = torch.mean( (x_curr[:,:,dT-dt_forecast-1,:] - targets_GT[:,:,dT-dt_forecast-1,:] )**2  )
-                    else:
-                        mse = torch.mean( (x_curr - targets_GT )**2  )
-                    mse = torch.mean( (x_curr[:,:,dT-dt_forecast-1,:] - targets_GT[:,:,dT-dt_forecast-1,:] )**2  )
-                    #mse = torch.mean( (x_curr[:,:,dT-dt_forecast-1:,:] - targets_GT[:,:,dT-dt_forecast-1:,:] )**2  )
-
-                    print(".... iter %d: loss %.3f dyn_loss %.3f obs_loss %.3f mse %.3f"%(iter,1.e3*loss,1.e3*loss_prior,1.e3*loss_obs,stdTr**2 * mse))  
-
-                # compute gradient w.r.t. X and update X
-                loss.backward()
-                #print( torch.sqrt( torch.mean(  x_curr.grad.data ** 2 ) ))
-                x_curr = x_curr - self.lam * x_curr.grad.data
-                x_curr = torch.autograd.Variable(x_curr, requires_grad=True)
-            else:
+                        #mse = torch.mean( (x_curr[:,:,dT-dt_forecast-1:,:] - targets_GT[:,:,dT-dt_forecast-1:,:] )**2  )
+    
+                        print(".... iter %d: loss %.3f dyn_loss %.3f obs_loss %.3f mse %.3f"%(iter,1.e3*loss,1.e3*loss_prior,1.e3*loss_obs,stdTr**2 * mse))  
+    
+                    # compute gradient w.r.t. X and update X
+                    loss.backward()
+                    #print( torch.sqrt( torch.mean(  x_curr.grad.data ** 2 ) ))
+                    x_curr = x_curr - self.lam * x_curr.grad.data
+                    x_curr = torch.autograd.Variable(x_curr, requires_grad=True)
+            elif self.flag_wc_4dVar == 'sc' :
                 # with torch.set_grad_enabled(phase == 'train'):
                 x_curr_init = torch.autograd.Variable(inputs_init[:,:,dT-dt_forecast-1,:], requires_grad=True)
     
@@ -1779,7 +1779,7 @@ if __name__ == '__main__':
         mod.lam = 2e-3 * batch_size  #2e-3 * batch_size 
         mod.n_iter_descent = 21000
         mod.flag_ode_forecast = False#True#
-        mod.flag_wc_4dVar = True
+        mod.flag_wc_4dVar = 'wc'
         
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
 
