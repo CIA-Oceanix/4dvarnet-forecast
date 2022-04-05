@@ -428,6 +428,9 @@ else:
     mask_test = mask_test.reshape((-1,3,dT,1))
     x_test_Init = x_test_Init.reshape((-1,3,dT,1))
     x_test_obs = x_test_obs.reshape((-1,3,dT,1))
+    
+    X_train = stdTr * x_train.squeeze() + meanTr
+    X_test = stdTr * x_test.squeeze() + meanTr
 
     print('..... Training dataset: %dx%dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2],x_train.shape[3]))
     print('..... Test dataset    : %dx%dx%dx%d'%(x_test.shape[0],x_test.shape[1],x_test.shape[2],x_test.shape[3]))
