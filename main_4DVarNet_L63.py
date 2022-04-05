@@ -421,7 +421,7 @@ else:
     meanTr = meanTr.data    
     stdTr = stdTr.data
     
-    print(stdTr)
+    print(stdTr[0])
     print(stdTr.shape)
     
     x_train = x_train.reshape((-1,3,dT,1))
