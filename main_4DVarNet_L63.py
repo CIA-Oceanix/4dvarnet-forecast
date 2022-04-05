@@ -1515,7 +1515,7 @@ class LitModel_4dvar_classic(pl.LightningModule):
                     print(x_curr.size())
                     print(inputs_obs[:,:,:dT-dt_forecast,:].size())
                     
-                    #loss_prior = torch.mean( (x_curr[:,:,:dT-dt_forecast] - self.phi(x_curr[:,:,:dT-dt_forecast] ))**2  )
+                    loss_prior = 0.#torch.mean( (x_curr[:,:,:dT-dt_forecast] - self.phi(x_curr[:,:,:dT-dt_forecast] ))**2  )
                     loss_obs = torch.mean( (x_curr - inputs_obs[:,:,:dT-dt_forecast,:] )**2 * masks[:,:,:dT-dt_forecast,:] )
                         
                     # overall loss
