@@ -2025,7 +2025,7 @@ if __name__ == '__main__':
     elif flagProcess == 4: ## test trained model (direct inversion)
 
        
-        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dirinv-forecast_055-unet2-exp02-testloaders-Noise01-epoch=126-val_loss=8.63.ckpt'
+        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dirinv-forecast_055-unet2-exp02-testloaders-Noise01-epoch=183-val_loss=8.59.ckpt'
         print('.... load pre-trained model :'+pathCheckPOint)
         mod = LitModel_DirectInv.load_from_checkpoint(pathCheckPOint)            
         
