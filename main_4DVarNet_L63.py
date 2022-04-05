@@ -38,8 +38,9 @@ rateDropout = 0.2
 DimAE = 10
 flagAEType = 'unet2'# 'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
 dim_aug_state = 10#10#10#10 #False#
+ 
 
-batch_size = 2000#128#
+batch_size = 128#
 
 NbTraining = 10000 #756#
 NbTest     = 2000#256
@@ -54,6 +55,11 @@ dt_forecast = 55#103#55#
 flag_x1_only = False#True #
 
 load_full_dataset = True#False#
+
+if flagProcess == 3 :
+    dim_aug_state = 0
+
+
 if load_full_dataset == False:
 
     print('........ Data generation')
@@ -1982,7 +1988,6 @@ if __name__ == '__main__':
         
     elif flagProcess == 3: ## Learning of direct forecasting model
         
-        dim_aug_state = 0
         mod = LitModel_DirectInv()            
         
         mod.hparams.iter_update     = [0, 50, 100, 150, 500, 700, 800]  # [0,2,4,6,9,a15]
