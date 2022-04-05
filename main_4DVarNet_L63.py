@@ -1521,7 +1521,7 @@ if __name__ == '__main__':
       
     if flagProcess == 0: ## training model from scratch
         
-        flagLoadModel = True# False# 
+        flagLoadModel = False #  True# 
         if flagLoadModel == True:
             
             pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=105-val_loss=2.08.ckpt'
@@ -1544,7 +1544,7 @@ if __name__ == '__main__':
         else:
             mod = LitModel()
             
-            mod.hparams.n_grad          = 2#1#5
+            mod.hparams.n_grad          = 3#1#5
             mod.hparams.k_n_grad        = 5
             mod.hparams.iter_update     = [0, 200, 400, 300, 500, 700, 800]  # [0,2,4,6,9,15]
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 15, 15, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
