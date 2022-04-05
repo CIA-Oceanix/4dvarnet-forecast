@@ -1325,8 +1325,6 @@ class LitModel_DirectInv(pl.LightningModule):
         #self.model.n_grad   = self.hparams.k_n_grad * self.hparams.n_grad 
         
     def on_train_epoch_start(self):
-        self.model.n_grad   = self.hparams.n_grad 
-
         opt = self.optimizers()
         if (self.current_epoch in self.hparams.iter_update) & (self.current_epoch > 0):
             indx             = self.hparams.iter_update.index(self.current_epoch)
