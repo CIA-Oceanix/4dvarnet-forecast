@@ -32,7 +32,6 @@ from sklearn.feature_extraction import image
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 flagProcess = 0
-mod.flag_ode_forecast
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
