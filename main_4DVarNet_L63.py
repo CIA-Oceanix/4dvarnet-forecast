@@ -31,7 +31,8 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 0
+flagProcess = 1
+
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
@@ -1820,6 +1821,8 @@ if __name__ == '__main__':
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-aug10-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-epoch=123-val_loss=1.98.ckpt'
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-aug05-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-epoch=121-val_loss=2.06.ckpt'
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-epoch=138-val_loss=2.77.ckpt'
+        
+        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-ode-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-epoch=199-val_loss=20.73.ckpt'
         
         print('.... load pre-trained model :'+pathCheckPOint)
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
