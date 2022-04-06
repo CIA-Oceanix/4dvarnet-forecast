@@ -1228,11 +1228,12 @@ class LitModel(pl.LightningModule):
                 input_init_grad = torch.autograd.Variable(1. * input_init_grad, requires_grad=True)    
                 #outputs_, hidden_new_, cell_new_, normgrad = self.model(input_init_grad, inputs_obs, masks, hidden = hidden , cell = cell , normgrad = normgrad )
                 x_k_plus_1, hidden_, cell_, normgrad = self.model.solver_step(input_init_grad, inputs_obs, masks,hidden = None, cell = None, normgrad = 0.)
-                del x_k_plus_1
-                del hidden_
-                del cell_
-                del input_init_grad
-                del init_aug_state
+                #del x_k_plus_1
+                #del hidden_
+                #del cell_
+                #del input_init_grad
+                #del init_aug_state
+                
         
         with torch.set_grad_enabled(True):
             # with torch.set_grad_enabled(phase == 'train'):
