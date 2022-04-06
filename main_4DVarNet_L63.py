@@ -37,7 +37,7 @@ dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
 flagAEType = 'unet2'# 'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
-dim_aug_state = 10#10#10#10#10 #False#
+dim_aug_state = 5#10#10#10#10 #False#
  
 
 batch_size = 128#
@@ -1807,6 +1807,7 @@ if __name__ == '__main__':
         #pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-1-aug10_001-sopt25-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-rnd01-epoch=300-val_loss=0.57.ckpt'
         
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-aug10-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-epoch=123-val_loss=1.98.ckpt'
+        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-aug05-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-epoch=121-val_loss=2.06.ckpt'
         print('.... load pre-trained model :'+pathCheckPOint)
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
         
