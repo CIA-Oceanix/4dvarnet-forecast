@@ -1710,7 +1710,7 @@ if __name__ == '__main__':
       
     if flagProcess == 0: ## training model from scratch
         
-        flagLoadModel = False #  True# 
+        flagLoadModel = True# False #  
         if flagLoadModel == True:
             
             pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=105-val_loss=2.08.ckpt'
@@ -1723,13 +1723,15 @@ if __name__ == '__main__':
             pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-1-aug10_001-sopt25-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-rnd01-epoch=300-val_loss=0.57.ckpt'
             pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-2-forecast_055-aug10-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-epoch=98-val_loss=2.25.ckpt'
             
+            pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ode-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=191-val_loss=5.81.ckpt'
+            
             print('.... load pre-trained model :'+pathCheckPOint)
             mod = LitModel.load_from_checkpoint(pathCheckPOint)
 
             mod.hparams.n_grad          = 4
             mod.hparams.k_n_grad        = 5
             mod.hparams.iter_update     = [0, 100, 200, 300, 500, 700, 800]  # [0,2,4,6,9,a15]
-            mod.hparams.nb_grad_update  = [10, 10, 10, 10, 10, 5, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
+            mod.hparams.nb_grad_update  = [5, 5, 10, 10, 10, 5, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-4, 1e-5, 1e-6, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
         else:
             mod = LitModel()
