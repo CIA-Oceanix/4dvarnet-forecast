@@ -1012,6 +1012,9 @@ class LitModel(pl.LightningModule):
 
         self.automatic_optimization = self.hparams.automatic_optimization
                 
+        self.flag_ode_forecast = True##True #False
+        if self.flag_ode_forecast == True :
+            self.phi_ode = Ode_l63()
 
     def forward(self):
         return 1
@@ -1243,6 +1246,11 @@ class LitModel(pl.LightningModule):
             #outputs, hidden_new, cell_new, normgrad_ = self.model(inputs_init, inputs_obs, masks ,hidden = None , cell = None , normgrad = normgrad )
             outputs, hidden_new, cell_new, normgrad_ = self.model(inputs_init, inputs_obs, masks, hidden = hidden , cell = cell , normgrad = normgrad )
 
+            if self.flag_ode_forecast == True :
+                x_for = self.phi_ode.ode_int( outputs[:,:3,dT-dt_forecast-1,:] , dt_forecast )
+                
+                outputs[:,:3,dT-dt_forecast:] = x_for.view(-1,3,dt_forecast,1)
+                    
             if self.hparams.dim_aug_state == 0 : 
                 if flag_x1_only == False:
                     loss_mse = torch.mean((outputs - targets_GT) ** 2)
@@ -1277,6 +1285,7 @@ class LitModel(pl.LightningModule):
                 loss_mse = self.hparams.alpha_mse * loss_mse
             loss = loss_mse + 0.5 * self.hparams.alpha_prior * (loss_prior + loss_prior_gt)
             
+
             # metrics
             mse       = loss_mse.detach()
             metrics   = dict([('mse',mse)])
@@ -1732,6 +1741,8 @@ if __name__ == '__main__':
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 15, 15, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-3, 1e-4, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
         
+        mod.flag_ode_forecast = True
+        
         mod.hparams.alpha_prior = 0.1
         mod.hparams.alpha_mse = 1.
         mod.hparams.alpha_mse_rec = (dT-dt_forecast)/dT #0.75
@@ -1752,8 +1763,11 @@ if __name__ == '__main__':
         filename_chkpt = 'model-l63-'#'dlstm--'
         
         if flagForecast == True :
-            filename_chkpt = filename_chkpt+'forecast_%03d-'%dt_forecast
-        
+            if mod.flag_ode_forecast  == True :
+                filename_chkpt = filename_chkpt+'forecast_%03d-'%dt_forecast
+            else:
+                filename_chkpt = filename_chkpt+'ode_forecast_%03d-'%dt_forecast
+
         if flagLoadModel == True:
             filename_chkpt = filename_chkpt+'ft-'
         if mod.hparams.alpha_mse_rec == 0. :
