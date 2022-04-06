@@ -1247,7 +1247,6 @@ class LitModel(pl.LightningModule):
 
             if self.flag_ode_forecast == True :
                 x_for = self.phi_ode.ode_int( outputs[:,:3,dT-dt_forecast-1,:] , dt_forecast )  
-                print(x_for.size())
                 outputs[:,:3,dT-dt_forecast-1:] = x_for.view(-1,3,dt_forecast+1,1)
                     
             if self.hparams.dim_aug_state == 0 : 
