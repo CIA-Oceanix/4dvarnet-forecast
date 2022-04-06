@@ -32,7 +32,7 @@ from sklearn.feature_extraction import image
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 flagProcess = 0
-
+mod.flag_ode_forecast
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
@@ -1247,9 +1247,9 @@ class LitModel(pl.LightningModule):
             outputs, hidden_new, cell_new, normgrad_ = self.model(inputs_init, inputs_obs, masks, hidden = hidden , cell = cell , normgrad = normgrad )
 
             if self.flag_ode_forecast == True :
-                x_for = self.phi_ode.ode_int( outputs[:,:3,dT-dt_forecast-1,:] , dt_forecast )
-                
-                outputs[:,:3,dT-dt_forecast:] = x_for.view(-1,3,dt_forecast,1)
+                x_for = self.phi_ode.ode_int( outputs[:,:3,dT-dt_forecast-1,:] , dt_forecast )  
+                print(x_for.size())
+                outputs[:,:3,dT-dt_forecast-1:] = x_for.view(-1,3,dt_forecast+1,1)
                     
             if self.hparams.dim_aug_state == 0 : 
                 if flag_x1_only == False:
