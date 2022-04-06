@@ -1750,8 +1750,7 @@ if __name__ == '__main__':
         mod.hparams.noise_rnd_aug_init = 0.#0.01
 
         mod.hparams.rate_rnd_init = 0. #0.25
-        
-        
+               
         mod.x_rec_training = x_train_Init[:idx_val,:,:,:]
         mod.x_rec_val = x_train_Init[idx_val:,:,:,:]
         
@@ -1762,9 +1761,9 @@ if __name__ == '__main__':
         
         if flagForecast == True :
             if mod.flag_ode_forecast  == True :
-                filename_chkpt = filename_chkpt+'forecast_%03d-'%dt_forecast
-            else:
                 filename_chkpt = filename_chkpt+'ode_forecast_%03d-'%dt_forecast
+            else:
+                filename_chkpt = filename_chkpt+'forecast_%03d-'%dt_forecast
 
         if flagLoadModel == True:
             filename_chkpt = filename_chkpt+'ft-'
