@@ -35,7 +35,7 @@ flagProcess = 0
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
-flagAEType = 'unet2'# 'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
+flagAEType = 'ode'#'unet2'# 'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
 dim_aug_state = 0#10#10#10#10 #False#
  
 
@@ -1011,7 +1011,7 @@ class LitModel(pl.LightningModule):
 
         self.automatic_optimization = self.hparams.automatic_optimization
                 
-        self.flag_ode_forecast = True##True #False
+        self.flag_ode_forecast = True##True 
         if self.flag_ode_forecast == True :
             self.phi_ode = Ode_l63()
 
@@ -1739,7 +1739,7 @@ if __name__ == '__main__':
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 15, 15, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-3, 1e-4, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
         
-        mod.flag_ode_forecast = True
+        mod.flag_ode_forecast = False#True
         
         mod.hparams.alpha_prior = 0.1
         mod.hparams.alpha_mse = 1.
@@ -1749,8 +1749,8 @@ if __name__ == '__main__':
         mod.hparams.noise_rnd_lstm_init = 0.#0.01
         mod.hparams.noise_rnd_aug_init = 0.#0.01
 
-        mod.hparams.rate_rnd_init = 0. #0.25
-               
+        mod.hparams.rate_rnd_init = 0. #0.25               
+
         mod.x_rec_training = x_train_Init[:idx_val,:,:,:]
         mod.x_rec_val = x_train_Init[idx_val:,:,:,:]
         
