@@ -1731,7 +1731,7 @@ if __name__ == '__main__':
 
             mod.hparams.n_grad          = 4
             mod.hparams.k_n_grad        = 5
-            mod.hparams.iter_update     = [0, 100, 200, 300, 500, 700, 800]  # [0,2,4,6,9,a15]
+            mod.hparams.iter_update     = [0, 200, 500, 300, 500, 700, 800]  # [0,2,4,6,9,a15]
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 10, 5, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-4, 1e-5, 1e-6, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
         else:
@@ -1759,7 +1759,7 @@ if __name__ == '__main__':
         mod.x_rec_training = x_train_Init[:idx_val,:,:,:]
         mod.x_rec_val = x_train_Init[idx_val:,:,:,:]
         
-        profiler_kwargs = {'max_epochs': 200 }
+        profiler_kwargs = {'max_epochs': 400 }
 
         suffix_exp = 'exp%02d-testloaders'%flagTypeMissData
         filename_chkpt = 'model-l63-'#'dlstm--'
