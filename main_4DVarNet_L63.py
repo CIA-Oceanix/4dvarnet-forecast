@@ -50,7 +50,7 @@ sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
-flagForecast = True#False#
+flagForecast = False#True#
 dt_forecast = 55#103#55#
 flag_x1_only = False#True #
 
@@ -1727,7 +1727,7 @@ if __name__ == '__main__':
             pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-2-forecast_055-aug10-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-epoch=98-val_loss=2.25.ckpt'
             
             pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ode-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=191-val_loss=5.81.ckpt'
-            pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-ode-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=197-val_loss=19.67.ckpt'
+            #pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-ode-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=197-val_loss=19.67.ckpt'
             
             print('.... load pre-trained model :'+pathCheckPOint)
             mod = LitModel.load_from_checkpoint(pathCheckPOint)
