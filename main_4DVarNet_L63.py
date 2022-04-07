@@ -1733,7 +1733,7 @@ if __name__ == '__main__':
             print('.... load pre-trained model :'+pathCheckPOint)
             mod = LitModel.load_from_checkpoint(pathCheckPOint)
 
-            mod.hparams.n_grad          = 4
+            mod.hparams.n_grad          = 3
             mod.hparams.k_n_grad        = 5
             mod.hparams.iter_update     = [0, 200, 500, 300, 500, 700, 800]  # [0,2,4,6,9,a15]
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 10, 5, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
