@@ -1322,7 +1322,7 @@ class LitModel(pl.LightningModule):
         
         
         print(self.compute_4DvarCost(outputs, inputs_obs, masks))
-        print(self.compute_4DvarCost(inputs_init, inputs_obs, masks))
+        print(loss)
         
         return loss,out, metrics,diff_loss_4dvar_init
 
