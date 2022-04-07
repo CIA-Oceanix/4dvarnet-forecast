@@ -1050,10 +1050,6 @@ class LitModel(pl.LightningModule):
                 pg['lr'] = lr[mm]# * self.hparams.learning_rate
                 mm += 1
         
-        #if self.current_epoch == 0 :     
-        #    self.save_hyperparameters()
-        # update training data loaders
-        
     def training_step(self, train_batch, batch_idx, optimizer_idx=0):
         opt = self.optimizers()
                     
@@ -1089,7 +1085,7 @@ class LitModel(pl.LightningModule):
                 # grad initialization to zero
                 opt.zero_grad()
          
-        return {"training_loss": loss,'preds':out[0].detach().cpu(),'h_lstm':out[1].detach().cpu(),'c_lstm':out[2].detach().cpu(),'idx':out[4].detach().cpu()}
+        return {"loss": loss,'preds':out[0].detach().cpu(),'h_lstm':out[1].detach().cpu(),'c_lstm':out[2].detach().cpu(),'idx':out[4].detach().cpu()}
     
     def validation_step(self, val_batch, batch_idx):
         
@@ -1104,7 +1100,6 @@ class LitModel(pl.LightningModule):
         for kk in range(0,self.hparams.k_n_grad-1):
             loss1, out, metrics,diff_loss_4dvar_init = self.compute_loss(val_batch, phase='val',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
             loss = loss1
-
         
         if 1*0 :
             self.model.n_grad = n_grad_curr
@@ -1145,7 +1140,7 @@ class LitModel(pl.LightningModule):
         self.h_lstm_training = h_rec_curr[idx_rec_curr,:,:,:]
         self.c_lstm_training = c_rec_curr[idx_rec_curr,:,:,:]
                 
-        loss_training = torch.stack([x['training_loss'] for x in outputs]).mean()
+        loss_training = torch.stack([x['loss'] for x in outputs]).mean()
         self.log('train_loss_epoch', loss_training)
 
     def validation_epoch_end(self, outputs):
@@ -1862,7 +1857,7 @@ if __name__ == '__main__':
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ft-ode-exp02-testloaders-Noise01-igrad04_05-dgrad25-drop20-epoch=06-val_loss=4.90.ckpt'
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ft-ode-exp02-testloaders-Noise01-igrad10_04-dgrad25-drop20-epoch=18-val_loss=3.79.ckpt'
         
-        
+        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-ft-ode-exp02-testloaders-Noise01-igrad20_02-dgrad25-drop20-epoch=00-val_loss=12.78.ckpt'
         print('.... load pre-trained model :'+pathCheckPOint)
         
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
@@ -1875,7 +1870,7 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse = 1.
         mod.hparams.alpha_mse_rec = 0.75
         mod.hparams.alpha_mse_for = 0.25
-        mod.hparams.n_grad = 15
+        mod.hparams.n_grad = 25
         mod.hparams.k_n_grad = 2
 
         mod.flag_ode_forecast = False#True
