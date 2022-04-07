@@ -43,7 +43,7 @@ dim_aug_state = 0#10#10#10#10 #False#
 batch_size = 128#
 
 NbTraining = 10000 #756#
-NbTest     = 2000#256
+NbTest     = 2000 #256
 time_step = 1
 dT        = 200
 sigNoise  = np.sqrt(2.0)
@@ -992,7 +992,6 @@ class LitModel(pl.LightningModule):
         self.hparams.alpha_mse_for = 0.#*0.25#1.e1
         
         self.hparams.alpha_4dvarloss_diff = 0.1
-        self.iter_sum_loss_mse = 2
         
         self.hparams.rate_rnd_init = 0.2 # 
         self.hparams.noise_rnd_aug_init = 0.1
@@ -1714,12 +1713,11 @@ if flagForecast == True :
 else:
     w_loss = np.ones(dT) / np.float(dT)
 
-
 if __name__ == '__main__':
       
     if flagProcess == 0: ## training model from scratch
         
-        flagLoadModel = True#    False# 
+        flagLoadModel = False# True#    
         if flagLoadModel == True:
             
             pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=105-val_loss=2.08.ckpt'
@@ -1758,7 +1756,7 @@ if __name__ == '__main__':
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 15, 15, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-3, 1e-4, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
         
-        mod.flag_ode_forecast = False#True
+        mod.flag_ode_forecast = True#False#
         
         mod.hparams.alpha_prior = 0.1
         mod.hparams.alpha_mse = 1.
@@ -1766,7 +1764,6 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
 
         mod.hparams.alpha_4dvarloss_diff = 5.e1#0.1 #
-        mod.iter_sum_loss_mse = 2
 
         mod.hparams.noise_rnd_lstm_init = 0.#1e-2 #0.
         mod.hparams.noise_rnd_aug_init = 0.#1e-2 #0.
