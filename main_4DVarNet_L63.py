@@ -36,7 +36,7 @@ flagProcess = 0
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
-flagAEType = 'ode'#'unet2'# 'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
+flagAEType = 'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
 dim_aug_state = 0#10#10#10#10 #False#
  
 
@@ -50,7 +50,7 @@ sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
-flagForecast = False#True#
+flagForecast = True#False#
 dt_forecast = 55#103#55#
 flag_x1_only = False#True #
 
@@ -1726,9 +1726,10 @@ if __name__ == '__main__':
             pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-1-aug10_001-sopt25-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-rnd01-epoch=300-val_loss=0.57.ckpt'
             pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-2-forecast_055-aug10-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-epoch=98-val_loss=2.25.ckpt'
             
-            pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ode-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=191-val_loss=5.81.ckpt'
+            #pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ode-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=191-val_loss=5.81.ckpt'
             #pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-ode-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=197-val_loss=19.67.ckpt'
             
+            pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-aug10-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-epoch=123-val_loss=1.98.ckpt'
             print('.... load pre-trained model :'+pathCheckPOint)
             mod = LitModel.load_from_checkpoint(pathCheckPOint)
 
@@ -1752,10 +1753,10 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse = 1.
         mod.hparams.alpha_mse_rec = (dT-dt_forecast)/dT #0.75
         mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
-        mod.hparams.alpha_4dvarloss_diff = 0.#0.1
+        mod.hparams.alpha_4dvarloss_diff = 0.1 #0.#
 
-        mod.hparams.noise_rnd_lstm_init = 0.#0.01
-        mod.hparams.noise_rnd_aug_init = 0.#0.01
+        mod.hparams.noise_rnd_lstm_init = 1e-2 #0.
+        mod.hparams.noise_rnd_aug_init = 1e-2 #0.
 
         mod.hparams.rate_rnd_init = 0. #0.25               
 
