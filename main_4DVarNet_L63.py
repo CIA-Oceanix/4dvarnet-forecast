@@ -1012,7 +1012,7 @@ class LitModel(pl.LightningModule):
 
         self.automatic_optimization = self.hparams.automatic_optimization
                 
-        self.flag_ode_forecast = True # False #
+        self.flag_ode_forecast = False # True # 
         if self.flag_ode_forecast == True :
             self.phi_ode = Ode_l63()
 
