@@ -1839,6 +1839,7 @@ if __name__ == '__main__':
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-epoch=193-val_loss=2.60.ckpt'
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ft-ode-exp02-testloaders-Noise01-igrad04_05-dgrad25-drop20-epoch=303-val_loss=4.27.ckpt'
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ft-ode-exp02-testloaders-Noise01-igrad04_05-dgrad25-drop20-epoch=375-val_loss=5.95.ckpt'
+        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ft-ode-exp02-testloaders-Noise01-igrad04_05-dgrad25-drop20-epoch=319-val_loss=4.20.ckpt'
         
         print('.... load pre-trained model :'+pathCheckPOint)
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
@@ -1852,7 +1853,7 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse_rec = 0.75
         mod.hparams.alpha_mse_for = 0.25
         mod.hparams.n_grad = 5
-        mod.hparams.k_n_grad = 2
+        mod.hparams.k_n_grad = 4
     
         print(' Ngrad = %d / %d'%(mod.hparams.n_grad,mod.model.n_grad))
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
