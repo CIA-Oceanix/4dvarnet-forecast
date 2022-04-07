@@ -1832,7 +1832,7 @@ if __name__ == '__main__':
         
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-ode-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-epoch=199-val_loss=20.73.ckpt'
         
-        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ft-ode-exp02-testloaders-Noise01-igrad04_05-dgrad25-drop20-epoch=54-val_loss=5.57.ckpt'
+        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ft-ode-exp02-testloaders-Noise01-igrad04_05-dgrad25-drop20-epoch=55-val_loss=5.50.ckpt'
         print('.... load pre-trained model :'+pathCheckPOint)
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
         
