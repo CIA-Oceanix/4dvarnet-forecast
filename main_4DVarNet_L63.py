@@ -36,7 +36,7 @@ flagProcess = 1
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
-flagAEType = 'unet2'#'ode'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
+flagAEType = 'ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
 dim_aug_state = 0#10#10#10#10 #False#
  
 
@@ -50,7 +50,7 @@ sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
-flagForecast = True#False#
+flagForecast = False#True#
 dt_forecast = 55#103#55#
 flag_x1_only = False#True #
 
@@ -1837,6 +1837,7 @@ if __name__ == '__main__':
         #pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-1-aug10_001-sopt25-unet2-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-rnd01-epoch=215-val_loss=0.59.ckpt'
         #pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-ft-aug10_001-unet2-exp02-testloaders-Noise01-igrad03_05-dgrad25-drop20-rnd01-epoch=62-val_loss=2.00.ckpt'
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-epoch=193-val_loss=2.60.ckpt'
+        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ft-ode-exp02-testloaders-Noise01-igrad04_05-dgrad25-drop20-epoch=303-val_loss=4.27.ckpt'
         
         print('.... load pre-trained model :'+pathCheckPOint)
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
@@ -1849,8 +1850,8 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse = 1.
         mod.hparams.alpha_mse_rec = 0.75
         mod.hparams.alpha_mse_for = 0.25
-        mod.hparams.n_grad = 2
-        mod.hparams.k_n_grad = 5
+        mod.hparams.n_grad = 5
+        mod.hparams.k_n_grad = 4
     
         print(' Ngrad = %d / %d'%(mod.hparams.n_grad,mod.model.n_grad))
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
