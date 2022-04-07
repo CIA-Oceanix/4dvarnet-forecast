@@ -1321,8 +1321,8 @@ class LitModel(pl.LightningModule):
         out = [outputs,hidden_new, cell_new, normgrad_,idx]
         
         
-        print(loss)
-        print(diff_loss_4dvar_init)
+        print(self.compute_4DvarCost(outputs, inputs_obs, masks))
+        print(self.compute_4DvarCost(inputs_init, inputs_obs, masks))
         
         return loss,out, metrics,diff_loss_4dvar_init
 
