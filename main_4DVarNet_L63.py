@@ -50,7 +50,7 @@ sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
-flagForecast = False#True#
+flagForecast = True#False#
 dt_forecast = 55#103#55#
 flag_x1_only = False#True #
 
