@@ -992,6 +992,7 @@ class LitModel(pl.LightningModule):
         self.hparams.alpha_mse_for = 0.#*0.25#1.e1
         
         self.hparams.alpha_4dvarloss_diff = 0.1
+        self.iter_sum_loss_mse = 2
         
         self.hparams.rate_rnd_init = 0.2 # 
         self.hparams.noise_rnd_aug_init = 0.1
@@ -1057,11 +1058,21 @@ class LitModel(pl.LightningModule):
         opt = self.optimizers()
                     
         # compute loss and metrics
-        loss, out, metrics = self.compute_loss(train_batch, phase='train')
+        loss1, out, metrics,diff_loss_4dvar_init = self.compute_loss(train_batch, phase='train')
+        
+        if self.iter_sum_loss_mse > 0 :
+            loss = 0. * loss1
         
         for kk in range(0,self.hparams.k_n_grad-1):
-            loss1, out, metrics = self.compute_loss(train_batch, phase='train',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
-            loss = loss + loss1
+            loss1, out, metrics,diff_loss_4dvar_init1 = self.compute_loss(train_batch, phase='train',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
+            
+            if (kk+1) % self.iter_sum_loss_mse == 0:
+                loss = loss + loss1
+            elif kk+1 == self.hparams.k_n_grad-1:
+                loss = loss + loss1
+            diff_loss_4dvar_init = diff_loss_4dvar_init + diff_loss_4dvar_init1
+        
+        loss = loss + self.hparams.alpha_4dvarloss_diff * diff_loss_4dvar_init
         
         # log step metric        
         #self.log('train_mse', mse)
@@ -1094,7 +1105,7 @@ class LitModel(pl.LightningModule):
         
         loss, out, metrics = self.compute_loss(val_batch, phase='val')
         for kk in range(0,self.hparams.k_n_grad-1):
-            loss1, out, metrics = self.compute_loss(val_batch, phase='val',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
+            loss1, out, metrics,diff_loss_4dvar_init = self.compute_loss(val_batch, phase='val',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
             loss = loss1
 
         
@@ -1112,7 +1123,7 @@ class LitModel(pl.LightningModule):
         loss, out, metrics = self.compute_loss(test_batch, phase='test')
         
         for kk in range(0,self.hparams.k_n_grad-1):
-            loss1, out, metrics = self.compute_loss(test_batch, phase='test',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
+            loss1, out, metrics,diff_loss_4dvar_init = self.compute_loss(test_batch, phase='test',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
 
         #out_ssh,out_ssh_obs = out
         #self.log('test_loss', loss)
@@ -1295,18 +1306,21 @@ class LitModel(pl.LightningModule):
             #if (phase == 'val') or (phase == 'test'):                
 
             # loss 4dVar before/after iteration
-            difff_loss_4dvar_init = self.compute_4DvarCost(outputs, inputs_obs, masks) - self.compute_4DvarCost(inputs_init, inputs_obs, masks)            
-            difff_loss_4dvar_init = F.relu( difff_loss_4dvar_init )
+            diff_loss_4dvar_init = self.compute_4DvarCost(outputs, inputs_obs, masks) - self.compute_4DvarCost(inputs_init, inputs_obs, masks)            
+            diff_loss_4dvar_init = F.relu( diff_loss_4dvar_init )
             
-            loss = loss + self.hparams.alpha_4dvarloss_diff * difff_loss_4dvar_init
-            
+            #if iter % self.iter_loss_mse_update == 0 :
+            #    loss = loss + self.hparams.alpha_4dvarloss_diff * difff_loss_4dvar_init
+            #else:
+            #    loss = self.hparams.alpha_4dvarloss_diff * difff_loss_4dvar_init
+                
         outputs = outputs.detach()
         hidden_new = hidden_new.detach()
         cell_new = cell_new.detach()
                 
         out = [outputs,hidden_new, cell_new, normgrad_,idx]
         
-        return loss,out, metrics
+        return loss,out, metrics,diff_loss_4dvar_init
 
 class LitModel_DirectInv(pl.LightningModule):
     def __init__(self,conf=HParam(),*args, **kwargs):
