@@ -1084,11 +1084,13 @@ class LitModel(pl.LightningModule):
         return {"training_loss": loss,'preds':out[0].detach().cpu(),'h_lstm':out[1].detach().cpu(),'c_lstm':out[2].detach().cpu(),'idx':out[4].detach().cpu()}
     
     def validation_step(self, val_batch, batch_idx):
-        n_grad_curr = self.model.n_grad
-        k_n_grad_curr = self.hparams.k_n_grad
+        
+        if 1*0 :
+            n_grad_curr = self.model.n_grad
+            k_n_grad_curr = self.hparams.k_n_grad
                 
-        self.model.n_grad = 5
-        self.hparams.k_n_grad = 2
+            self.model.n_grad = 5
+            self.hparams.k_n_grad = 2
         
         loss, out, metrics = self.compute_loss(val_batch, phase='val')
         for kk in range(0,self.hparams.k_n_grad-1):
@@ -1096,8 +1098,9 @@ class LitModel(pl.LightningModule):
             loss = loss1
 
         
-        self.model.n_grad = n_grad_curr
-        self.hparams.k_n_grad = k_n_grad_curr
+        if 1*0 :
+            self.model.n_grad = n_grad_curr
+            self.hparams.k_n_grad = k_n_grad_curr
 
         #self.log('val_loss', loss)
         self.log('val_loss', stdTr**2 * metrics['mse'] )
@@ -1724,7 +1727,7 @@ if __name__ == '__main__':
             pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-2-forecast_055-aug10-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-epoch=98-val_loss=2.25.ckpt'
             
             pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ode-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=191-val_loss=5.81.ckpt'
-            pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-ode-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=197-val_loss=19.67.ckpt'
+            #pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-ode-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=197-val_loss=19.67.ckpt'
             
             print('.... load pre-trained model :'+pathCheckPOint)
             mod = LitModel.load_from_checkpoint(pathCheckPOint)
