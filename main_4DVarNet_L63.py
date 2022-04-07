@@ -1066,8 +1066,9 @@ class LitModel(pl.LightningModule):
                 loss1, out, metrics,diff_loss_4dvar_init = self.compute_loss(train_batch, phase='train',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
                 
                 dloss = F.relu(loss1 - loss)
+                print(dloss)
                 loss = 1. * loss1                 
-                loss_all = loss1 +  dloss + self.hparams.alpha_4dvarloss_diff * diff_loss_4dvar_init
+                loss_all = loss_all + loss1 +  dloss + self.hparams.alpha_4dvarloss_diff * diff_loss_4dvar_init
         
         loss =  loss_all
         
