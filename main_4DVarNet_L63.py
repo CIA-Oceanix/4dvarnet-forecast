@@ -1058,21 +1058,18 @@ class LitModel(pl.LightningModule):
         opt = self.optimizers()
                     
         # compute loss and metrics
-        loss1, out, metrics,diff_loss_4dvar_init = self.compute_loss(train_batch, phase='train')
+        loss, out, metrics,diff_loss_4dvar_init = self.compute_loss(train_batch, phase='train')
+        loss_all = self.hparams.alpha_4dvarloss_diff * diff_loss_4dvar_init
         
-        if self.iter_sum_loss_mse > 0 :
-            loss = 0. * loss1
+        if self.hparams.k_n_grad > 1 :
+            for kk in range(0,self.hparams.k_n_grad-1):
+                loss1, out, metrics,diff_loss_4dvar_init = self.compute_loss(train_batch, phase='train',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
+                
+                dloss = F.relu(loss1 - loss)
+                loss = 1. * loss1                 
+                loss_all = dloss + self.hparams.alpha_4dvarloss_diff * diff_loss_4dvar_init
         
-        for kk in range(0,self.hparams.k_n_grad-1):
-            loss1, out, metrics,diff_loss_4dvar_init1 = self.compute_loss(train_batch, phase='train',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
-            
-            if (kk+1) % self.iter_sum_loss_mse == 0:
-                loss = loss + loss1
-            elif kk+1 == self.hparams.k_n_grad-1:
-                loss = loss + loss1
-            diff_loss_4dvar_init = diff_loss_4dvar_init + diff_loss_4dvar_init1
-        
-        loss = loss + self.hparams.alpha_4dvarloss_diff * diff_loss_4dvar_init
+        loss = loss + loss_all
         
         # log step metric        
         #self.log('train_mse', mse)
