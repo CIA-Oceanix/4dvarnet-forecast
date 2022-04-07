@@ -1103,7 +1103,7 @@ class LitModel(pl.LightningModule):
             self.model.n_grad = 5
             self.hparams.k_n_grad = 2
         
-        loss, out, metrics = self.compute_loss(val_batch, phase='val')
+        loss, out, metrics, diff_loss_4dvar_init = self.compute_loss(val_batch, phase='val')
         for kk in range(0,self.hparams.k_n_grad-1):
             loss1, out, metrics,diff_loss_4dvar_init = self.compute_loss(val_batch, phase='val',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
             loss = loss1
@@ -1120,7 +1120,7 @@ class LitModel(pl.LightningModule):
         return {"val_loss": loss,'preds':out[0].detach().cpu()}
 
     def test_step(self, test_batch, batch_idx):
-        loss, out, metrics = self.compute_loss(test_batch, phase='test')
+        loss, out, metrics, diff_loss_4dvar_init = self.compute_loss(test_batch, phase='test')
         
         for kk in range(0,self.hparams.k_n_grad-1):
             loss1, out, metrics,diff_loss_4dvar_init = self.compute_loss(test_batch, phase='test',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
