@@ -1847,6 +1847,9 @@ if __name__ == '__main__':
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ft-ode-exp02-testloaders-Noise01-igrad04_05-dgrad25-drop20-epoch=399-val_loss=4.00.ckpt'
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ft-ode-exp02-testloaders-Noise01-igrad04_05-dgrad25-drop20-epoch=06-val_loss=4.90.ckpt'
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ft-ode-exp02-testloaders-Noise01-igrad10_04-dgrad25-drop20-epoch=18-val_loss=3.79.ckpt'
+        
+        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-ode-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=397-val_loss=13.38.ckpt'
+        
         print('.... load pre-trained model :'+pathCheckPOint)
         
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
@@ -1859,8 +1862,8 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse = 1.
         mod.hparams.alpha_mse_rec = 0.75
         mod.hparams.alpha_mse_for = 0.25
-        mod.hparams.n_grad = 10
-        mod.hparams.k_n_grad = 4
+        mod.hparams.n_grad = 5
+        mod.hparams.k_n_grad = 2
 
         mod.flag_ode_forecast = False#True
     
