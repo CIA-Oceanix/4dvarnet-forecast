@@ -31,13 +31,13 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 0
+flagProcess = 1
 
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
-flagAEType = 'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
-dim_aug_state = 10#10#10#10#10 #False#
+flagAEType = 'ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
+dim_aug_state = 0#10#10#10#10 #False#
  
 
 batch_size = 128#
@@ -50,7 +50,7 @@ sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
-flagForecast = True#False#
+flagForecast = False#True#
 dt_forecast = 55#103#55#
 flag_x1_only = False#True #
 
@@ -1832,6 +1832,7 @@ if __name__ == '__main__':
         
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-ode-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-epoch=199-val_loss=20.73.ckpt'
         
+        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ft-ode-exp02-testloaders-Noise01-igrad04_05-dgrad25-drop20-epoch=54-val_loss=5.57.ckpt'
         print('.... load pre-trained model :'+pathCheckPOint)
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
         
@@ -1844,7 +1845,7 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse_rec = 0.75
         mod.hparams.alpha_mse_for = 0.25
         mod.hparams.n_grad = 5
-        mod.hparams.k_n_grad = 2
+        mod.hparams.k_n_grad = 4
     
         print(' Ngrad = %d / %d'%(mod.hparams.n_grad,mod.model.n_grad))
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
