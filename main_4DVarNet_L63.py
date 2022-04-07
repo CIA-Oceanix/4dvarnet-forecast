@@ -1249,9 +1249,9 @@ class LitModel(pl.LightningModule):
             #outputs, hidden_new, cell_new, normgrad_ = self.model(inputs_init, inputs_obs, masks ,hidden = None , cell = None , normgrad = normgrad )
             outputs, hidden_new, cell_new, normgrad_ = self.model(inputs_init, inputs_obs, masks, hidden = hidden , cell = cell , normgrad = normgrad )
 
-            if self.flag_ode_forecast == True :
-                x_for = self.phi_ode.ode_int( outputs[:,:3,dT-dt_forecast-1,:] , dt_forecast )  
-                outputs[:,:3,dT-dt_forecast-1:] = x_for.view(-1,3,dt_forecast+1,1)
+            #if self.flag_ode_forecast == True :
+            #    x_for = self.phi_ode.ode_int( outputs[:,:3,dT-dt_forecast-1,:] , dt_forecast )  
+            #    outputs[:,:3,dT-dt_forecast-1:] = x_for.view(-1,3,dt_forecast+1,1)
                     
             if self.hparams.dim_aug_state == 0 : 
                 if flag_x1_only == False:
