@@ -1320,6 +1320,10 @@ class LitModel(pl.LightningModule):
                 
         out = [outputs,hidden_new, cell_new, normgrad_,idx]
         
+        
+        print(loss)
+        print(diff_loss_4dvar_init)
+        
         return loss,out, metrics,diff_loss_4dvar_init
 
 class LitModel_DirectInv(pl.LightningModule):
@@ -1772,7 +1776,7 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse = 1.
         mod.hparams.alpha_mse_rec = (dT-dt_forecast)/dT #0.75
         mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
-        mod.hparams.alpha_4dvarloss_diff = 0.#0.1 #
+        mod.hparams.alpha_4dvarloss_diff = 0.1#0.1 #
 
         mod.hparams.noise_rnd_lstm_init = 0.#1e-2 #0.
         mod.hparams.noise_rnd_aug_init = 0.#1e-2 #0.
