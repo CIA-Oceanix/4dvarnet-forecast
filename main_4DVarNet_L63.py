@@ -434,6 +434,27 @@ else:
         meanTr = 0.
         stdTr = 1.
 
+
+    x_train = x_train[:,:,::10]
+    x_train_Init = x_train_Init[:,:,::10]
+    x_train_obs = x_train_obs[:,:,::10]
+    mask_train = mask_train[:,:,::10]
+    
+    x_test = x_test[:,:,::10]
+    mask_test = mask_test[:,:,::10]
+    x_test_Init = x_test_Init[:,:,::10]
+    x_test_obs = x_test_obs[:,:,::10]
+
+    x_train = x_train[:,:,:dT]
+    x_train_Init = x_train_Init[:,:,:dT]
+    x_train_obs = x_train_obs[:,:,:dT]
+    mask_train = mask_train[:,:,:dT]
+    
+    x_test = x_test[:,:,:dT]
+    mask_test = mask_test[:,:,:dT]
+    x_test_Init = x_test_Init[:,:,:dT]
+    x_test_obs = x_test_obs[:,:,:dT]
+        
     x_train = x_train.reshape((-1,3,dT,1))
     mask_train = mask_train.reshape((-1,3,dT,1))
     x_train_Init = x_train_Init.reshape((-1,3,dT,1))
@@ -443,27 +464,6 @@ else:
     mask_test = mask_test.reshape((-1,3,dT,1))
     x_test_Init = x_test_Init.reshape((-1,3,dT,1))
     x_test_obs = x_test_obs.reshape((-1,3,dT,1))
-
-    x_train = x_train[:,:,::10,:]
-    x_train_Init = x_train_Init[:,:,::10,:]
-    x_train_obs = x_train_obs[:,:,::10,:]
-    mask_train = mask_train[:,:,::10,:]
-    
-    x_test = x_test[:,:,::10,:]
-    mask_test = mask_test[:,:,::10,:]
-    x_test_Init = x_test_Init[:,:,::10,:]
-    x_test_obs = x_test_obs[:,:,::10,:]
-
-    x_train = x_train[:,:,:dT,:]
-    x_train_Init = x_train_Init[:,:,:dT,:]
-    x_train_obs = x_train_obs[:,:,:dT,:]
-    mask_train = mask_train[:,:,:dT,:]
-    
-    x_test = x_test[:,:,:dT,:]
-    mask_test = mask_test[:,:,:dT,:]
-    x_test_Init = x_test_Init[:,:,:dT,:]
-    x_test_obs = x_test_obs[:,:,:dT,:]
-        
     
     X_train = stdTr * x_train.squeeze() + meanTr
     X_test = stdTr * x_test.squeeze() + meanTr
