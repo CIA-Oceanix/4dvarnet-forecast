@@ -31,18 +31,18 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 0
+flagProcess = 3
 
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
 flagAEType = 'unet2'#ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
-dim_aug_state = 10#10#10#10#10 #False#
+dim_aug_state = 0#10#10#10#10 #False#
  
 
 batch_size = 128#128#
 
-NbTraining = 1000#5000#10000 #756#
+NbTraining = 5000#5000#10000 #756#
 NbTest     = 100#2000 #256
 time_step = 1
 dT        = 200#2500#2500#
@@ -448,14 +448,14 @@ else:
         x_test_obs = x_test_obs[:,:,::10]
         
         x_train_obs = 0. * x_train_obs
-        x_train_obs[:,0,::8] = x_train[:,0,::8]
+        x_train_obs[:,:,::8] = x_train[:,:,::8]
         mask_train = 0. * mask_train
-        mask_train[:,0,::8] = 1.
+        mask_train[:,:,::8] = 1.
 
         x_test_obs = 0. * x_test_obs
-        x_test_obs[:,0,::8] = x_test[:,0,::8]
+        x_test_obs[:,:,::8] = x_test[:,:,::8]
         mask_test = 0. * mask_test
-        mask_test[:,0,::8] = 1.
+        mask_test[:,:,::8] = 1.
 
     x_train = x_train[:NbTraining,:,:dT]
     mask_train = mask_train[:NbTraining,:,:dT]
@@ -466,10 +466,7 @@ else:
     mask_test = mask_test[:,:,:dT]
     x_test_Init = x_test_Init[:,:,:dT]
     x_test_obs = x_test_obs[:,:,:dT]
-     
-    
-    
-    
+           
     x_train = x_train.reshape((-1,3,dT,1))
     mask_train = mask_train.reshape((-1,3,dT,1))
     x_train_Init = x_train_Init.reshape((-1,3,dT,1))
@@ -1827,8 +1824,8 @@ if __name__ == '__main__':
         else:
             mod = LitModel()
             
-            mod.hparams.n_grad          = 5#1#5
-            mod.hparams.k_n_grad        = 2
+            mod.hparams.n_grad          = 2#1#5
+            mod.hparams.k_n_grad        = 1
             mod.hparams.iter_update     = [0, 100, 200, 200, 300, 500, 700, 800]  # [0,2,4,6,9,15]
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 15, 15, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-3, 1e-4, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
