@@ -448,7 +448,7 @@ else:
         x_test_obs = x_test_obs[:,:,::10]
 
     x_train = x_train[:,:,:dT]
-    x_train_Init = x_train_Init[:,:,:dT]
+    x_train_Init = 0. * x_train_Init[:,:,:dT]
     x_train_obs = x_train_obs[:,:,:dT]
     
     med_obs = np.median(x_train_obs)
