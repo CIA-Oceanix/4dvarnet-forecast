@@ -468,7 +468,9 @@ else:
     print( '%.2f %.2f'%(np.mean( x_train[:,0,:]) ,  np.var( x_train[:,0,:])) )
     print( '%.2f %.2f'%(np.mean( x_train[:,1,:]) ,  np.var( x_train[:,1,:])) )
     print( '%.2f %.2f'%(np.mean( x_train[:,2,:]) ,  np.var( x_train[:,2,:])) )
-
+    print( '%.2f %.2f'%(np.mean( x_train) ,  np.var( x_train)) )
+    print( '%.2f %.2f'%(np.mean( x_test) ,  np.var( x_test)) )
+    
     X_train = stdTr * x_train.squeeze() + meanTr
     X_test = stdTr * x_test.squeeze() + meanTr
 
