@@ -446,6 +446,17 @@ else:
         mask_test = mask_test[:,:,::10]
         x_test_Init = x_test_Init[:,:,::10]
         x_test_obs = x_test_obs[:,:,::10]
+        
+        x_train_obs = 0. * x_train_obs
+        x_train_obs[:,0,::8] = x_train[:,0,::8]
+        mask_train = 0. * mask_train
+        mask_train[:,0,::8] = 1.
+
+        x_test_obs = 0. * x_test_obs
+        x_test_obs[:,0,::8] = x_test[:,0,::8]
+        mask_test = 0. * mask_test
+        mask_test[:,0,::8] = 1.
+
 
     x_train = x_train[:,:,:dT]
     x_train_Init = 0. * x_train_Init[:,:,:dT]
