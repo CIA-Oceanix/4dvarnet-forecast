@@ -446,7 +446,7 @@ else:
     x_test_obs = x_test_obs[:,:,::10]
 
     x_train = x_train[:,:,:dT]
-    x_train_Init = 0.* x_train_Init[:,:,:dT]
+    x_train_Init = x_train_Init[:,:,:dT]
     x_train_obs = x_train_obs[:,:,:dT]
     mask_train = mask_train[:,:,:dT]
     
@@ -477,6 +477,8 @@ else:
     print( '%.2f %.2f'%(np.mean( x_test) ,  np.var( x_test)) )
     
     print( '%.2f %.2f'%(np.mean( x_test_Init[ x_test_Init != 0. ] ) ,  np.var( x_test_Init[ x_test_Init != 0. ] )) )
+    print( '%.2f %.2f'%(np.mean( x_test_obs[ x_test_obs != 0. ] ) ,  np.var( x_test_obs[ x_test_obs != 0. ] )) )
+
     print( '%.2f %.2f'%(np.mean( x_train_Init[ x_train_Init != 0. ] ) ,  np.var( x_train_Init[ x_train_Init != 0. ] )) )
     print( '%.2f %.2f'%(np.mean( x_train_obs[ x_train_obs != 0. ] ) ,  np.var( x_train_obs[ x_train_obs != 0. ] )) )
 
