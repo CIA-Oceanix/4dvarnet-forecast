@@ -42,7 +42,7 @@ dim_aug_state = 10#10#10#10#10 #False#
 
 batch_size = 128#128#
 
-NbTraining = 5000#10000 #756#
+NbTraining = 1000#5000#10000 #756#
 NbTest     = 100#2000 #256
 time_step = 1
 dT        = 200#2500#2500#
@@ -456,7 +456,6 @@ else:
         x_test_obs[:,0,::8] = x_test[:,0,::8]
         mask_test = 0. * mask_test
         mask_test[:,0,::8] = 1.
-
 
     x_train = x_train[:,:,:dT]
     mask_train = mask_train[:,:,:dT]
