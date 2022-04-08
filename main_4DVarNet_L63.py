@@ -479,14 +479,18 @@ else:
     
     
     print('\n..............................')
-    print( '%.2f %.2f'%(np.mean( x_test_Init[ x_test_Init != 0. ] ) ,  np.var( x_test_Init[ x_test_Init != 0. ] )) )
-    print( '%.2f %.2f'%(np.mean( x_test_obs[ x_test_obs != 0. ] ) ,  np.var( x_test_obs[ x_test_obs != 0. ] )) )
+    med_ = np.median(x_train_Init)
+    med_1 = np.median(x_train_obs)
+    
+    
+    print( '%.2f %.2f'%(np.mean( x_test_Init[ x_test_Init != med_ ] ) ,  np.var( x_test_Init[ x_test_Init != med_ ] )) )
+    print( '%.2f %.2f'%(np.mean( x_test_obs[ x_test_obs != med_1 ] ) ,  np.var( x_test_obs[ x_test_obs != med_1 ] )) )
 
-    print( '%.2f %.2f'%(np.mean( x_train_Init[ x_train_Init != 0. ] ) ,  np.var( x_train_Init[ x_train_Init != 0. ] )) )
-    print( '%.2f %.2f'%(np.mean( x_train_obs[ x_train_obs != 0. ] ) ,  np.var( x_train_obs[ x_train_obs != 0. ] )) )
+    print( '%.2f %.2f'%(np.mean( x_train_Init[ x_train_Init != med_ ] ) ,  np.var( x_train_Init[ x_train_Init != med_ ] )) )
+    print( '%.2f %.2f'%(np.mean( x_train_obs[ x_train_obs != med_1 ] ) ,  np.var( x_train_obs[ x_train_obs != med_1 ] )) )
 
-    print( x_train_obs[ x_train_obs != 0. ] )
-    print( x_test_obs[ x_test_obs != 0. ] )
+    print( x_train_obs[ x_train_obs != med_1 ] )
+    print( x_test_obs[ x_test_obs != med_1 ] )
 
     X_train = stdTr * x_train.squeeze() + meanTr
     X_test = stdTr * x_test.squeeze() + meanTr
