@@ -31,7 +31,7 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 3
+flagProcess = 0
 
 dimGradSolver = 25
 rateDropout = 0.2
@@ -1828,7 +1828,7 @@ if __name__ == '__main__':
         else:
             mod = LitModel()
             
-            mod.hparams.n_grad          = 2#1#5
+            mod.hparams.n_grad          = 5#1#5
             mod.hparams.k_n_grad        = 1
             mod.hparams.iter_update     = [0, 100, 200, 200, 300, 500, 700, 800]  # [0,2,4,6,9,15]
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 15, 15, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
