@@ -426,8 +426,14 @@ else:
 
     meanTr = ncfile.variables['meanTr'][:]
     stdTr = ncfile.variables['stdTr'][:]
-    meanTr = float(meanTr.data)    
-    stdTr = float(stdTr.data)
+    
+    
+    if 1*0 :
+        meanTr = float(meanTr.data)    
+        stdTr = float(stdTr.data)
+    else:
+        meanTr = 0.
+        stdTr = 1.
         
     x_train = x_train.reshape((-1,3,dT,1))
     mask_train = mask_train.reshape((-1,3,dT,1))
