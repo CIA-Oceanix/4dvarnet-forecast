@@ -45,7 +45,7 @@ batch_size = 128#128#
 NbTraining = 5000#10000 #756#
 NbTest     = 100#2000 #256
 time_step = 1
-dT        = 2500#2500#200
+dT        = 200#2500#2500#
 sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
@@ -424,6 +424,7 @@ else:
     x_test_Init = ncfile.variables['x_test_init'][:]
     x_test_obs = ncfile.variables['x_test_obs'][:]
   
+    print('..... Training dataset: %dx%dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2],x_train.shape[3]))
     
     if 1*0 :
         meanTr = ncfile.variables['meanTr'][:]
