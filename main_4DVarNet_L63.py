@@ -36,21 +36,21 @@ flagProcess = 0
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
-flagAEType = 'ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
+flagAEType = 'unet2'#ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
 dim_aug_state = 0#10#10#10#10 #False#
  
 
-batch_size = 128#
+batch_size = 64#128#
 
-NbTraining = 10000 #756#
-NbTest     = 2000 #256
+NbTraining = 5000#10000 #756#
+NbTest     = 100#2000 #256
 time_step = 1
-dT        = 200
+dT        = 2500#200
 sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
-flagForecast = True#False#
+flagForecast = False#True#
 dt_forecast = 55#103#55#
 flag_x1_only = False#True #
 
@@ -409,6 +409,7 @@ else:
             path_l63_dataset = 'dataset_L63_Forecast104.nc'
     else:
         path_l63_dataset = 'dataset_L63_JamesExp1.nc'
+        path_l63_dataset = 'dataset_bruit_0005_tstep_80 (2).nc'
                         
     ncfile = Dataset(path_l63_dataset,"r")
     x_train = ncfile.variables['x_train'][:]
