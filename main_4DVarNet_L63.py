@@ -464,7 +464,11 @@ else:
     mask_test = mask_test.reshape((-1,3,dT,1))
     x_test_Init = x_test_Init.reshape((-1,3,dT,1))
     x_test_obs = x_test_obs.reshape((-1,3,dT,1))
-    
+
+    print( '%.2f %.2f'%(np.mean( x_train[:,0,:]) ,  np.var( x_train[:,0,:])) )
+    print( '%.2f %.2f'%(np.mean( x_train[:,1,:]) ,  np.var( x_train[:,1,:])) )
+    print( '%.2f %.2f'%(np.mean( x_train[:,2,:]) ,  np.var( x_train[:,2,:])) )
+
     X_train = stdTr * x_train.squeeze() + meanTr
     X_test = stdTr * x_test.squeeze() + meanTr
 
