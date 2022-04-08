@@ -31,7 +31,7 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 0
+flagProcess = 1
 
 dimGradSolver = 25
 rateDropout = 0.2
@@ -1867,6 +1867,8 @@ if __name__ == '__main__':
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-ft-ode-exp02-testloaders-Noise01-igrad10_04-dgrad25-drop20-epoch=16-val_loss=13.07.ckpt'
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ode_forecast_055-ode-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=391-val_loss=9.85.ckpt'
         
+        pathCheckPOint = 'resL63/exp_perrine02-/model-l63-unet2-exp_perrine02--Noise01-igrad05_02-dgrad25-drop20-epoch=16-val_loss=0.03.ckpt'
+        
         print('.... load pre-trained model :'+pathCheckPOint)
         
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
@@ -1879,8 +1881,8 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse = 1.
         mod.hparams.alpha_mse_rec = (dT-dt_forecast)/dT #0.75
         mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
-        mod.hparams.n_grad = 10
-        mod.hparams.k_n_grad = 4
+        mod.hparams.n_grad = 5
+        mod.hparams.k_n_grad = 2
 
         mod.flag_ode_forecast = True#False#
     
