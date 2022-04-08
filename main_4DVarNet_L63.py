@@ -461,7 +461,7 @@ else:
     mask_train = mask_train[:NbTraining,:,:dT]
     x_train_Init = 0. * x_train_Init[:NbTraining,:,:dT]
     x_train_obs = x_train_obs[:NbTraining,:,:dT]
-        
+    
     x_test = x_test[:,:,:dT]
     mask_test = mask_test[:,:,:dT]
     x_test_Init = x_test_Init[:,:,:dT]
@@ -1477,7 +1477,7 @@ class LitModel_DirectInv(pl.LightningModule):
         idx,inputs_init,inputs_obs,masks,targets_GT = batch
              
         with torch.set_grad_enabled(True):
-            outputs = self.model(inputs_init)
+            outputs = self.model(inputs_obs * masks )#inputs_init)
 
             if flag_x1_only == False:
                 loss_mse = torch.mean((outputs - targets_GT) ** 2)
