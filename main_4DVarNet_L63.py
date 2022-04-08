@@ -40,12 +40,12 @@ flagAEType = 'unet2'#ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' #
 dim_aug_state = 0#10#10#10#10 #False#
  
 
-batch_size = 64#128#
+batch_size = 128#128#
 
 NbTraining = 5000#10000 #756#
 NbTest     = 100#2000 #256
 time_step = 1
-dT        = 2500#200
+dT        = 200#2500#200
 sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
@@ -433,6 +433,26 @@ else:
     else:
         meanTr = 0.
         stdTr = 1.
+
+    x_train = x_train[:,:,::10,:]
+    x_train_Init = x_train_Init[:,:,::10,:]
+    x_train_obs = x_train_obs[:,:,::10,:]
+    mask_train = mask_train[:,:,::10,:]
+    
+    x_test = x_test[:,:,::10,:]
+    mask_test = mask_test[:,:,::10,:]
+    x_test_Init = x_test_Init[:,:,::10,:]
+    x_test_obs = x_test_obs[:,:,::10,:]
+
+    x_train = x_train[:,:,:dT,:]
+    x_train_Init = x_train_Init[:,:,:dT,:]
+    x_train_obs = x_train_obs[:,:,:dT,:]
+    mask_train = mask_train[:,:,:dT,:]
+    
+    x_test = x_test[:,:,:dT,:]
+    mask_test = mask_test[:,:,:dT,:]
+    x_test_Init = x_test_Init[:,:,:dT,:]
+    x_test_obs = x_test_obs[:,:,:dT,:]
         
     x_train = x_train.reshape((-1,3,dT,1))
     mask_train = mask_train.reshape((-1,3,dT,1))
