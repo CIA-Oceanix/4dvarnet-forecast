@@ -423,8 +423,7 @@ else:
     #x_test_Init = ncfile.variables['x_test_Init'][:]
     x_test_Init = ncfile.variables['x_test_init'][:]
     x_test_obs = ncfile.variables['x_test_obs'][:]
-
-    
+  
     
     if 1*0 :
         meanTr = ncfile.variables['meanTr'][:]
@@ -1773,7 +1772,7 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse_rec = (dT-dt_forecast)/dT #0.75
         mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
 
-        mod.hparams.alpha_4dvarloss_diff = 5.e1#0.1 #
+        mod.hparams.alpha_4dvarloss_diff = 0.#5.e1#0.1 #
 
         mod.hparams.noise_rnd_lstm_init = 0.#1e-2 #0.
         mod.hparams.noise_rnd_aug_init = 0.#1e-2 #0.
