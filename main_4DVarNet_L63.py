@@ -463,7 +463,7 @@ else:
     
     x_train = x_train[indr,:,:dT]
     mask_train = mask_train[indr,:,:dT]
-    x_train_Init = 0. * x_train_Init[indr,:,:dT]
+    x_train_Init = x_train_Init[indr,:,:dT]
     x_train_obs = x_train_obs[indr,:,:dT]
     
     x_test = x_test[:,:,:dT]
