@@ -1869,7 +1869,7 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse = 1.
         mod.hparams.alpha_mse_rec = (dT-dt_forecast)/dT #0.75
         mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
-        mod.hparams.n_grad = 5
+        mod.hparams.n_grad = 10
         mod.hparams.k_n_grad = 2
 
         mod.flag_ode_forecast = True#False#
