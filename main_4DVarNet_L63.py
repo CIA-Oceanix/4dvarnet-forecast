@@ -459,13 +459,10 @@ else:
 
 
     x_train = x_train[:,:,:dT]
+    mask_train = mask_train[:,:,:dT]
     x_train_Init = 0. * x_train_Init[:,:,:dT]
     x_train_obs = x_train_obs[:,:,:dT]
-    
-    #med_obs = np.median(x_train_obs)
-    #x_train_obs[ x_train_obs != med_obs ] = x_train[ x_train_obs != med_obs ]
-    #mask_train = mask_train[:,:,:dT]
-    
+        
     x_test = x_test[:,:,:dT]
     mask_test = mask_test[:,:,:dT]
     x_test_Init = x_test_Init[:,:,:dT]
@@ -480,6 +477,8 @@ else:
     mask_test = mask_test.reshape((-1,3,dT,1))
     x_test_Init = x_test_Init.reshape((-1,3,dT,1))
     x_test_obs = x_test_obs.reshape((-1,3,dT,1))
+    
+    print()
 
     if 1*0 :
         print( '%.2f %.2f'%(np.mean( x_train[:,0,:]) ,  np.var( x_train[:,0,:])) )
