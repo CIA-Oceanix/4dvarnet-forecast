@@ -484,6 +484,8 @@ else:
     print( '%.2f %.2f'%(np.mean( x_train_Init[ x_train_Init != 0. ] ) ,  np.var( x_train_Init[ x_train_Init != 0. ] )) )
     print( '%.2f %.2f'%(np.mean( x_train_obs[ x_train_obs != 0. ] ) ,  np.var( x_train_obs[ x_train_obs != 0. ] )) )
 
+    print( x_train_obs[ x_train_obs != 0. ] )
+    print( x_test_obs[ x_test_obs != 0. ] )
 
     X_train = stdTr * x_train.squeeze() + meanTr
     X_test = stdTr * x_test.squeeze() + meanTr
