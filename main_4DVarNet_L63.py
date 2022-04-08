@@ -450,6 +450,9 @@ else:
     x_train = x_train[:,:,:dT]
     x_train_Init = x_train_Init[:,:,:dT]
     x_train_obs = x_train_obs[:,:,:dT]
+    
+    med_obs = np.median(x_train_obs)
+    x_train_obs[ x_train_obs != med_obs ] = x_train[ x_train_obs != med_obs ]
     mask_train = mask_train[:,:,:dT]
     
     x_test = x_test[:,:,:dT]
