@@ -435,7 +435,7 @@ else:
         stdTr = 1.
 
 
-    if 1*0 :
+    if 1*1 :
         x_train = x_train[:,:,::10]
         x_train_Init = x_train_Init[:,:,::10]
         x_train_obs = x_train_obs[:,:,::10]
