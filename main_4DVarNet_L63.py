@@ -448,14 +448,14 @@ else:
         x_test_obs = x_test_obs[:,:,::10]
         
         x_train_obs = 0. * x_train_obs
-        x_train_obs[:,:,::8] = x_train[:,:,::8]
+        x_train_obs[:,:,::4] = x_train[:,:,::4]
         mask_train = 0. * mask_train
-        mask_train[:,:,::8] = 1.
+        mask_train[:,:,::4] = 1.
 
         x_test_obs = 0. * x_test_obs
-        x_test_obs[:,:,::8] = x_test[:,:,::8]
+        x_test_obs[:,:,::4] = x_test[:,:,::4]
         mask_test = 0. * mask_test
-        mask_test[:,:,::8] = 1.
+        mask_test[:,:,::4] = 1.
 
     x_train = x_train[:NbTraining,:,:dT]
     mask_train = mask_train[:NbTraining,:,:dT]
