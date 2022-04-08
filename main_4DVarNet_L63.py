@@ -1738,6 +1738,7 @@ if __name__ == '__main__':
             pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ft-ode-exp02-testloaders-Noise01-igrad04_05-dgrad25-drop20-epoch=06-val_loss=4.90.ckpt'
             pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ft-ode-exp02-testloaders-Noise01-igrad10_04-dgrad25-drop20-epoch=43-val_loss=3.53.ckpt'
             pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-ode-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=397-val_loss=13.38.ckpt'
+            pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ode_forecast_055-ode-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=391-val_loss=9.85.ckpt'
             
             print('.... load pre-trained model :'+pathCheckPOint)
             mod = LitModel.load_from_checkpoint(pathCheckPOint)
@@ -1745,7 +1746,7 @@ if __name__ == '__main__':
             mod.hparams.n_grad          = 10
             mod.hparams.k_n_grad        = 4
             mod.hparams.iter_update     = [0, 200, 500, 300, 500, 700, 800]  # [0,2,4,6,9,a15]
-            mod.hparams.nb_grad_update  = [10, 10, 15, 15, 10, 5, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
+            mod.hparams.nb_grad_update  = [1, 10, 15, 15, 10, 5, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-4, 1e-5, 1e-6, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
         else:
             mod = LitModel()
@@ -1869,8 +1870,8 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse = 1.
         mod.hparams.alpha_mse_rec = (dT-dt_forecast)/dT #0.75
         mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
-        mod.hparams.n_grad = 15
-        mod.hparams.k_n_grad = 2
+        mod.hparams.n_grad = 10
+        mod.hparams.k_n_grad = 4
 
         mod.flag_ode_forecast = True#False#
     
