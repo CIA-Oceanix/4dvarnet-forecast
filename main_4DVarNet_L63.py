@@ -31,7 +31,7 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 1
+flagProcess = 0
 
 dimGradSolver = 25
 rateDropout = 0.2
@@ -1717,7 +1717,7 @@ if __name__ == '__main__':
       
     if flagProcess == 0: ## training model from scratch
         
-        flagLoadModel = False# True#    
+        flagLoadModel = True#    False# 
         if flagLoadModel == True:
             
             pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=105-val_loss=2.08.ckpt'
@@ -1745,9 +1745,9 @@ if __name__ == '__main__':
 
             mod.hparams.n_grad          = 10
             mod.hparams.k_n_grad        = 4
-            mod.hparams.iter_update     = [0, 200, 500, 300, 500, 700, 800]  # [0,2,4,6,9,a15]
-            mod.hparams.nb_grad_update  = [1, 10, 15, 15, 10, 5, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
-            mod.hparams.lr_update       = [1e-4, 1e-5, 1e-6, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
+            mod.hparams.iter_update     = [0, 100, 200, 300, 500, 700, 800]  # [0,2,4,6,9,a15]
+            mod.hparams.nb_grad_update  = [10, 10, 15, 15, 10, 5, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
+            mod.hparams.lr_update       = [1e-4, 1e-5, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
         else:
             mod = LitModel()
             
