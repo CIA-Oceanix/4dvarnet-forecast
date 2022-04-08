@@ -452,7 +452,7 @@ else:
     
     x_test = x_test[:,:,:dT]
     mask_test = mask_test[:,:,:dT]
-    x_test_Init = 0. * x_test_Init[:,:,:dT]
+    x_test_Init = x_test_Init[:,:,:dT]
     x_test_obs = x_test_obs[:,:,:dT]
         
     x_train = x_train.reshape((-1,3,dT,1))
@@ -468,9 +468,19 @@ else:
     print( '%.2f %.2f'%(np.mean( x_train[:,0,:]) ,  np.var( x_train[:,0,:])) )
     print( '%.2f %.2f'%(np.mean( x_train[:,1,:]) ,  np.var( x_train[:,1,:])) )
     print( '%.2f %.2f'%(np.mean( x_train[:,2,:]) ,  np.var( x_train[:,2,:])) )
+
+    print( '%.2f %.2f'%(np.mean( x_train[4500:,0,:]) ,  np.var( x_train[4500:,0,:])) )
+    print( '%.2f %.2f'%(np.mean( x_train[4500:,1,:]) ,  np.var( x_train[4500:,1,:])) )
+    print( '%.2f %.2f'%(np.mean( x_train[4500:,2,:]) ,  np.var( x_train[4500:,2,:])) )
+
     print( '%.2f %.2f'%(np.mean( x_train) ,  np.var( x_train)) )
     print( '%.2f %.2f'%(np.mean( x_test) ,  np.var( x_test)) )
     
+    print( '%.2f %.2f'%(np.mean( x_test_Init[ x_test_Init != 0. ] ) ,  np.var( x_test_Init[ x_test_Init != 0. ] )) )
+    print( '%.2f %.2f'%(np.mean( x_train_Init[ x_train_Init != 0. ] ) ,  np.var( x_train_Init[ x_train_Init != 0. ] )) )
+    print( '%.2f %.2f'%(np.mean( x_train_obs[ x_train_obs != 0. ] ) ,  np.var( x_train_obs[ x_train_obs != 0. ] )) )
+
+
     X_train = stdTr * x_train.squeeze() + meanTr
     X_test = stdTr * x_test.squeeze() + meanTr
 
