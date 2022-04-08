@@ -455,7 +455,7 @@ else:
         x_test_obs = 0. * x_test_obs
         x_test_obs[:,0,::10] = x_test[:,0,::10]
         mask_test = 0. * mask_test
-        mask_test[:,:,::4] = 1.
+        mask_test[:,0,::4] = 1.
 
 
     indr = np.random.permutation(NbTraining)
