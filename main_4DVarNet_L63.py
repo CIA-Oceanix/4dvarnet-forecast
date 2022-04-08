@@ -37,7 +37,7 @@ dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
 flagAEType = 'unet2'#ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
-dim_aug_state = 0#10#10#10#10 #False#
+dim_aug_state = 10#10#10#10#10 #False#
  
 
 batch_size = 128#128#
@@ -446,13 +446,13 @@ else:
     x_test_obs = x_test_obs[:,:,::10]
 
     x_train = x_train[:,:,:dT]
-    x_train_Init = x_train_Init[:,:,:dT]
+    x_train_Init = 0.* x_train_Init[:,:,:dT]
     x_train_obs = x_train_obs[:,:,:dT]
     mask_train = mask_train[:,:,:dT]
     
     x_test = x_test[:,:,:dT]
     mask_test = mask_test[:,:,:dT]
-    x_test_Init = x_test_Init[:,:,:dT]
+    x_test_Init = 0. * x_test_Init[:,:,:dT]
     x_test_obs = x_test_obs[:,:,:dT]
         
     x_train = x_train.reshape((-1,3,dT,1))
