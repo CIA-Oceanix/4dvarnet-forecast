@@ -424,11 +424,11 @@ else:
     x_test_Init = ncfile.variables['x_test_init'][:]
     x_test_obs = ncfile.variables['x_test_obs'][:]
 
-    meanTr = ncfile.variables['meanTr'][:]
-    stdTr = ncfile.variables['stdTr'][:]
     
     
     if 1*0 :
+        meanTr = ncfile.variables['meanTr'][:]
+        stdTr = ncfile.variables['stdTr'][:]
         meanTr = float(meanTr.data)    
         stdTr = float(stdTr.data)
     else:
