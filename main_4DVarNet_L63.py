@@ -476,6 +476,8 @@ else:
     print( '%.2f %.2f'%(np.mean( x_train) ,  np.var( x_train)) )
     print( '%.2f %.2f'%(np.mean( x_test) ,  np.var( x_test)) )
     
+    
+    print('\n..............................')
     print( '%.2f %.2f'%(np.mean( x_test_Init[ x_test_Init != 0. ] ) ,  np.var( x_test_Init[ x_test_Init != 0. ] )) )
     print( '%.2f %.2f'%(np.mean( x_test_obs[ x_test_obs != 0. ] ) ,  np.var( x_test_obs[ x_test_obs != 0. ] )) )
 
