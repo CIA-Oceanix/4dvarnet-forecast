@@ -490,6 +490,9 @@ else:
     print( 'x_train_Init %.2f %.2f'%(np.mean( x_train_Init[ x_train_Init != med_ ] ) ,  np.var( x_train_Init[ x_train_Init != med_ ] )) )
     print( 'x_train_obs %.2f %.2f'%(np.mean( x_train_obs[ x_train_obs != med_1 ] ) ,  np.var( x_train_obs[ x_train_obs != med_1 ] )) )
 
+    
+    print( 'x_train diff obs %.2f %.2f'%(np.var( x_train_obs[ x_train_obs != med_1 ] - x_train[ x_train_obs != med_1 ] ) ) )
+    
     print( x_train_obs[ x_train_obs != med_1 ] )
     print( x_test_obs[ x_test_obs != med_1 ] )
 
