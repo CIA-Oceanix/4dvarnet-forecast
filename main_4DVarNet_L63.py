@@ -457,10 +457,13 @@ else:
         mask_test = 0. * mask_test
         mask_test[:,:,::4] = 1.
 
-    x_train = x_train[:NbTraining,:,:dT]
-    mask_train = mask_train[:NbTraining,:,:dT]
-    x_train_Init = 0. * x_train_Init[:NbTraining,:,:dT]
-    x_train_obs = x_train_obs[:NbTraining,:,:dT]
+
+    indr = np.random.permutation(NbTraining)
+    
+    x_train = x_train[indr,:,:dT]
+    mask_train = mask_train[indr,:,:dT]
+    x_train_Init = 0. * x_train_Init[indr,:,:dT]
+    x_train_obs = x_train_obs[indr,:,:dT]
     
     x_test = x_test[:,:,:dT]
     mask_test = mask_test[:,:,:dT]
