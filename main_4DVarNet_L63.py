@@ -448,9 +448,9 @@ else:
         x_test_obs = x_test_obs[:,:,::10]
         
         x_train_obs = 0. * x_train_obs
-        x_train_obs[:,0,::8] = x_train[:,0,::8] + 0. * np.random.randn(5000,32)
+        x_train_obs[:,:,::8] = x_train[:,0,::8] + 0. * np.random.randn(5000,32)
         mask_train = 0. * mask_train
-        mask_train[:,0,::8] = 1.
+        mask_train[:,:,::8] = 1.
         x_train_Init = 1. * x_train_obs
 
         x_test_obs = 0. * x_test_obs
@@ -1856,7 +1856,7 @@ if __name__ == '__main__':
         suffix_exp = 'exp_perrine%02d-'%flagTypeMissData
         filename_chkpt = 'model-l63-'#'dlstm--'
         
-        if flagForecast == True :
+        if flagForecast == True :%£M££%%%%%%%ù`ù
             if mod.flag_ode_forecast  == True :
                 filename_chkpt = filename_chkpt+'ode_forecast_%03d-'%dt_forecast
             else:
