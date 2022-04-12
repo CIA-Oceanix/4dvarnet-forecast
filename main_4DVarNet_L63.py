@@ -42,7 +42,7 @@ dim_aug_state = 0#10#10#10#10 #False#
 batch_size = 128#128#
 
 NbTraining = 10000 #5000#5000#756#
-NbTest     = 2000#100# #256
+NbTest     = 100#2000#100# #256
 time_step = 1
 dT        = 200#2500#2500#
 sigNoise  = np.sqrt(2.0)
@@ -53,7 +53,7 @@ flagForecast = False#True#
 dt_forecast = 55#103#55#
 flag_x1_only = False#True #
 
-load_full_dataset = False#True#
+load_full_dataset = True#False#
 
 if ( flagProcess == 3 ) | ( flagProcess == 4 ) :
     dim_aug_state = 0
@@ -408,24 +408,24 @@ else:
             path_l63_dataset = 'dataset_L63_Forecast104.nc'
     else:
         path_l63_dataset = 'dataset_L63_JamesExp1.nc'
-        #path_l63_dataset = 'dataset_bruit_0005_tstep_80 (2).nc'
+        path_l63_dataset = 'dataset_bruit_0005_tstep_80 (2).nc'
                         
     ncfile = Dataset(path_l63_dataset,"r")
     x_train = ncfile.variables['x_train'][:]
-    x_train_Init = ncfile.variables['x_train_Init'][:]
-    #x_train_Init = ncfile.variables['x_train_init'][:]
+    #x_train_Init = ncfile.variables['x_train_Init'][:]
+    x_train_Init = ncfile.variables['x_train_init'][:]
     x_train_obs = ncfile.variables['x_train_obs'][:]
     mask_train = ncfile.variables['mask_train'][:]
 
     x_test = ncfile.variables['x_test'][:]
     mask_test = ncfile.variables['mask_test'][:]
-    x_test_Init = ncfile.variables['x_test_Init'][:]
-    #x_test_Init = ncfile.variables['x_test_init'][:]
+    #x_test_Init = ncfile.variables['x_test_Init'][:]
+    x_test_Init = ncfile.variables['x_test_init'][:]
     x_test_obs = ncfile.variables['x_test_obs'][:]
   
     print('..... Training dataset: %dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2]))
     
-    if 1*1 :
+    if 1*0 :
         meanTr = ncfile.variables['meanTr'][:]
         stdTr = ncfile.variables['stdTr'][:]
         meanTr = float(meanTr.data)    
@@ -435,7 +435,7 @@ else:
         stdTr = 1.
 
 
-    if 1*0 :
+    if 1*1 :
         x_train = x_train[:,:,::10]
         x_train_Init = x_train_Init[:,:,::10]
         x_train_obs = x_train_obs[:,:,::10]
@@ -446,11 +446,11 @@ else:
         x_test_Init = x_test_Init[:,:,::10]
         x_test_obs = x_test_obs[:,:,::10]
         
-    if 1*0 :
+    if 1*1 :
         x_train_obs = 0. * x_train_obs
-        x_train_obs[:,:,::2] = x_train[:,:,::2] + 0. * np.random.randn(5000,3,125)
+        x_train_obs[:,:,::8] = x_train[:,:,::2] + 0. * np.random.randn(5000,3,32)
         mask_train = 0. * mask_train
-        mask_train[:,:,::2] = 1.
+        mask_train[:,:,::8] = 1.
         x_train_Init = 1. * x_train_obs
 
         x_test_obs = 0. * x_test_obs
@@ -458,7 +458,7 @@ else:
         mask_test = 0. * mask_test
         mask_test[:,0,::8] = 1.
        
-    if 1*0 :         
+    if 1*1 :         
         indr = np.random.permutation(NbTraining)
         
         x_train = x_train[indr,:,:dT]
