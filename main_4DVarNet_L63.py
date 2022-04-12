@@ -413,8 +413,8 @@ else:
                         
     ncfile = Dataset(path_l63_dataset,"r")
     x_train = ncfile.variables['x_train'][:]
-    #x_train_Init = ncfile.variables['x_train_Init'][:]
-    x_train_Init = ncfile.variables['x_train_init'][:]
+    x_train_Init = ncfile.variables['x_train_Init'][:]
+    #x_train_Init = ncfile.variables['x_train_init'][:]
     x_train_obs = ncfile.variables['x_train_obs'][:]
     mask_train = ncfile.variables['mask_train'][:]
 
