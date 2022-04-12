@@ -37,7 +37,7 @@ dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
 flagAEType = 'unet2'#ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
-dim_aug_state = 0#10#10#10#10 #False#
+dim_aug_state = 5#10#10#10#10 #False#
  
 batch_size = 128#128#
 
@@ -49,7 +49,7 @@ sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
-flagForecast = False#True#
+flagForecast = True#False#
 dt_forecast = 55#103#55#
 flag_x1_only = False#True #
 
@@ -451,13 +451,13 @@ else:
             
         if 1*1 :
             x_train_obs = 0. * x_train_obs
-            x_train_obs[:,0,::8] = x_train[:,0,::8] + 0.01 * np.random.randn(5000,32)
+            x_train_obs[:,0,::2] = x_train[:,0,::2] + 0.01 * np.random.randn(5000,128)
             mask_train = 0. * mask_train
             mask_train[:,0,::8] = 1.
             x_train_Init = 0. * x_train_obs
     
             x_test_obs = 0. * x_test_obs
-            x_test_obs[:,0,::8] = x_test[:,0,::8] + 0.0 * np.random.randn(100,32)
+            x_test_obs[:,0,::2] = x_test[:,0,::2] + 0.01 * np.random.randn(100,128)
             mask_test = 0. * mask_test
             mask_test[:,0,::8] = 1.
             x_test_Init = 0. * x_test_obs
