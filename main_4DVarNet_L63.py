@@ -448,13 +448,13 @@ else:
         
     if 1*1 :
         x_train_obs = 0. * x_train_obs
-        x_train_obs[:,:,::8] = x_train[:,:,::8] + 0.1 * np.random.randn(5000,3,32)
+        x_train_obs[:,0,::8] = x_train[:,:,::8] + 0.1 * np.random.randn(5000,32)
         mask_train = 0. * mask_train
-        mask_train[:,:,::8] = 1.
+        mask_train[:,0,::8] = 1.
         x_train_Init = 0. * x_train_obs
 
         x_test_obs = 0. * x_test_obs
-        x_test_obs[:,0,::8] = x_test[:,0,::8]
+        x_test_obs[:,0,::8] = x_test[:,0,::8] + 0.1 * np.random.randn(5000,32)
         mask_test = 0. * mask_test
         mask_test[:,0,::8] = 1.
        
