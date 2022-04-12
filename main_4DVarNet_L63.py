@@ -448,10 +448,10 @@ else:
         
     if 1*1 :
         x_train_obs = 0. * x_train_obs
-        x_train_obs[:,:,::8] = x_train[:,:,::8] + 0. * np.random.randn(5000,3,32)
+        x_train_obs[:,:,::8] = x_train[:,:,::8] + 0.1 * np.random.randn(5000,3,32)
         mask_train = 0. * mask_train
         mask_train[:,:,::8] = 1.
-        x_train_Init = 1. * x_train_obs
+        x_train_Init = 0. * x_train_obs
 
         x_test_obs = 0. * x_test_obs
         x_test_obs[:,0,::8] = x_test[:,0,::8]
@@ -1130,7 +1130,7 @@ class LitModel(pl.LightningModule):
         loss, out, metrics,diff_loss_4dvar_init = self.compute_loss(train_batch, phase='train')
         
         if self.hparams.k_n_grad > 1 :
-            loss_all = self.hparams.alpha_4dvarloss_diff * diff_loss_4dvar_init
+            loss_all = loss + self.hparams.alpha_4dvarloss_diff * diff_loss_4dvar_init
             for kk in range(0,self.hparams.k_n_grad-1):
                 loss1, out, metrics,diff_loss_4dvar_init = self.compute_loss(train_batch, phase='train',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
                 
