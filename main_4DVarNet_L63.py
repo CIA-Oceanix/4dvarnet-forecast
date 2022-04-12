@@ -472,18 +472,16 @@ else:
         x_test_Init = x_test_Init[:,:,:dT]
         x_test_obs = x_test_obs[:,:,:dT]
                
-        x_train = x_train.reshape((-1,3,dT,1))
-        mask_train = mask_train.reshape((-1,3,dT,1))
-        x_train_Init = x_train_Init.reshape((-1,3,dT,1))
-        x_train_obs = x_train_obs.reshape((-1,3,dT,1))
+    x_train = x_train.reshape((-1,3,dT,1))
+    mask_train = mask_train.reshape((-1,3,dT,1))
+    x_train_Init = x_train_Init.reshape((-1,3,dT,1))
+    x_train_obs = x_train_obs.reshape((-1,3,dT,1))
+    
+    x_test = x_test.reshape((-1,3,dT,1))
+    mask_test = mask_test.reshape((-1,3,dT,1))
+    x_test_Init = x_test_Init.reshape((-1,3,dT,1))
+    x_test_obs = x_test_obs.reshape((-1,3,dT,1))
         
-        x_test = x_test.reshape((-1,3,dT,1))
-        mask_test = mask_test.reshape((-1,3,dT,1))
-        x_test_Init = x_test_Init.reshape((-1,3,dT,1))
-        x_test_obs = x_test_obs.reshape((-1,3,dT,1))
-        
-        print()
-
     if 1*0 :
         print( '%.2f %.2f'%(np.mean( x_train[:,0,:]) ,  np.var( x_train[:,0,:])) )
         print( '%.2f %.2f'%(np.mean( x_train[:,1,:]) ,  np.var( x_train[:,1,:])) )
