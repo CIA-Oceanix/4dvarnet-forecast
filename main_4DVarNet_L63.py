@@ -414,15 +414,15 @@ else:
                         
     ncfile = Dataset(path_l63_dataset,"r")
     x_train = ncfile.variables['x_train'][:]
-    #x_train_Init = ncfile.variables['x_train_Init'][:]
-    x_train_Init = ncfile.variables['x_train_init'][:]
+    x_train_Init = ncfile.variables['x_train_Init'][:]
+    #x_train_Init = ncfile.variables['x_train_init'][:]
     x_train_obs = ncfile.variables['x_train_obs'][:]
     mask_train = ncfile.variables['mask_train'][:]
 
     x_test = ncfile.variables['x_test'][:]
     mask_test = ncfile.variables['mask_test'][:]
-    #x_test_Init = ncfile.variables['x_test_Init'][:]
-    x_test_Init = ncfile.variables['x_test_init'][:]
+    x_test_Init = ncfile.variables['x_test_Init'][:]
+    #x_test_Init = ncfile.variables['x_test_init'][:]
     x_test_obs = ncfile.variables['x_test_obs'][:]
   
     print('..... Training dataset: %dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2]))
