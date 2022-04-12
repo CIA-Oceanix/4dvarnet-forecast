@@ -1937,7 +1937,7 @@ if __name__ == '__main__':
         
         #pathCheckPOint = 'resL63/exp_perrine02-/model-l63-unet2-exp_perrine02--Noise01-igrad05_02-dgrad25-drop20-epoch=16-val_loss=0.03.ckpt'
         #pathCheckPOint = 'resL63/exp_perrine02-/model-l63-unet2-exp_perrine02--Noise01-igrad05_02-dgrad25-drop20-epoch=17-val_loss=0.30.ckpt'
-        pathCheckPOint = 'resL63/exp_perrine02-/model-l63-unet2-exp_perrine02--Noise01-igrad05_02-dgrad25-drop20-epoch=24-val_loss=0.17.ckpt'
+        pathCheckPOint = 'resL63/exp_perrine02-/model-l63-unet2-exp_perrine02--Noise01-igrad05_02-dgrad25-drop20-epoch=29-val_loss=0.16.ckpt'
         #pathCheckPOint = 'resL63/exp_perrine02-/model-l63-aug10-unet2-exp_perrine02--Noise01-igrad05_02-dgrad25-drop20-epoch=02-val_loss=1.75.ckpt'
         print('.... load pre-trained model :'+pathCheckPOint)
         
