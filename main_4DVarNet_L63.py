@@ -1912,7 +1912,7 @@ if __name__ == '__main__':
         #pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dlstm-1-aug10_001-sopt25-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-rnd01-epoch=300-val_loss=0.57.ckpt'        
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-aug10-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-epoch=123-val_loss=1.98.ckpt'
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-aug05-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-epoch=121-val_loss=2.06.ckpt'
-        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-epoch=138-val_loss=2.77.ckpt'
+        pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-unet2-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-epoch=193-val_loss=2.60.ckpt'
         
         #pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-ode-exp02-testloaders-Noise01-igrad02_05-dgrad25-drop20-epoch=199-val_loss=20.73.ckpt'        
         #pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ft-ode-exp02-testloaders-Noise01-igrad04_05-dgrad25-drop20-epoch=55-val_loss=5.50.ckpt'        
