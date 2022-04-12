@@ -31,13 +31,13 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 1
+flagProcess = 0
 
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
 flagAEType = 'unet2'#ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
-dim_aug_state = 10#10#10#10#10 #False#
+dim_aug_state = 0#10#10#10#10 #False#
  
 batch_size = 128#128#
 
@@ -55,17 +55,18 @@ flag_x1_only = False#True #
 
 load_full_dataset = True#False#
 
+print('........ Data generation')
+flagRandomSeed = 0
+if flagRandomSeed == 0:
+    print('........ Random seed set to 100')
+    np.random.seed(100)
+    torch.manual_seed(100)
+
 if ( flagProcess == 3 ) | ( flagProcess == 4 ) :
     dim_aug_state = 0
 
 if load_full_dataset == False:
 
-    print('........ Data generation')
-    flagRandomSeed = 0
-    if flagRandomSeed == 0:
-        print('........ Random seed set to 100')
-        np.random.seed(100)
-        torch.manual_seed(100)
     
     def AnDA_Lorenz_63(S,t,sigma,rho,beta):
         """ Lorenz-63 dynamical model. """
@@ -413,14 +414,14 @@ else:
     ncfile = Dataset(path_l63_dataset,"r")
     x_train = ncfile.variables['x_train'][:]
     x_train_Init = ncfile.variables['x_train_Init'][:]
-    #x_train_Init = ncfile.variables['x_train_init'][:]
-    x_train_obs = ncfile.variables['x_train_obs'][:]
+    x_train_Init = ncfile.variables['x_train_init'][:]
+    #x_train_obs = ncfile.variables['x_train_obs'][:]
     mask_train = ncfile.variables['mask_train'][:]
 
     x_test = ncfile.variables['x_test'][:]
     mask_test = ncfile.variables['mask_test'][:]
-    x_test_Init = ncfile.variables['x_test_Init'][:]
-    #x_test_Init = ncfile.variables['x_test_init'][:]
+    #x_test_Init = ncfile.variables['x_test_Init'][:]
+    x_test_Init = ncfile.variables['x_test_init'][:]
     x_test_obs = ncfile.variables['x_test_obs'][:]
   
     print('..... Training dataset: %dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2]))
@@ -430,11 +431,11 @@ else:
         stdTr = ncfile.variables['stdTr'][:]
         meanTr = float(meanTr.data)    
         stdTr = float(stdTr.data)
+
     else:
         meanTr = 0.
         stdTr = 1.
 
-    if 1*0 : 
         if 1*1 :
             x_train = x_train[:,:,::10]
             x_train_Init = x_train_Init[:,:,::10]
@@ -1936,8 +1937,8 @@ if __name__ == '__main__':
         
         #pathCheckPOint = 'resL63/exp_perrine02-/model-l63-unet2-exp_perrine02--Noise01-igrad05_02-dgrad25-drop20-epoch=16-val_loss=0.03.ckpt'
         #pathCheckPOint = 'resL63/exp_perrine02-/model-l63-unet2-exp_perrine02--Noise01-igrad05_02-dgrad25-drop20-epoch=17-val_loss=0.30.ckpt'
-        pathCheckPOint = 'resL63/exp_perrine02-/model-l63-aug10-unet2-exp_perrine02--Noise01-igrad05_02-dgrad25-drop20-epoch=03-val_loss=0.39.ckpt'
-        pathCheckPOint = 'resL63/exp_perrine02-/model-l63-aug10-unet2-exp_perrine02--Noise01-igrad05_02-dgrad25-drop20-epoch=02-val_loss=1.75.ckpt'
+        pathCheckPOint = 'resL63/exp_perrine02-/model-l63-unet2-exp_perrine02--Noise01-igrad05_02-dgrad25-drop20-epoch=36-val_loss=0.37.ckpt'
+        #pathCheckPOint = 'resL63/exp_perrine02-/model-l63-aug10-unet2-exp_perrine02--Noise01-igrad05_02-dgrad25-drop20-epoch=02-val_loss=1.75.ckpt'
         print('.... load pre-trained model :'+pathCheckPOint)
         
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
