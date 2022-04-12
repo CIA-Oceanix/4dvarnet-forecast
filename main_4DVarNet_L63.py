@@ -426,7 +426,7 @@ else:
   
     print('..... Training dataset: %dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2]))
     
-    if 1*0 :
+    if 1*1 :
         meanTr = ncfile.variables['meanTr'][:]
         stdTr = ncfile.variables['stdTr'][:]
         meanTr = float(meanTr.data)    
@@ -458,30 +458,31 @@ else:
         x_test_obs[:,0,::8] = x_test[:,0,::8]
         mask_test = 0. * mask_test
         mask_test[:,0,::8] = 1.
-                
-    indr = np.random.permutation(NbTraining)
-    
-    x_train = x_train[indr,:,:dT]
-    mask_train = mask_train[indr,:,:dT]
-    x_train_Init = x_train_Init[indr,:,:dT]
-    x_train_obs = x_train_obs[indr,:,:dT]
-    
-    x_test = x_test[:,:,:dT]
-    mask_test = mask_test[:,:,:dT]
-    x_test_Init = x_test_Init[:,:,:dT]
-    x_test_obs = x_test_obs[:,:,:dT]
-           
-    x_train = x_train.reshape((-1,3,dT,1))
-    mask_train = mask_train.reshape((-1,3,dT,1))
-    x_train_Init = x_train_Init.reshape((-1,3,dT,1))
-    x_train_obs = x_train_obs.reshape((-1,3,dT,1))
-    
-    x_test = x_test.reshape((-1,3,dT,1))
-    mask_test = mask_test.reshape((-1,3,dT,1))
-    x_test_Init = x_test_Init.reshape((-1,3,dT,1))
-    x_test_obs = x_test_obs.reshape((-1,3,dT,1))
-    
-    print()
+       
+    if 1*0 :         
+        indr = np.random.permutation(NbTraining)
+        
+        x_train = x_train[indr,:,:dT]
+        mask_train = mask_train[indr,:,:dT]
+        x_train_Init = x_train_Init[indr,:,:dT]
+        x_train_obs = x_train_obs[indr,:,:dT]
+        
+        x_test = x_test[:,:,:dT]
+        mask_test = mask_test[:,:,:dT]
+        x_test_Init = x_test_Init[:,:,:dT]
+        x_test_obs = x_test_obs[:,:,:dT]
+               
+        x_train = x_train.reshape((-1,3,dT,1))
+        mask_train = mask_train.reshape((-1,3,dT,1))
+        x_train_Init = x_train_Init.reshape((-1,3,dT,1))
+        x_train_obs = x_train_obs.reshape((-1,3,dT,1))
+        
+        x_test = x_test.reshape((-1,3,dT,1))
+        mask_test = mask_test.reshape((-1,3,dT,1))
+        x_test_Init = x_test_Init.reshape((-1,3,dT,1))
+        x_test_obs = x_test_obs.reshape((-1,3,dT,1))
+        
+        print()
 
     if 1*0 :
         print( '%.2f %.2f'%(np.mean( x_train[:,0,:]) ,  np.var( x_train[:,0,:])) )
