@@ -54,7 +54,7 @@ flagForecast = False#True#
 dt_forecast = 55#103#55#
 flag_x1_only = False#True #
 
-load_full_dataset = True#False#
+load_full_dataset = False#True#
 
 if ( flagProcess == 3 ) | ( flagProcess == 4 ) :
     dim_aug_state = 0
