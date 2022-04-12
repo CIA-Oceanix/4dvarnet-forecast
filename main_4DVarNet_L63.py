@@ -42,7 +42,7 @@ dim_aug_state = 0#10#10#10#10 #False#
 batch_size = 128#128#
 
 NbTraining = 10000 #5000#5000#756#
-NbTest     = 100#2000 #256
+NbTest     = 2000#100# #256
 time_step = 1
 dT        = 200#2500#2500#
 sigNoise  = np.sqrt(2.0)
@@ -540,7 +540,6 @@ if dim_aug_state > 0 :
 # freeze all ode parameters
 
 if flagAEType == 'ode': ## AE using ode_L63
-
     class Phi_r(torch.nn.Module):
         def __init__(self):
               super(Phi_r, self).__init__()
@@ -1096,7 +1095,7 @@ class LitModel(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer   = optim.Adam([{'params': self.model.model_Grad.parameters(), 'lr': self.hparams.lr_update[0]},
-                                      {'params': self.model.model_VarCost.parameters(), 'lr': self.hparams.lr_update[0]},
+                                    {'params': self.model.model_VarCost.parameters(), 'lr': self.hparams.lr_update[0]},
                                     {'params': self.model.phi_r.parameters(), 'lr': 0.5*self.hparams.lr_update[0]},
                                     ], lr=0.)
         return optimizer
@@ -1129,16 +1128,17 @@ class LitModel(pl.LightningModule):
                     
         # compute loss and metrics
         loss, out, metrics,diff_loss_4dvar_init = self.compute_loss(train_batch, phase='train')
-        loss_all = self.hparams.alpha_4dvarloss_diff * diff_loss_4dvar_init
         
         if self.hparams.k_n_grad > 1 :
+            loss_all = self.hparams.alpha_4dvarloss_diff * diff_loss_4dvar_init
             for kk in range(0,self.hparams.k_n_grad-1):
                 loss1, out, metrics,diff_loss_4dvar_init = self.compute_loss(train_batch, phase='train',batch_init=out[0],hidden=out[1],cell=out[2],normgrad=out[3])
                 
                 dloss = F.relu(loss1 - loss)
                 loss = 1. * loss1                 
                 loss_all = loss_all + loss1 +  dloss + self.hparams.alpha_4dvarloss_diff * diff_loss_4dvar_init
-        
+        else:
+            loss_all = loss
         loss =  loss_all
         
         # log step metric        
@@ -1311,11 +1311,11 @@ class LitModel(pl.LightningModule):
                 input_init_grad = torch.autograd.Variable(1. * input_init_grad, requires_grad=True)    
                 #outputs_, hidden_new_, cell_new_, normgrad = self.model(input_init_grad, inputs_obs, masks, hidden = hidden , cell = cell , normgrad = normgrad )
                 x_k_plus_1, hidden_, cell_, normgrad = self.model.solver_step(input_init_grad, inputs_obs, masks,hidden = None, cell = None, normgrad = 0.)
-                #del x_k_plus_1
-                #del hidden_
-                #del cell_
-                #del input_init_grad
-                #del init_aug_state
+                del x_k_plus_1
+                del hidden_
+                del cell_
+                del input_init_grad
+                del init_aug_state
                 
         
         with torch.set_grad_enabled(True):
@@ -1369,7 +1369,6 @@ class LitModel(pl.LightningModule):
             mse       = loss_mse.detach()
             metrics   = dict([('mse',mse)])
             
-            print( mse )
             #print(mse.cpu().detach().numpy())
             #if (phase == 'val') or (phase == 'test'):                
 
