@@ -405,6 +405,7 @@ else:
     if flagForecast == True :
         if dt_forecast == 55 :
             path_l63_dataset = 'dataset_L63_Forecast55.nc'
+            path_l63_dataset = 'dataset_bruit_0005_tstep_80 (2).nc'
         elif dt_forecast == 104 :
             path_l63_dataset = 'dataset_L63_Forecast104.nc'
     else:
@@ -474,6 +475,10 @@ else:
             mask_test = mask_test[:,:,:dT]
             x_test_Init = x_test_Init[:,:,:dT]
             x_test_obs = x_test_obs[:,:,:dT]
+            
+            x_train_obs[:,dT-dt_forecast:,:] = 0.
+            mask_train[:,dT-dt_forecast:,:] = 0.
+            x_train_Init[:,dT-dt_forecast:,:] = 0.
                
     x_train = x_train.reshape((-1,3,dT,1))
     mask_train = mask_train.reshape((-1,3,dT,1))
