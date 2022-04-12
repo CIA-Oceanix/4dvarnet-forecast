@@ -60,7 +60,7 @@ flagRandomSeed = 0
 if flagRandomSeed == 0:
     print('........ Random seed set to 100')
     np.random.seed(100)
-    torch.manual_seed(10)
+    torch.manual_seed(100)
 
 if ( flagProcess == 3 ) | ( flagProcess == 4 ) :
     dim_aug_state = 0
