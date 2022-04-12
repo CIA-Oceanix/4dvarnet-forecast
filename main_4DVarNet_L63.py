@@ -1833,7 +1833,7 @@ if __name__ == '__main__':
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 15, 15, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-3, 1e-4, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
         
-        mod.flag_ode_forecast = True#False#
+        mod.flag_ode_forecast = False#True#
         
         mod.hparams.alpha_prior = 0.1
         mod.hparams.alpha_mse = 1.
