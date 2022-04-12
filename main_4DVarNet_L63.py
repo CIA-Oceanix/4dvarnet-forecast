@@ -1947,7 +1947,7 @@ if __name__ == '__main__':
         mod.hparams.n_grad = 5
         mod.hparams.k_n_grad = 2
 
-        mod.flag_ode_forecast = True#False#
+        mod.flag_ode_forecast = False#True#
     
         print(' Ngrad = %d / %d'%(mod.hparams.n_grad,mod.model.n_grad))
         #trainer = pl.Trainer(gpus=1, accelerator = "ddp", **profiler_kwargs)
