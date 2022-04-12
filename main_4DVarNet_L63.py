@@ -1368,6 +1368,8 @@ class LitModel(pl.LightningModule):
             # metrics
             mse       = loss_mse.detach()
             metrics   = dict([('mse',mse)])
+            
+            print( mse )
             #print(mse.cpu().detach().numpy())
             #if (phase == 'val') or (phase == 'test'):                
 
