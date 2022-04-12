@@ -448,7 +448,7 @@ else:
         x_test_obs = x_test_obs[:,:,::10]
         
         x_train_obs = 0. * x_train_obs
-        x_train_obs[:,0,::8] = x_train[:,0,::8] + np.random.randn(5000,32)
+        x_train_obs[:,0,::8] = x_train[:,0,::8] + 0. * np.random.randn(5000,32)
         mask_train = 0. * mask_train
         mask_train[:,0,::8] = 1.
 
@@ -1826,7 +1826,7 @@ if __name__ == '__main__':
         else:
             mod = LitModel()
             
-            mod.hparams.n_grad          = 5#1#5
+            mod.hparams.n_grad          = 1#1#5
             mod.hparams.k_n_grad        = 1
             mod.hparams.iter_update     = [0, 100, 200, 200, 300, 500, 700, 800]  # [0,2,4,6,9,15]
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 15, 15, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
