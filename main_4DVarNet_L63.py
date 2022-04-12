@@ -31,7 +31,7 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 1
+flagProcess = 0
 
 dimGradSolver = 25
 rateDropout = 0.2
@@ -41,8 +41,8 @@ dim_aug_state = 10#10#10#10#10 #False#
  
 batch_size = 128#128#
 
-NbTraining = 5000#10000 #5000#756#
-NbTest     = 100#2000#100# #256
+NbTraining = 10000#5000# #5000#756#
+NbTest     = 2000#100##100# #256
 time_step = 1
 dT        = 200#2500#2500#
 sigNoise  = np.sqrt(2.0)
@@ -408,24 +408,24 @@ else:
             path_l63_dataset = 'dataset_L63_Forecast104.nc'
     else:
         path_l63_dataset = 'dataset_L63_JamesExp1.nc'
-        path_l63_dataset = 'dataset_bruit_0005_tstep_80 (2).nc'
+        #path_l63_dataset = 'dataset_bruit_0005_tstep_80 (2).nc'
                         
     ncfile = Dataset(path_l63_dataset,"r")
     x_train = ncfile.variables['x_train'][:]
-    #x_train_Init = ncfile.variables['x_train_Init'][:]
-    x_train_Init = ncfile.variables['x_train_init'][:]
+    x_train_Init = ncfile.variables['x_train_Init'][:]
+    #x_train_Init = ncfile.variables['x_train_init'][:]
     x_train_obs = ncfile.variables['x_train_obs'][:]
     mask_train = ncfile.variables['mask_train'][:]
 
     x_test = ncfile.variables['x_test'][:]
     mask_test = ncfile.variables['mask_test'][:]
-    #x_test_Init = ncfile.variables['x_test_Init'][:]
-    x_test_Init = ncfile.variables['x_test_init'][:]
+    x_test_Init = ncfile.variables['x_test_Init'][:]
+    #x_test_Init = ncfile.variables['x_test_init'][:]
     x_test_obs = ncfile.variables['x_test_obs'][:]
   
     print('..... Training dataset: %dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2]))
     
-    if 1*0 :
+    if 1*1 :
         meanTr = ncfile.variables['meanTr'][:]
         stdTr = ncfile.variables['stdTr'][:]
         meanTr = float(meanTr.data)    
@@ -434,45 +434,45 @@ else:
         meanTr = 0.
         stdTr = 1.
 
-
-    if 1*1 :
-        x_train = x_train[:,:,::10]
-        x_train_Init = x_train_Init[:,:,::10]
-        x_train_obs = x_train_obs[:,:,::10]
-        mask_train = mask_train[:,:,::10]
-        
-        mean_tt = np.mean(x_test)
-        std_tt = np.sqrt( np.mean( (x_test - mean_tt)**2 ) )
-        x_test = ( x_test[:,:,::10] - mean_tt ) / std_tt
-        mask_test = mask_test[:,:,::10]
-        x_test_Init = x_test_Init[:,:,::10]
-        x_test_obs = x_test_obs[:,:,::10]
-        
-    if 1*1 :
-        x_train_obs = 0. * x_train_obs
-        x_train_obs[:,0,::8] = x_train[:,0,::8] + 0.01 * np.random.randn(5000,32)
-        mask_train = 0. * mask_train
-        mask_train[:,0,::8] = 1.
-        x_train_Init = 0. * x_train_obs
-
-        x_test_obs = 0. * x_test_obs
-        x_test_obs[:,0,::8] = x_test[:,0,::8] + 0.0 * np.random.randn(100,32)
-        mask_test = 0. * mask_test
-        mask_test[:,0,::8] = 1.
-        x_test_Init = 0. * x_test_obs
-       
-    if 1*1 :         
-        indr = np.random.permutation(NbTraining)
-        
-        x_train = x_train[indr,:,:dT]
-        mask_train = mask_train[indr,:,:dT]
-        x_train_Init = x_train_Init[indr,:,:dT]
-        x_train_obs = x_train_obs[indr,:,:dT]
-        
-        x_test = x_test[:,:,:dT]
-        mask_test = mask_test[:,:,:dT]
-        x_test_Init = x_test_Init[:,:,:dT]
-        x_test_obs = x_test_obs[:,:,:dT]
+    if 1*0 : 
+        if 1*1 :
+            x_train = x_train[:,:,::10]
+            x_train_Init = x_train_Init[:,:,::10]
+            x_train_obs = x_train_obs[:,:,::10]
+            mask_train = mask_train[:,:,::10]
+            
+            mean_tt = np.mean(x_test)
+            std_tt = np.sqrt( np.mean( (x_test - mean_tt)**2 ) )
+            x_test = ( x_test[:,:,::10] - mean_tt ) / std_tt
+            mask_test = mask_test[:,:,::10]
+            x_test_Init = x_test_Init[:,:,::10]
+            x_test_obs = x_test_obs[:,:,::10]
+            
+        if 1*1 :
+            x_train_obs = 0. * x_train_obs
+            x_train_obs[:,0,::8] = x_train[:,0,::8] + 0.01 * np.random.randn(5000,32)
+            mask_train = 0. * mask_train
+            mask_train[:,0,::8] = 1.
+            x_train_Init = 0. * x_train_obs
+    
+            x_test_obs = 0. * x_test_obs
+            x_test_obs[:,0,::8] = x_test[:,0,::8] + 0.0 * np.random.randn(100,32)
+            mask_test = 0. * mask_test
+            mask_test[:,0,::8] = 1.
+            x_test_Init = 0. * x_test_obs
+           
+        if 1*1 :         
+            indr = np.random.permutation(NbTraining)
+            
+            x_train = x_train[indr,:,:dT]
+            mask_train = mask_train[indr,:,:dT]
+            x_train_Init = x_train_Init[indr,:,:dT]
+            x_train_obs = x_train_obs[indr,:,:dT]
+            
+            x_test = x_test[:,:,:dT]
+            mask_test = mask_test[:,:,:dT]
+            x_test_Init = x_test_Init[:,:,:dT]
+            x_test_obs = x_test_obs[:,:,:dT]
                
     x_train = x_train.reshape((-1,3,dT,1))
     mask_train = mask_train.reshape((-1,3,dT,1))
