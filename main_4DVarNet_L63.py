@@ -1856,7 +1856,7 @@ if __name__ == '__main__':
         suffix_exp = 'exp_perrine%02d-'%flagTypeMissData
         filename_chkpt = 'model-l63-'#'dlstm--'
         
-        if flagForecast == True :%£M££%%%%%%%ù`ù
+        if flagForecast == True :
             if mod.flag_ode_forecast  == True :
                 filename_chkpt = filename_chkpt+'ode_forecast_%03d-'%dt_forecast
             else:
