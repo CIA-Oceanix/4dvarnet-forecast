@@ -31,7 +31,7 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 1
+flagProcess = 0
 
 dimGradSolver = 25
 rateDropout = 0.2
@@ -450,7 +450,7 @@ else:
         
     if 1*1 :
         x_train_obs = 0. * x_train_obs
-        x_train_obs[:,0,::8] = x_train[:,0,::8] + 0. * np.random.randn(5000,32)
+        x_train_obs[:,0,::8] = x_train[:,0,::8] + 0.01 * np.random.randn(5000,32)
         mask_train = 0. * mask_train
         mask_train[:,0,::8] = 1.
         x_train_Init = 0. * x_train_obs
