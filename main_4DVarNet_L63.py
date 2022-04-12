@@ -409,7 +409,7 @@ else:
             path_l63_dataset = 'dataset_L63_Forecast104.nc'
     else:
         path_l63_dataset = 'dataset_L63_JamesExp1.nc'
-        #path_l63_dataset = 'dataset_bruit_0005_tstep_80 (2).nc'
+        path_l63_dataset = 'dataset_bruit_0005_tstep_80 (2).nc'
                         
     ncfile = Dataset(path_l63_dataset,"r")
     x_train = ncfile.variables['x_train'][:]
