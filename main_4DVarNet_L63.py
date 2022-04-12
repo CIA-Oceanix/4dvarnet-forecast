@@ -426,7 +426,7 @@ else:
   
     print('..... Training dataset: %dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2]))
     
-    if 1*1 :
+    if 1*0 :
         meanTr = ncfile.variables['meanTr'][:]
         stdTr = ncfile.variables['stdTr'][:]
         meanTr = float(meanTr.data)    
