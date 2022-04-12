@@ -448,9 +448,9 @@ else:
         x_test_obs = x_test_obs[:,:,::10]
         
         x_train_obs = 0. * x_train_obs
-        x_train_obs[:,:,::8] = x_train[:,:,::8] + 0. * np.random.randn(5000,3,32)
+        x_train_obs[:,:,::2] = x_train[:,:,::2] + 0. * np.random.randn(5000,3,128)
         mask_train = 0. * mask_train
-        mask_train[:,:,::8] = 1.
+        mask_train[:,:,::2] = 1.
         x_train_Init = 1. * x_train_obs
 
         x_test_obs = 0. * x_test_obs
