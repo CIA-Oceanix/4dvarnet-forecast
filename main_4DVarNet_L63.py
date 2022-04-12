@@ -454,7 +454,7 @@ else:
         x_train_Init = 0. * x_train_obs
 
         x_test_obs = 0. * x_test_obs
-        x_test_obs[:,0,::8] = x_test[:,0,::8] + 0.0 * np.random.randn(x_test[:,0,::8].shape)
+        x_test_obs[:,0,::8] = x_test[:,0,::8] + 0.0 * np.random.randn(100,32)
         mask_test = 0. * mask_test
         mask_test[:,0,::8] = 1.
        
