@@ -1870,7 +1870,7 @@ if __name__ == '__main__':
         profiler_kwargs = {'max_epochs': 400 }
 
         suffix_exp = 'exp%02d-testloaders'%flagTypeMissData
-        suffix_exp = 'exp_perrine%02d-'%flagTypeMissData
+        #suffix_exp = 'exp_perrine%02d-'%flagTypeMissData
         filename_chkpt = 'model-l63-'#'dlstm--'
         
         if flagForecast == True :
