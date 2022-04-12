@@ -420,8 +420,8 @@ else:
 
     x_test = ncfile.variables['x_test'][:]
     mask_test = ncfile.variables['mask_test'][:]
-    #x_test_Init = ncfile.variables['x_test_Init'][:]
-    x_test_Init = ncfile.variables['x_test_init'][:]
+    x_test_Init = ncfile.variables['x_test_Init'][:]
+    #x_test_Init = ncfile.variables['x_test_init'][:]
     x_test_obs = ncfile.variables['x_test_obs'][:]
   
     print('..... Training dataset: %dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2]))
