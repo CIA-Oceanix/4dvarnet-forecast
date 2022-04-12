@@ -37,7 +37,7 @@ dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
 flagAEType = 'unet2'#ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
-dim_aug_state = 5#10#10#10#10 #False#
+dim_aug_state = 0#10#10#10#10 #False#
  
 batch_size = 128#128#
 
@@ -51,7 +51,7 @@ rateMissingData = (1-1./8.)#0.75#0.95
 flagTypeMissData = 2
 flagForecast = True#False#
 dt_forecast = 55#103#55#
-flag_x1_only = False#True #
+flag_x1_only = True #False#
 
 load_full_dataset = True#False#
 
@@ -405,7 +405,7 @@ else:
     if flagForecast == True :
         if dt_forecast == 55 :
             path_l63_dataset = 'dataset_L63_Forecast55.nc'
-            path_l63_dataset = 'dataset_bruit_0005_tstep_80 (2).nc'
+            #path_l63_dataset = 'dataset_bruit_0005_tstep_80 (2).nc'
         elif dt_forecast == 104 :
             path_l63_dataset = 'dataset_L63_Forecast104.nc'
     else:
@@ -427,7 +427,7 @@ else:
   
     print('..... Training dataset: %dx%dx%d'%(x_train.shape[0],x_train.shape[1],x_train.shape[2]))
     
-    if 1*0 :
+    if 1*1 :
         meanTr = ncfile.variables['meanTr'][:]
         stdTr = ncfile.variables['stdTr'][:]
         meanTr = float(meanTr.data)    
@@ -452,13 +452,19 @@ else:
             
         if 1*1 :
             x_train_obs = 0. * x_train_obs
-            x_train_obs[:,0,::2] = x_train[:,0,::2] + 0.01 * np.random.randn(5000,125)
+            if flagForecast == True :
+                x_train_obs[:,0,::2] = x_train[:,0,::2] + 0.01 * np.random.randn(5000,125)
+            else:
+                x_train_obs[:,0,::2] = x_train[:,0,::8] + 0.01 * np.random.randn(5000,32)
             mask_train = 0. * mask_train
             mask_train[:,0,::8] = 1.
             x_train_Init = 0. * x_train_obs
     
             x_test_obs = 0. * x_test_obs
-            x_test_obs[:,0,::2] = x_test[:,0,::2] + 0.01 * np.random.randn(100,125)
+            if flagForecast == True :
+                x_test_obs[:,0,::2] = x_test[:,0,::2] + 0.01 * np.random.randn(100,125)
+            else:
+                x_test_obs[:,0,::8] = x_test[:,0,::2] + 0.01 * np.random.randn(100,32)
             mask_test = 0. * mask_test
             mask_test[:,0,::8] = 1.
             x_test_Init = 0. * x_test_obs
@@ -476,9 +482,10 @@ else:
             x_test_Init = x_test_Init[:,:,:dT]
             x_test_obs = x_test_obs[:,:,:dT]
             
-            x_train_obs[:,dT-dt_forecast:,:] = 0.
-            mask_train[:,dT-dt_forecast:,:] = 0.
-            x_train_Init[:,dT-dt_forecast:,:] = 0.
+            if flagForecast == True :
+                x_train_obs[:,dT-dt_forecast:,:] = 0.
+                mask_train[:,dT-dt_forecast:,:] = 0.
+                x_train_Init[:,dT-dt_forecast:,:] = 0.
                
     x_train = x_train.reshape((-1,3,dT,1))
     mask_train = mask_train.reshape((-1,3,dT,1))
@@ -1347,6 +1354,7 @@ class LitModel(pl.LightningModule):
                 else:
                     loss_mse_rec = torch.mean((outputs[:,0,:dT-dt_forecast,:] - targets_GT[:,0,:dT-dt_forecast,:]) ** 2)
                     loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:,:] - targets_GT[:,0,dT-dt_forecast:,:]) ** 2)
+                    loss_mse = torch.mean((outputs[:,0,:,:] - targets_GT[:,0,:,:]) ** 2)
                     
                 loss_prior = torch.mean((self.model.phi_r(outputs) - outputs) ** 2)
                 
@@ -1849,7 +1857,7 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse_rec = (dT-dt_forecast)/dT #0.75
         mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
 
-        mod.hparams.alpha_4dvarloss_diff = 0.#5.e1#0.1 #
+        mod.hparams.alpha_4dvarloss_diff = 0.1#5.e1#0.1 #
 
         mod.hparams.noise_rnd_lstm_init = 0.#1e-2 #0.
         mod.hparams.noise_rnd_aug_init = 0.#1e-2 #0.
