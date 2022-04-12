@@ -409,7 +409,7 @@ else:
             path_l63_dataset = 'dataset_L63_Forecast104.nc'
     else:
         path_l63_dataset = 'dataset_L63_JamesExp1.nc'
-        path_l63_dataset = 'dataset_bruit_0005_tstep_80 (2).nc'
+        #path_l63_dataset = 'dataset_bruit_0005_tstep_80 (2).nc'
                         
     ncfile = Dataset(path_l63_dataset,"r")
     x_train = ncfile.variables['x_train'][:]
@@ -436,7 +436,7 @@ else:
         stdTr = 1.
 
 
-    if 1*1 :
+    if 1*0 :
         x_train = x_train[:,:,::10]
         x_train_Init = x_train_Init[:,:,::10]
         x_train_obs = x_train_obs[:,:,::10]
@@ -447,6 +447,7 @@ else:
         x_test_Init = x_test_Init[:,:,::10]
         x_test_obs = x_test_obs[:,:,::10]
         
+    if 1*0 :
         x_train_obs = 0. * x_train_obs
         x_train_obs[:,:,::2] = x_train[:,:,::2] + 0. * np.random.randn(5000,3,125)
         mask_train = 0. * mask_train
