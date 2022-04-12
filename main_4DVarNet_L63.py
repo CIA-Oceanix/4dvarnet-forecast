@@ -41,8 +41,8 @@ dim_aug_state = 0#10#10#10#10 #False#
  
 batch_size = 128#128#
 
-NbTraining = 10000#5000# #5000#756#
-NbTest     = 2000#100##100# #256
+NbTraining = 5000#10000# #5000#756#
+NbTest     = 100#2000##100# #256
 time_step = 1
 dT        = 200#2500#2500#
 sigNoise  = np.sqrt(2.0)
