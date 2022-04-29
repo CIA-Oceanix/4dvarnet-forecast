@@ -1352,10 +1352,12 @@ class LitModel(pl.LightningModule):
                     loss_mse = torch.mean((outputs - targets_GT) ** 2)
                     loss_mse_rec = torch.mean((outputs[:,:,:dT-dt_forecast,:] - targets_GT[:,:,:dT-dt_forecast,:]) ** 2)
                     loss_mse_for = torch.mean((outputs[:,:,dT-dt_forecast:,:] - targets_GT[:,:,dT-dt_forecast:,:]) ** 2)
+                    loss_mse_init = torch.mean((outputs[:,:,dT-dt_forecast-1,:] - targets_GT[:,:,dT-dt_forecast-1,:]) ** 2)
                 else:
                     loss_mse_rec = torch.mean((outputs[:,0,:dT-dt_forecast,:] - targets_GT[:,0,:dT-dt_forecast,:]) ** 2)
                     loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:,:] - targets_GT[:,0,dT-dt_forecast:,:]) ** 2)
                     loss_mse = torch.mean((outputs[:,0,:,:] - targets_GT[:,0,:,:]) ** 2)
+                    loss_mse_init = torch.mean((outputs[:,0,dT-dt_forecast-1,:] - targets_GT[:,0,dT-dt_forecast-1,:]) ** 2)
                     
                 loss_prior = torch.mean((self.model.phi_r(outputs) - outputs) ** 2)
                 
