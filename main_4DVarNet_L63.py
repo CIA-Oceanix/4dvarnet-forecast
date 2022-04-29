@@ -49,9 +49,9 @@ sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
 flagTypeMissData = 2
-flagForecast = True#False#
+flagForecast = 1# 1 : forecast loss , 2 : init-only loss
 dt_forecast = 55#103#55#
-flag_x1_only = True #False#
+flag_x1_only = False#True #
 
 load_full_dataset = True#False#
 
@@ -254,7 +254,7 @@ if load_full_dataset == False:
     dataTest[:,dT-10:dT,:]     =  float('nan')
     
     # 
-    if flagForecast == True :
+    if flagForecast > 0 :
         dataTraining[:,dT-dt_forecast:,:] =  float('nan')
         dataTest[:,dT-dt_forecast:,:]     =  float('nan')
         
@@ -402,7 +402,7 @@ if load_full_dataset == False:
 else:
     print('.... Load full dataset')
     
-    if flagForecast == True :
+    if flagForecast > 0 :
         if dt_forecast == 55 :
             path_l63_dataset = 'dataset_L63_Forecast55.nc'
             #path_l63_dataset = 'dataset_bruit_0005_tstep_80 (2).nc'
@@ -452,7 +452,7 @@ else:
             
         if 1*1 :
             x_train_obs = 0. * x_train_obs
-            if flagForecast == True :
+            if flagForecast > 0 :
                 x_train_obs[:,0,::2] = x_train[:,0,::2] + 0.01 * np.random.randn(5000,125)
             else:
                 x_train_obs[:,0,::2] = x_train[:,0,::8] + 0.01 * np.random.randn(5000,32)
@@ -461,7 +461,7 @@ else:
             x_train_Init = 0. * x_train_obs
     
             x_test_obs = 0. * x_test_obs
-            if flagForecast == True :
+            if flagForecast > 0 :
                 x_test_obs[:,0,::2] = x_test[:,0,::2] + 0.01 * np.random.randn(100,125)
             else:
                 x_test_obs[:,0,::8] = x_test[:,0,::2] + 0.01 * np.random.randn(100,32)
@@ -482,7 +482,7 @@ else:
             x_test_Init = x_test_Init[:,:,:dT]
             x_test_obs = x_test_obs[:,:,:dT]
             
-            if flagForecast == True :
+            if flagForecast > 0 :
                 x_train_obs[:,dT-dt_forecast:,:] = 0.
                 mask_train[:,dT-dt_forecast:,:] = 0.
                 x_train_Init[:,dT-dt_forecast:,:] = 0.
@@ -1079,6 +1079,7 @@ class LitModel(pl.LightningModule):
         self.hparams.alpha_prior   = 0.5
         self.hparams.alpha_mse     = 1.#10*0.75#1.e0
         self.hparams.alpha_mse_rec = 10.#10*0.75#1.e0
+        self.hparams.alpha_mse_init = 100.#10*0.75#1.e0
         self.hparams.alpha_mse_for = 0.#*0.25#1.e1
         
         self.hparams.alpha_4dvarloss_diff = 0.1
@@ -1364,9 +1365,11 @@ class LitModel(pl.LightningModule):
                     loss_mse = torch.mean((outputs[:,:3,:,:] - targets_GT[:,:,:,:]) ** 2)
                     loss_mse_rec = torch.mean((outputs[:,:3,:dT-dt_forecast,:] - targets_GT[:,:,:dT-dt_forecast,:]) ** 2)
                     loss_mse_for = torch.mean((outputs[:,:3,dT-dt_forecast:,:] - targets_GT[:,:,dT-dt_forecast:,:]) ** 2)
+                    loss_mse_init = torch.mean((outputs[:,:3,dT-dt_forecast-1,:] - targets_GT[:,:,dT-dt_forecast-1,:]) ** 2)
                 else:
                     loss_mse_rec = torch.mean((outputs[:,0,:dT-dt_forecast,:] - targets_GT[:,0,:dT-dt_forecast,:]) ** 2)
                     loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:,:] - targets_GT[:,0,dT-dt_forecast:,:]) ** 2)
+                    loss_mse_init = torch.mean((outputs[:,0,dT-dt_forecast-1,:] - targets_GT[:,0,dT-dt_forecast-1,:]) ** 2)
 
                 loss_prior = torch.mean((self.model.phi_r(outputs) - outputs) ** 2)
                 
@@ -1376,12 +1379,11 @@ class LitModel(pl.LightningModule):
             #loss_mse   = solver_4DVarNet.compute_WeightedLoss((outputs - targets_GT), self.w_loss)
 
             if flagForecast == True :
-                loss_mse = self.hparams.alpha_mse_rec * loss_mse_rec + self.hparams.alpha_mse_for * loss_mse_for
+                loss_mse = self.hparams.alpha_mse_rec * loss_mse_rec + self.hparams.alpha_mse_init * loss_mse_init + self.hparams.alpha_mse_for * loss_mse_for
             else:
                 loss_mse = self.hparams.alpha_mse * loss_mse
             loss = loss_mse + 0.5 * self.hparams.alpha_prior * (loss_prior + loss_prior_gt)
             
-
             # metrics
             mse       = loss_mse.detach()
             metrics   = dict([('mse',mse)])
@@ -1854,8 +1856,9 @@ if __name__ == '__main__':
         
         mod.hparams.alpha_prior = 0.1
         mod.hparams.alpha_mse = 1.
-        mod.hparams.alpha_mse_rec = (dT-dt_forecast)/dT #0.75
-        mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
+        mod.hparams.alpha_mse_rec = 0. #(dT-dt_forecast)/dT #0.75
+        mod.hparams.alpha_mse_for = 1. #dt_forecast/dT #0.5#0.25
+        mod.hparams.alpha_mse_init = 1. / dt_forecast#0.75
 
         mod.hparams.alpha_4dvarloss_diff = 0.1#5.e1#0.1 #
 
@@ -1948,11 +1951,6 @@ if __name__ == '__main__':
         #pathCheckPOint = 'resL63/exp02-testloaders/model-l63-forecast_055-ft-ode-exp02-testloaders-Noise01-igrad10_04-dgrad25-drop20-epoch=16-val_loss=13.07.ckpt'
         #pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ode_forecast_055-ode-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=391-val_loss=9.85.ckpt'
         
-        #pathCheckPOint = 'resL63/exp_perrine02-/model-l63-unet2-exp_perrine02--Noise01-igrad05_02-dgrad25-drop20-epoch=16-val_loss=0.03.ckpt'
-        #pathCheckPOint = 'resL63/exp_perrine02-/model-l63-unet2-exp_perrine02--Noise01-igrad05_02-dgrad25-drop20-epoch=17-val_loss=0.30.ckpt'
-        pathCheckPOint = 'resL63/exp_perrine02-/model-l63-unet2-exp_perrine02--Noise01-igrad05_02-dgrad25-drop20-epoch=29-val_loss=0.16.ckpt'
-        #pathCheckPOint = 'resL63/exp_perrine02-/model-l63-aug10-unet2-exp_perrine02--Noise01-igrad05_02-dgrad25-drop20-epoch=02-val_loss=1.75.ckpt'
-        pathCheckPOint = 'resL63/exp_perrine02-/model-l63-unet2-exp_perrine02--Noise01-igrad05_02-dgrad25-drop20-epoch=199-val_loss=0.08.ckpt'
         
         print('.... load pre-trained model :'+pathCheckPOint)
         
