@@ -1862,7 +1862,7 @@ if __name__ == '__main__':
         mod.hparams.alpha_prior = 0.1
         mod.hparams.alpha_mse = 1.
         mod.hparams.alpha_mse_rec = 1. #(dT-dt_forecast)/dT #0.75
-        mod.hparams.alpha_mse_for = 1. #dt_forecast/dT #0.5#0.25
+        mod.hparams.alpha_mse_for = 10. #dt_forecast/dT #0.5#0.25
         mod.hparams.alpha_mse_init = 10. #0.75
 
         mod.hparams.alpha_4dvarloss_diff = 0.1#5.e1#0.1 #
