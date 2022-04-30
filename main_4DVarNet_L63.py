@@ -1967,7 +1967,7 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse = 1.
         mod.hparams.alpha_mse_rec = 0. #(dT-dt_forecast)/dT #0.75
         mod.hparams.alpha_mse_for = 1. # dt_forecast/dT #0.5#0.25
-        mod.hparams.alpha_mse_init = 1. #dt_forecast/dT #0.5#0.25
+        mod.hparams.alpha_mse_init = 1. / dt_forecast# #dt_forecast/dT #0.5#0.25
         
         mod.hparams.n_grad = 5
         mod.hparams.k_n_grad = 4
@@ -1989,9 +1989,9 @@ if __name__ == '__main__':
         
         if 1*1 :
             #trainer.validation(, test_dataloaders=dataloaders['val'])
-            mod.hparams.lr_update[0] = 0.
-            trainer.fit(mod, dataloaders['train'], dataloaders['val'])
-            trainer.test(mod, dataloaders=dataloaders['val'])
+            #mod.hparams.lr_update[0] = 0.
+            #trainer.fit(mod, dataloaders['train'], dataloaders['val'])
+            #trainer.test(mod, dataloaders=dataloaders['val'])
             
             # Reconstruction performance
             X_val = X_train[idx_val::,:,:]
