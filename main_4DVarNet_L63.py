@@ -1984,6 +1984,7 @@ if __name__ == '__main__':
         print('__________ ')
         print(mask_train[0,0,dT-dt_forecast-4:dT-dt_forecast])
         print(x_train_obs[0,0,dT-dt_forecast-4:dT-dt_forecast])
+        print(mask_test[0,0,dT-dt_forecast-4:dT-dt_forecast])
         print(x_test_obs[0,0,dT-dt_forecast-4:dT-dt_forecast])
         
         if 1*1 :
@@ -2011,7 +2012,6 @@ if __name__ == '__main__':
         
         trainer.test(mod, test_dataloaders=dataloaders['test'])
         print(' Ngrad = %d / %d'%(mod.hparams.n_grad,mod.model.n_grad))
-
 
         # Reconstruction performance
         if flagForecast == True :
