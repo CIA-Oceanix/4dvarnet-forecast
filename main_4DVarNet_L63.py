@@ -2018,10 +2018,11 @@ if __name__ == '__main__':
             print("\n")
             print('..... Forecasting performance (all):')
             for nn in range(0,dt_forecast+1):
+                
                 var_test_nn     = np.mean( (X_test[:,:,dT-dt_forecast+nn-1] - X_test[:,:,dT-dt_forecast-1])**2 )
                 mse_forecast = np.mean( (mod.x_rec[:,:,dT-dt_forecast+nn-1]-X_test[:,:,dT-dt_forecast+nn-1]) **2 ) 
             
-                print('... dt [ %03d ] = %.3f / %.3f / %.3f '%(nn,mse_forecast,mse_forecast/var_test,mse_forecast/var_test_nn) )                
+                print('... dt [ %03d ] = %.f %.3f / %.3f / %.3f '%(nn,x_test_obs[0,0,dT-dt_forecast+nn-1],mse_forecast,mse_forecast/var_test,mse_forecast/var_test_nn) )                
             
             print("\n")
             print('..... Forecasting performance (x1):')
