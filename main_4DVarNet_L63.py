@@ -31,7 +31,7 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 1
+flagProcess = 0
 
 dimGradSolver = 25
 rateDropout = 0.2
@@ -1379,11 +1379,14 @@ class LitModel(pl.LightningModule):
                 loss_prior_gt = torch.mean((self.model.phi_r(targets_gt_aug) - targets_gt_aug) ** 2)
                 
             #loss_mse   = solver_4DVarNet.compute_WeightedLoss((outputs - targets_GT), self.w_loss)
-
-            if flagForecast == True :
-                loss_mse = self.hparams.alpha_mse_rec * loss_mse_rec + self.hparams.alpha_mse_init * loss_mse_init + self.hparams.alpha_mse_for * loss_mse_for
+            if phase == 'train' :                                 
+                if flagForecast == True :
+                    loss_mse = self.hparams.alpha_mse_rec * loss_mse_rec + self.hparams.alpha_mse_init * loss_mse_init + self.hparams.alpha_mse_for * loss_mse_for
+                else:
+                    loss_mse = self.hparams.alpha_mse * loss_mse
             else:
-                loss_mse = self.hparams.alpha_mse * loss_mse
+                loss_mse = ( loss_mse_init + dt_forecast * loss_mse_for ) / ( dt_forecast + 1 )
+                
             loss = loss_mse + 0.5 * self.hparams.alpha_prior * (loss_prior + loss_prior_gt)
             
             # metrics
@@ -1849,7 +1852,7 @@ if __name__ == '__main__':
             mod = LitModel()
             
             mod.hparams.n_grad          = 5#1#5
-            mod.hparams.k_n_grad        = 4
+            mod.hparams.k_n_grad        = 2
             mod.hparams.iter_update     = [0, 100, 200, 200, 300, 500, 700, 800]  # [0,2,4,6,9,15]
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 15, 15, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-3, 1e-4, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
@@ -1860,7 +1863,7 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse = 1.
         mod.hparams.alpha_mse_rec = 0. #(dT-dt_forecast)/dT #0.75
         mod.hparams.alpha_mse_for = 1. #dt_forecast/dT #0.5#0.25
-        mod.hparams.alpha_mse_init = 1. / dt_forecast#0.75
+        mod.hparams.alpha_mse_init = 1. #0.75
 
         mod.hparams.alpha_4dvarloss_diff = 0.1#5.e1#0.1 #
 
