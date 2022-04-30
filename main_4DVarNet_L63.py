@@ -1863,7 +1863,7 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse = 1.
         mod.hparams.alpha_mse_rec = 1. #(dT-dt_forecast)/dT #0.75
         mod.hparams.alpha_mse_for = 1. #dt_forecast/dT #0.5#0.25
-        mod.hparams.alpha_mse_init = 0. #0.75
+        mod.hparams.alpha_mse_init = 10. #0.75
 
         mod.hparams.alpha_4dvarloss_diff = 0.1#5.e1#0.1 #
 
@@ -1889,8 +1889,12 @@ if __name__ == '__main__':
 
         if flagLoadModel == True:
             filename_chkpt = filename_chkpt+'ft-'
-        if mod.hparams.alpha_mse_rec == 0. :
-            filename_chkpt = filename_chkpt+'-norec-'
+        if mod.hparams.alpha_mse_rec > 0. :
+            filename_chkpt = filename_chkpt+'-rec%03d-'%(10*mod.hparams.alpha_mse_rec)
+        if mod.hparams.alpha_mse_for > 0. :
+            filename_chkpt = filename_chkpt+'-for%03d-'%(10*mod.hparams.alpha_mse_for)
+        if mod.hparams.alpha_mse_init > 0. :
+            filename_chkpt = filename_chkpt+'-init%03d-'%(10*mod.hparams.alpha_mse_init)
             
         if flag_x1_only == True :
             filename_chkpt = filename_chkpt+'x1_only-'
