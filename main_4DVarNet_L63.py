@@ -1991,7 +1991,7 @@ if __name__ == '__main__':
             #trainer.validation(, test_dataloaders=dataloaders['val'])
             #mod.hparams.lr_update[0] = 0.
             #trainer.fit(mod, dataloaders['train'], dataloaders['val'])
-            #trainer.test(mod, dataloaders=dataloaders['val'])
+            trainer.test(mod, dataloaders=dataloaders['val'])
             
             # Reconstruction performance
             X_val = X_train[idx_val::,:,:]
