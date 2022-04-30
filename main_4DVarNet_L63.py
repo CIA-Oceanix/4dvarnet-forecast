@@ -1981,7 +1981,8 @@ if __name__ == '__main__':
         trainer = pl.Trainer(gpus=1,  **profiler_kwargs)
         
         #trainer.fit(mod, dataloaders['train'], dataloaders['val'])
-        print(x_test_obs[0,0,dT-dt_forecast-2:dT-dt_forecast])
+        print('__________ ')
+        print(x_test_obs[0,0,dT-dt_forecast-4:dT-dt_forecast])
         
         if 1*1 :
             #trainer.validation(, test_dataloaders=dataloaders['val'])
