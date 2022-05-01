@@ -135,9 +135,8 @@ if load_full_dataset == False:
             tt = np.arange(GD.dt_integration,GD.nb_loop_seq*GD.dt_integration+0.000001,GD.dt_integration)
             S0 = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[0.,2*GD.nb_seq+5+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=np.arange(0,2*GD.nb_seq+5+0.000001,GD.dt_integration),method='RK45')
             
-            for nn in range(0,GD.nb_seq):
-    
-                y0 = S0.y[:,500+nn*100]
+            for nn in range(0,GD.nb_seq):    
+                y0 = S0.y[:,500+nn*100] + np.random.normal(0.,1.,3)
                 S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[GD.dt_integration,GD.nb_loop_seq*GD.dt_integration+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=tt,method='RK45')
                 S = S.y.transpose()
                   
@@ -150,7 +149,7 @@ if load_full_dataset == False:
                 xt.time   = tt
                 # extract subsequences
                 print('..... (%d) Extract %d+%d patches from a %dx%d sequence '%(nn,int(NbTraining/GD.nb_seq),int(NbTest/GD.nb_seq),S.shape[0],3))
-                dataTrainingNoNaN_nn = image.extract_patches_2d(xt.values[0:15000:time_step,:],(dT,3),max_patches=int(NbTraining/GD.nb_seq))
+                dataTrainingNoNaN_nn = image.extract_patches_2d(xt.values[100:15000:time_step,:],(dT,3),max_patches=int(NbTraining/GD.nb_seq))
                 
                 if nn == 0 :
                     dataTrainingNoNaN = np.copy( dataTrainingNoNaN_nn )
@@ -159,7 +158,7 @@ if load_full_dataset == False:
                     
             for nn in range(0,GD.nb_seq):
     
-                y0 = S0.y[:,500+100*GD.nb_seq+nn*100]
+                y0 = S0.y[:,500+100*GD.nb_seq+nn*100] + np.random.normal(0.,1.,3)
                 S = solve_ivp(fun=lambda t,y: AnDA_Lorenz_63(y,t,GD.parameters.sigma,GD.parameters.rho,GD.parameters.beta),t_span=[GD.dt_integration,GD.nb_loop_seq*GD.dt_integration+0.000001],y0=y0,first_step=GD.dt_integration,t_eval=tt,method='RK45')
                 S = S.y.transpose()
                   
@@ -172,7 +171,7 @@ if load_full_dataset == False:
                 xt.time   = tt
                 # extract subsequences
                 print('..... (%d) Extract %d+%d patches from a %dx%d sequence '%(nn,int(NbTraining/GD.nb_seq),int(NbTest/GD.nb_seq),S.shape[0],3))
-                dataTestNoNaN_nn     = image.extract_patches_2d(xt.values[:15000:time_step,:],(dT,3),max_patches=int(NbTest/GD.nb_seq))
+                dataTestNoNaN_nn     = image.extract_patches_2d(xt.values[100:15000:time_step,:],(dT,3),max_patches=int(NbTest/GD.nb_seq))
                 
                 if nn == 0 :
                     dataTestNoNaN = np.copy( dataTestNoNaN_nn )
@@ -193,7 +192,7 @@ if load_full_dataset == False:
     #                    'l63': np.arange(3), 
     #                    'time': np.arange(dT)})
                         
-            xrdata.to_netcdf(path='dataset_L63.nc', mode='w')
+            xrdata.to_netcdf(path='dataset_L63_new.nc', mode='w')
     else:
         print('.... Load dataset')
         path_l63_dataset = 'dataset_L63.nc'
@@ -1817,7 +1816,7 @@ if __name__ == '__main__':
       
     if flagProcess == 0: ## training model from scratch
         
-        flagLoadModel = True# False#    
+        flagLoadModel = False#   True#  
         if flagLoadModel == True:
             
             pathCheckPOint = 'resL63/exp02-2/model-l63-forecast_055-aug10-unet2-exp02-2-Noise01-igrad05_02-dgrad25-drop20-epoch=105-val_loss=2.08.ckpt'
@@ -1878,7 +1877,7 @@ if __name__ == '__main__':
         
         profiler_kwargs = {'max_epochs': 300 }
 
-        suffix_exp = 'exp%02d-new'%flagTypeMissData
+        suffix_exp = 'exp%02d-newdata'%flagTypeMissData
         #suffix_exp = 'exp_perrine%02d-'%flagTypeMissData
         filename_chkpt = 'model-l63-'#'dlstm--'
         
