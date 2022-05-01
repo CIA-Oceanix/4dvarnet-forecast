@@ -31,13 +31,13 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 0
+flagProcess = 1
 
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
 flagAEType = 'unet2'#ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
-dim_aug_state = 10#10#10#10#10 #False#
+dim_aug_state = 0#10#10#10#10 #False#
  
 batch_size = 128#128#
 
@@ -1962,7 +1962,7 @@ if __name__ == '__main__':
         
         pathCheckPOint = 'resL63/exp02-new/model-l63-forecast_055--norec-unet2-exp02-new-Noise01-igrad05_04-dgrad25-drop20-epoch=205-val_loss=6.27.ckpt'
         pathCheckPOint = 'resL63/exp02-new/model-l63-forecast_055-unet2-exp02-new-Noise01-igrad05_02-dgrad25-drop20-epoch=196-val_loss=6.05.ckpt'
-        
+        pathCheckPOint = 'resL63/exp02-new/model-l63-forecast_055--rec001--for100--init010-unet2-exp02-new-Noise01-igrad05_03-dgrad25-drop20-epoch=217-val_loss=5.88.ckpt'
         print('.... load pre-trained model :'+pathCheckPOint)
         
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
