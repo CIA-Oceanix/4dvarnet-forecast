@@ -31,7 +31,7 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 1
+flagProcess = 0
 
 dimGradSolver = 25
 rateDropout = 0.2
@@ -1355,7 +1355,7 @@ class LitModel(pl.LightningModule):
                     loss_mse_init = torch.mean((outputs[:,:,dT-dt_forecast-1,:] - targets_GT[:,:,dT-dt_forecast-1,:]) ** 2)
 
                     loss_mse_for = torch.mean((outputs[:,:,dT-dt_forecast:dT-dt_forecast+15,:] - targets_GT[:,:,dT-dt_forecast:dT-dt_forecast+15,:]) ** 2)
-                    loss_mse_for = loss_mse_for + 0.1 * torch.mean((outputs[:,:,dT-dt_forecast+15:,:] - targets_GT[:,:,dT-dt_forecast+15:,:]) ** 2)
+                    loss_mse_for = loss_mse_for + 0.1 * torch.mean((outputs[:,:,dT-dt_forecast+5:,:] - targets_GT[:,:,dT-dt_forecast+5:,:]) ** 2)
                 else:
                     loss_mse_rec = torch.mean((outputs[:,0,:dT-dt_forecast,:] - targets_GT[:,0,:dT-dt_forecast,:]) ** 2)
                     loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:,:] - targets_GT[:,0,dT-dt_forecast:,:]) ** 2)
