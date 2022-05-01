@@ -51,6 +51,7 @@ rateMissingData = (1-1./8.)#0.75#0.95
 flagTypeMissData = 2
 flagForecast = True# 1 : forecast loss , 2 : init-only loss
 dt_forecast = 55#103#55#
+dt_forecast_loss = 15
 flag_x1_only = False#True #
 
 load_full_dataset = True#False#
@@ -1354,14 +1355,17 @@ class LitModel(pl.LightningModule):
                     loss_mse_for = torch.mean((outputs[:,:,dT-dt_forecast:,:] - targets_GT[:,:,dT-dt_forecast:,:]) ** 2)
                     loss_mse_init = torch.mean((outputs[:,:,dT-dt_forecast-1,:] - targets_GT[:,:,dT-dt_forecast-1,:]) ** 2)
 
-                    loss_mse_for = torch.mean((outputs[:,:,dT-dt_forecast:dT-dt_forecast+15,:] - targets_GT[:,:,dT-dt_forecast:dT-dt_forecast+15,:]) ** 2)
-                    loss_mse_for = loss_mse_for + 0.1 * torch.mean((outputs[:,:,dT-dt_forecast+5:,:] - targets_GT[:,:,dT-dt_forecast+5:,:]) ** 2)
+                    loss_mse_for = torch.mean((outputs[:,:,dT-dt_forecast:dT-dt_forecast+dt_forecast_loss,:] - targets_GT[:,:,dT-dt_forecast:dT-dt_forecast+dt_forecast_loss,:]) ** 2)
+                    loss_mse_for = loss_mse_for + 0.1 * torch.mean((outputs[:,:,dT-dt_forecast+dt_forecast_loss:,:] - targets_GT[:,:,dT-dt_forecast+dt_forecast_loss:,:]) ** 2)
                 else:
                     loss_mse_rec = torch.mean((outputs[:,0,:dT-dt_forecast,:] - targets_GT[:,0,:dT-dt_forecast,:]) ** 2)
                     loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:,:] - targets_GT[:,0,dT-dt_forecast:,:]) ** 2)
                     loss_mse = torch.mean((outputs[:,0,:,:] - targets_GT[:,0,:,:]) ** 2)
                     loss_mse_init = torch.mean((outputs[:,0,dT-dt_forecast-1,:] - targets_GT[:,0,dT-dt_forecast-1,:]) ** 2)
                     
+                    loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:dT-dt_forecast+dt_forecast_loss,:] - targets_GT[:,0,dT-dt_forecast:dT-dt_forecast+dt_forecast_loss,:]) ** 2)
+                    loss_mse_for = loss_mse_for + 0.1 * torch.mean((outputs[:,0,dT-dt_forecast+dt_forecast_loss:,:] - targets_GT[:,0,dT-dt_forecast+dt_forecast_loss:,:]) ** 2)
+
                 loss_prior = torch.mean((self.model.phi_r(outputs) - outputs) ** 2)
                 
                 loss_prior_gt = torch.mean((self.model.phi_r(targets_GT) - targets_GT) ** 2)
@@ -1371,10 +1375,17 @@ class LitModel(pl.LightningModule):
                     loss_mse_rec = torch.mean((outputs[:,:3,:dT-dt_forecast,:] - targets_GT[:,:,:dT-dt_forecast,:]) ** 2)
                     loss_mse_for = torch.mean((outputs[:,:3,dT-dt_forecast:,:] - targets_GT[:,:,dT-dt_forecast:,:]) ** 2)
                     loss_mse_init = torch.mean((outputs[:,:3,dT-dt_forecast-1,:] - targets_GT[:,:,dT-dt_forecast-1,:]) ** 2)
+
+                    loss_mse_for = torch.mean((outputs[:,:3,dT-dt_forecast:dT-dt_forecast+dt_forecast_loss,:] - targets_GT[:,:3,dT-dt_forecast:dT-dt_forecast+dt_forecast_loss,:]) ** 2)
+                    loss_mse_for = loss_mse_for + 0.1 * torch.mean((outputs[:,:3,dT-dt_forecast+dt_forecast_loss:,:] - targets_GT[:,:3,dT-dt_forecast+dt_forecast_loss:,:]) ** 2)
+
                 else:
                     loss_mse_rec = torch.mean((outputs[:,0,:dT-dt_forecast,:] - targets_GT[:,0,:dT-dt_forecast,:]) ** 2)
                     loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:,:] - targets_GT[:,0,dT-dt_forecast:,:]) ** 2)
                     loss_mse_init = torch.mean((outputs[:,0,dT-dt_forecast-1,:] - targets_GT[:,0,dT-dt_forecast-1,:]) ** 2)
+
+                    loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:dT-dt_forecast+dt_forecast_loss,:] - targets_GT[:,0,dT-dt_forecast:dT-dt_forecast+dt_forecast_loss,:]) ** 2)
+                    loss_mse_for = loss_mse_for + 0.1 * torch.mean((outputs[:,0,dT-dt_forecast+dt_forecast_loss:,:] - targets_GT[:,0,dT-dt_forecast+dt_forecast_loss:,:]) ** 2)
 
                 loss_prior = torch.mean((self.model.phi_r(outputs) - outputs) ** 2)
                 
@@ -1844,6 +1855,8 @@ if __name__ == '__main__':
             pathCheckPOint = 'resL63/exp02-testloaders/model-l63-ode_forecast_055-ode-exp02-testloaders-Noise01-igrad05_02-dgrad25-drop20-epoch=391-val_loss=9.85.ckpt'
             pathCheckPOint = 'resL63/exp02-new/model-l63-forecast_055--rec001--for100--init010-unet2-exp02-new-Noise01-igrad05_03-dgrad25-drop20-epoch=217-val_loss=5.88.ckpt'
             
+            pathCheckPOint = 'resL63/exp02-newdata/model-l63-newforecast_055--rec001--for100--init010-unet2-exp02-newdata-Noise01-igrad05_02-dgrad25-drop20-epoch=252-val_loss=2.77.ckpt'
+
             print('.... load pre-trained model :'+pathCheckPOint)
             mod = LitModel.load_from_checkpoint(pathCheckPOint)
 
@@ -1851,7 +1864,7 @@ if __name__ == '__main__':
             mod.hparams.k_n_grad        = 3
             mod.hparams.iter_update     = [0, 300, 200, 300, 500, 700, 800]  # [0,2,4,6,9,a15]
             mod.hparams.nb_grad_update  = [5, 10, 15, 15, 10, 5, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
-            mod.hparams.lr_update       = [1e-4, 1e-5, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
+            mod.hparams.lr_update       = [1e-3, 1e-5, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
         else:
             mod = LitModel()
             
@@ -1887,9 +1900,9 @@ if __name__ == '__main__':
         
         if flagForecast == True :
             if mod.flag_ode_forecast  == True :
-                filename_chkpt = filename_chkpt+'ode_forecast_%03d-'%dt_forecast
+                filename_chkpt = filename_chkpt+'ode_forecast_%03d_%03d-'%(dt_forecast,dt_forecast_loss)
             else:
-                filename_chkpt = filename_chkpt+'forecast_%03d-'%dt_forecast
+                filename_chkpt = filename_chkpt+'forecast_%03d_%03d-'%(dt_forecast,dt_forecast_loss)
 
         if flagLoadModel == True:
             filename_chkpt = filename_chkpt+'ft-'
