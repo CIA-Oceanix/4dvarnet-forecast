@@ -53,7 +53,7 @@ flagForecast = True# 1 : forecast loss , 2 : init-only loss
 dt_forecast = 55#103#55#
 flag_x1_only = False#True #
 
-load_full_dataset = True#False#
+load_full_dataset = False#True#
 
 print('........ Data generation')
 flagRandomSeed = 0
@@ -95,7 +95,7 @@ if load_full_dataset == False:
       values = 0.
       time   = 0.
       
-    flag_load_data = False # True#  
+    flag_load_data = False # True#   
     
     if flag_load_data == False :
         
