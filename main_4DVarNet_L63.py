@@ -1883,7 +1883,7 @@ if __name__ == '__main__':
 
         suffix_exp = 'exp%02d-newdata'%flagTypeMissData
         #suffix_exp = 'exp_perrine%02d-'%flagTypeMissData
-        filename_chkpt = 'model-l63-'#'dlstm--'
+        filename_chkpt = 'model-l63-new'#'dlstm--'
         
         if flagForecast == True :
             if mod.flag_ode_forecast  == True :
