@@ -1968,6 +1968,7 @@ if __name__ == '__main__':
         
         pathCheckPOint = 'resL63/exp02-newdata/model-l63-forecast_055--rec001--for100--init010-unet2-exp02-newdata-Noise01-igrad05_02-dgrad25-drop20-epoch=50-val_loss=9.29.ckpt'
         pathCheckPOint = 'resL63/exp02-newdata/model-l63-forecast_055--rec001--for100--init010-unet2-exp02-newdata-Noise01-igrad05_02-dgrad25-drop20-epoch=161-val_loss=8.19.ckpt'
+        pathCheckPOint = 'resL63/exp02-newdata/model-l63-forecast_055--rec001--for100--init010-unet2-exp02-newdata-Noise01-igrad05_03-dgrad25-drop20-epoch=106-val_loss=8.12.ckpt'
         print('.... load pre-trained model :'+pathCheckPOint)
         
         mod = LitModel.load_from_checkpoint(pathCheckPOint)            
@@ -1983,7 +1984,7 @@ if __name__ == '__main__':
         mod.hparams.alpha_mse_init = 1. / dt_forecast# #dt_forecast/dT #0.5#0.25
         
         mod.hparams.n_grad = 5
-        mod.hparams.k_n_grad = 2
+        mod.hparams.k_n_grad = 3
 
         mod.flag_ode_forecast = False#True#
     
