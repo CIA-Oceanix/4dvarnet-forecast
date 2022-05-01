@@ -53,7 +53,7 @@ flagForecast = True# 1 : forecast loss , 2 : init-only loss
 dt_forecast = 55#103#55#
 flag_x1_only = False#True #
 
-load_full_dataset = False#True#
+load_full_dataset = True#False#
 
 print('........ Data generation')
 flagRandomSeed = 0
@@ -397,13 +397,14 @@ if load_full_dataset == False:
                        'x_test_obs': (('idx_test', 'l63' , 'time'),x_test_obs.squeeze()),
                        'meanTr':meanTr,
                        'stdTr':stdTr}, )
-        xrdata.to_netcdf(path='dataset_L63_All.nc', mode='w')
+        xrdata.to_netcdf(path='dataset_L63_new_All.nc', mode='w')
 else:
     print('.... Load full dataset')
     
     if flagForecast > 0 :
         if dt_forecast == 55 :
             path_l63_dataset = 'dataset_L63_Forecast55.nc'
+            path_l63_dataset = 'dataset_L63_new_Forecast55.nc'
             #path_l63_dataset = 'dataset_bruit_0005_tstep_80 (2).nc'
         elif dt_forecast == 104 :
             path_l63_dataset = 'dataset_L63_Forecast104.nc'
