@@ -21,6 +21,7 @@ import xarray as xr
 from sklearn import decomposition
 from netCDF4 import Dataset
 
+import unet
 import solver as solver_4DVarNet
 
 #os.chdir('/content/drive/My Drive/Colab Notebooks/AnDA')
@@ -31,12 +32,13 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 1
+flagProcess = 0
 
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
 flagAEType = 'unet2'#ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
+flagAEType = 'unet-1d'
 dim_aug_state = 0#10#10#10#10 #False#
  
 batch_size = 128#128#
@@ -44,7 +46,7 @@ batch_size = 128#128#
 NbTraining = 10000#5000# #5000#756#
 NbTest     = 2000#100###100# #256
 time_step = 1
-dT        = 200#2500#2500#
+dT        = 256#200#2500#2500#
 sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
@@ -1016,7 +1018,10 @@ elif flagAEType == 'unet2+wc_ode': ## Conv model with no use of the central poin
           xpred[:,3:,dT-dt_forecast:,:] = 0. * xpred[:,3:,dT-dt_forecast:,:]
           
           return xpred
-      
+ 
+elif flagAEType == 'unet-1d': ## Conv model with no use of the central point
+    phi_r = unet.UNet_1D(3,3,False,)
+
 phi_r           = Phi_r()
 print(' AE Model/Dynamical prior: '+flagAEType)
 print(phi_r)
