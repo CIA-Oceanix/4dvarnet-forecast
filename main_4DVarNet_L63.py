@@ -1160,7 +1160,7 @@ elif flagAEType == 'unet-1d-32': ## Conv model with no use of the central point
     class Phi_r(torch.nn.Module):
       def __init__(self):
           super(Phi_r, self).__init__()
-          self.unet  = unet.UNet_1D(3,3,False,32)
+          self.unet  = UNet_1D(3,3,False,32)
           
       def forward(self, xinp):
           xout = self.unet( xinp.view(-1,xinp.size(1),xinp.size(2)) )
