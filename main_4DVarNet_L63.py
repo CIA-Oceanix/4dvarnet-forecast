@@ -1026,7 +1026,8 @@ elif flagAEType == 'unet-1d': ## Conv model with no use of the central point
           self.unet  = unet.UNet_1D(3,3,False)
           
       def forward(self, xinp):
-          return self.unet( xinp )
+          xout = self.unet( xinp.view(-1,xinp.size(1),xinp.size(2)) )
+          return xout.view(-1,xinp.size(1),xinp.size(2),1)
 
 phi_r           = Phi_r()
 print(' AE Model/Dynamical prior: '+flagAEType)
