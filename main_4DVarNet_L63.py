@@ -1020,7 +1020,13 @@ elif flagAEType == 'unet2+wc_ode': ## Conv model with no use of the central poin
           return xpred
  
 elif flagAEType == 'unet-1d': ## Conv model with no use of the central point
-    phi_r = unet.UNet_1D(3,3,False,)
+  class Phi_r(torch.nn.Module):
+      def __init__(self):
+          super(Phi_r, self).__init__()
+          self.unet  = unet.UNet_1D(3,3,False)
+          
+      def forward(self, xinp):
+          return self.unet( xinp )
 
 phi_r           = Phi_r()
 print(' AE Model/Dynamical prior: '+flagAEType)
