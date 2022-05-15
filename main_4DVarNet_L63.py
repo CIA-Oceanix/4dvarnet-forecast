@@ -46,7 +46,7 @@ batch_size = 128#128#
 NbTraining = 10000#5000# #5000#756#
 NbTest     = 2000#100###100# #256
 time_step = 1
-dT        = 256#200#2500#2500#
+dT        = 200#200#2500#2500#
 sigNoise  = np.sqrt(2.0)
 rateMissingData = (1-1./8.)#0.75#0.95
 
