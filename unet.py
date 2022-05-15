@@ -374,7 +374,7 @@ class OutConv(nn.Module):
     
 class OutConv_1D(nn.Module):
     def __init__(self, in_channels, out_channels,padding_mode='reflect'):
-        super(OutConv, self).__init__()
+        super(OutConv_1D, self).__init__()
         self.conv = nn.Conv1d(in_channels, out_channels, kernel_size=1,padding_mode=padding_mode)
 
     def forward(self, x):
