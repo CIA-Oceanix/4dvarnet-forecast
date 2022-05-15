@@ -1020,7 +1020,7 @@ elif flagAEType == 'unet2+wc_ode': ## Conv model with no use of the central poin
           return xpred
  
 elif flagAEType == 'unet-1d': ## Conv model with no use of the central point
-    class UNet_1D(nn.Module):
+    class UNet_1D(torch.nn.Module):
         def __init__(self, n_channels, n_classes, bilinear=False):
             super(UNet_1D, self).__init__()
             self.n_channels = n_channels
@@ -1068,7 +1068,7 @@ elif flagAEType == 'unet-1d': ## Conv model with no use of the central point
           return xout.view(-1,xinp.size(1),xinp.size(2),1)
 
 elif flagAEType == 'unet-1d-8': ## Conv model with no use of the central point
-    class UNet_1D(nn.Module):
+    class UNet_1D(torch.nn.Module):
         def __init__(self, n_channels, n_classes, bilinear=False):
             super(UNet_1D, self).__init__()
             self.n_channels = n_channels
