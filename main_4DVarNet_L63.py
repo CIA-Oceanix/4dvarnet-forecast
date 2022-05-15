@@ -1128,7 +1128,7 @@ elif flagAEType == 'unet-1d-32': ## Conv model with no use of the central point
     
             self.inc = unet.DoubleConv_1D(n_channels, self.nfeat)#,padding_mode=padding_mode,activation='relu')
             self.down1 = unet.Down_1D(self.nfeat, 2*self.nfeat)
-            self.down2 = unet.Down_1D(3*self.nfeat, 4*self.nfeat)
+            self.down2 = unet.Down_1D(2*self.nfeat, 4*self.nfeat)
             self.down3 = unet.Down_1D(4*self.nfeat, 8*self.nfeat)
             factor = 2 if bilinear else 1
             
