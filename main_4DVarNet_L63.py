@@ -38,7 +38,7 @@ dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
 flagAEType = 'unet2'#ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
-flagAEType = 'unet-1d'
+#flagAEType = 'unet-1d'
 dim_aug_state = 0#10#10#10#10 #False#
  
 batch_size = 128#128#
