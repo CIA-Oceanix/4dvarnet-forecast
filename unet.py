@@ -1195,7 +1195,7 @@ class UNet9_Tanh(nn.Module):
         self.bilinear = bilinear
 
         #self.inc = DoubleConv(n_channels, 50)
-        self.inc = nn.Conv2d(n_channels, 50, kernel_size=(3,3), padding=1, bias=False,padding_mode=padding_mode)
+        self.inc = nn.Conv1d(n_channels, 50, kernel_size=(3,3), padding=1, bias=False,padding_mode=padding_mode)
         self.down1 = Down2(50, 50, 100,activation='tanh')
         self.down2 = Down2(50, 50, 100,activation='tanh')
         #self.down3 = Down(256, 512)
