@@ -22,12 +22,13 @@ rateDropout = 0.2
 padding_mode = 'reflect'
 
 class Bilin_layer(nn.Module):
-    def __init__(self, in_channels, out_channels, padding_mode='reflect',activation='relu'):
+    def __init__(self, in_channels, out_channels, padding_mode='reflect'):
         super().__init__()
 
-        self.conv1 = nn.Conv1d(in_channels, out_channels, kernel_size=3, padding=1, bias=False,padding_mode=padding_mode),
-        self.conv2 = nn.Conv1d(in_channels, out_channels, kernel_size=3, padding=1, bias=False,padding_mode=padding_mode),
-        self.conv3 = nn.Conv1d(in_channels, out_channels, kernel_size=3, padding=1, bias=False,padding_mode=padding_mode),
+        self.conv1 = nn.Conv1d(in_channels, out_channels, kernel_size=3, padding=1, bias=False,padding_mode=padding_mode)
+        self.conv2 = nn.Conv1d(in_channels, out_channels, kernel_size=3, padding=1, bias=False,padding_mode=padding_mode)
+        self.conv3 = nn.Conv1d(in_channels, out_channels, kernel_size=3, padding=1, bias=False,padding_mode=padding_mode)
+        
     def forward(self,x):        
         return self.conv1(x) + self.conv2(x) * self.conv3(x)
     
