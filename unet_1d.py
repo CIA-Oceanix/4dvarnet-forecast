@@ -484,7 +484,7 @@ class UNet_1D_5scales(torch.nn.Module):
         
         #self.down4 = Down(512, 1024 // factor)
         #self.up1 = Up(1024, 512 // factor, bilinear)
-        self.up1 = Up_1D_2(8*self.nfeat, 8*self.nfeat // factor, bilinear,padding_mode=padding_mode,activation=activation)
+        self.up1 = Up_1D(8*self.nfeat, 8*self.nfeat // factor, bilinear,padding_mode=padding_mode,activation=activation)
         self.up2 = Up_1D(8*self.nfeat, 4*self.nfeat // factor, bilinear,padding_mode=padding_mode,activation=activation)
         self.up3 = Up_1D(4*self.nfeat, 2*self.nfeat // factor, bilinear,padding_mode=padding_mode,activation=activation)
         self.up4 = Up_1D(2*self.nfeat, self.nfeat, bilinear,padding_mode=padding_mode,activation=activation)
