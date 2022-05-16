@@ -32,12 +32,12 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 3
+flagProcess = 4
 
 dimGradSolver = 25
 rateDropout = 0.2
-DimAE = 8#10
-flagAEType = 'unet2-1d-tanh'#'unet2'#unet2'#'unet-1d-tanh'#'unet-1d-relu'#'#ode'#' 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
+DimAE = 32#10
+flagAEType = 'unet-1d-tanh'#'unet2'#unet2'#'unet-1d-tanh'#'unet-1d-relu'#'#ode'#' 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
 #flagAEType = 'unet-1d'
 dim_aug_state = 0#10#10#10#10 #False#
  
@@ -2297,13 +2297,15 @@ if __name__ == '__main__':
 
        
         pathCheckPOint = 'resL63/exp02-testloaders/model-l63-dirinv-forecast_055-unet2-exp02-testloaders-Noise01-epoch=183-val_loss=8.59.ckpt'
+        
+        pathCheckPOint = 'resL63/exp02-unet/model-l63-dirinv-forecast_055--norec-unet-1d-tanh-32-exp02-unet-Noise01-epoch=76-val_loss=8.40.ckpt'
         print('.... load pre-trained model :'+pathCheckPOint)
         mod = LitModel_DirectInv.load_from_checkpoint(pathCheckPOint)            
         
-        
         mod.hparams.alpha_mse = 1.
-        mod.hparams.alpha_mse_rec = 0.75
-        mod.hparams.alpha_mse_for = 0.25
+        mod.hparams.alpha_mse_rec = 0. #(dT-dt_forecast)/dT #0.75
+        mod.hparams.alpha_mse_for = 1. # dt_forecast/dT #0.5#0.25
+        mod.hparams.alpha_mse_init = 1. / dt_forecast# #dt_forecast/dT #0.5#0.25
     
  
         profiler_kwargs = {'max_epochs': 1}
@@ -2377,7 +2379,8 @@ if __name__ == '__main__':
         import xarray as xr
         xrdata = xr.Dataset( data_vars={'l63-rec': (["n", "D", "dT"],mod.x_rec),'l63-gt': (["n", "D", "dT"],X_test)})
         xrdata.to_netcdf(path=pathCheckPOint.replace('.ckpt','_res.nc'), mode='w')
-    elif flagProcess == 4: ## testing trainable fixed-point scheme
+
+    elif flagProcess == 5: ## testing trainable fixed-point scheme
         dimGradSolver = 25
         rateDropout = 0.2
 
