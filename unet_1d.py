@@ -248,7 +248,7 @@ class Up_1D(nn.Module):
         # if bilinear, use the normal convolutions to reduce the number of channels
         #self.up = nn.ConvTranspose1d(in_channels, in_channels // 2, kernel_size=2, stride=2)#,padding_mode=padding_mode)
         self.up = nn.ConvTranspose1d(in_channels, out_channels, kernel_size=2, stride=2)#,padding_mode=padding_mode)
-        self.conv = DoubleConv_1D(in_channels, out_channels,padding_mode=padding_mode,activation=activation)
+        self.conv = DoubleConv_1D(2*out_channels, out_channels,padding_mode=padding_mode,activation=activation)
 
     def forward(self, x1, x2):
         x1 = self.up(x1)
