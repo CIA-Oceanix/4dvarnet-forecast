@@ -32,7 +32,7 @@ from sklearn.feature_extraction import image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-flagProcess = 0
+flagProcess = 3
 
 dimGradSolver = 25
 rateDropout = 0.2
@@ -1669,18 +1669,44 @@ class LitModel_DirectInv(pl.LightningModule):
         with torch.set_grad_enabled(True):
             outputs = self.model(inputs_obs * masks )#inputs_init)
 
+            #if flag_x1_only == False:
+            #    loss_mse = torch.mean((outputs - targets_GT) ** 2)
+            #    loss_mse_rec = torch.mean((outputs[:,:,:dT-dt_forecast,:] - targets_GT[:,:,:dT-dt_forecast,:]) ** 2)
+            ##    loss_mse_for = torch.mean((outputs[:,:,dT-dt_forecast:,:] - targets_GT[:,:,dT-dt_forecast:,:]) ** 2)
+            #else:
+            #    loss_mse_rec = torch.mean((outputs[:,0,:dT-dt_forecast,:] - targets_GT[:,0,:dT-dt_forecast,:]) ** 2)
+            #    loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:,:] - targets_GT[:,0,dT-dt_forecast:,:]) ** 2)
+
             if flag_x1_only == False:
-                loss_mse = torch.mean((outputs - targets_GT) ** 2)
-                loss_mse_rec = torch.mean((outputs[:,:,:dT-dt_forecast,:] - targets_GT[:,:,:dT-dt_forecast,:]) ** 2)
-                loss_mse_for = torch.mean((outputs[:,:,dT-dt_forecast:,:] - targets_GT[:,:,dT-dt_forecast:,:]) ** 2)
+                 loss_mse = torch.mean((outputs - targets_GT) ** 2)
+                 loss_mse_rec = torch.mean((outputs[:,:,:dT-dt_forecast,:] - targets_GT[:,:,:dT-dt_forecast,:]) ** 2)
+                 loss_mse_for = torch.mean((outputs[:,:,dT-dt_forecast:,:] - targets_GT[:,:,dT-dt_forecast:,:]) ** 2)
+                 loss_mse_init = torch.mean((outputs[:,:,dT-dt_forecast-1,:] - targets_GT[:,:,dT-dt_forecast-1,:]) ** 2)
+
+                 loss_mse_for = torch.mean((outputs[:,:,dT-dt_forecast:dT-dt_forecast+dt_forecast_loss,:] - targets_GT[:,:,dT-dt_forecast:dT-dt_forecast+dt_forecast_loss,:]) ** 2)
+                 loss_mse_for = loss_mse_for + 0.1 * torch.mean((outputs[:,:,dT-dt_forecast+dt_forecast_loss:,:] - targets_GT[:,:,dT-dt_forecast+dt_forecast_loss:,:]) ** 2)
             else:
-                loss_mse_rec = torch.mean((outputs[:,0,:dT-dt_forecast,:] - targets_GT[:,0,:dT-dt_forecast,:]) ** 2)
-                loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:,:] - targets_GT[:,0,dT-dt_forecast:,:]) ** 2)
+                 loss_mse_rec = torch.mean((outputs[:,0,:dT-dt_forecast,:] - targets_GT[:,0,:dT-dt_forecast,:]) ** 2)
+                 loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:,:] - targets_GT[:,0,dT-dt_forecast:,:]) ** 2)
+                 loss_mse = torch.mean((outputs[:,0,:,:] - targets_GT[:,0,:,:]) ** 2)
+                 loss_mse_init = torch.mean((outputs[:,0,dT-dt_forecast-1,:] - targets_GT[:,0,dT-dt_forecast-1,:]) ** 2)
+                 
+                 loss_mse_for = torch.mean((outputs[:,0,dT-dt_forecast:dT-dt_forecast+dt_forecast_loss,:] - targets_GT[:,0,dT-dt_forecast:dT-dt_forecast+dt_forecast_loss,:]) ** 2)
+                 loss_mse_for = loss_mse_for + 0.1 * torch.mean((outputs[:,0,dT-dt_forecast+dt_forecast_loss:,:] - targets_GT[:,0,dT-dt_forecast+dt_forecast_loss:,:]) ** 2)
+
+
+            if phase == 'train' :                                 
+                if flagForecast == True :
+                    loss_mse = self.hparams.alpha_mse_rec * loss_mse_rec + self.hparams.alpha_mse_init * loss_mse_init + self.hparams.alpha_mse_for * loss_mse_for
+                else:
+                    loss_mse = self.hparams.alpha_mse * loss_mse
+            else:
+                loss_mse = ( loss_mse_init + dt_forecast * loss_mse_for ) / ( dt_forecast + 1 )
                 
-            if flagForecast == True :
-                loss_mse = self.hparams.alpha_mse_rec * loss_mse_rec + self.hparams.alpha_mse_for * loss_mse_for
-            else:
-                loss_mse = self.hparams.alpha_mse * loss_mse
+            #if flagForecast == True :
+            #    loss_mse = self.hparams.alpha_mse_rec * loss_mse_rec + self.hparams.alpha_mse_for * loss_mse_for
+            #else:
+            #    loss_mse = self.hparams.alpha_mse * loss_mse
             loss = loss_mse 
             
             # metrics
@@ -2018,7 +2044,7 @@ if __name__ == '__main__':
             mod = LitModel()
             
             mod.hparams.n_grad          = 5#1#5
-            mod.hparams.k_n_grad        = 2
+            mod.hparams.k_n_grad        = 4
             mod.hparams.iter_update     = [0, 300, 200, 200, 300, 500, 700, 800]  # [0,2,4,6,9,15]
             mod.hparams.nb_grad_update  = [5, 5, 10, 10, 15, 15, 20, 20, 20]  # [0,0,1,2,3,3]#[0,2,2,4,5,5]#
             mod.hparams.lr_update       = [1e-3, 1e-4, 1e-4, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
@@ -2335,9 +2361,13 @@ if __name__ == '__main__':
         mod.hparams.iter_update     = [0, 50, 100, 150, 500, 700, 800]  # [0,2,4,6,9,a15]
         mod.hparams.lr_update       = [1e-3, 1e-4, 1e-5, 1e-5, 1e-4, 1e-5, 1e-5, 1e-6, 1e-7]
 
+        #mod.hparams.alpha_mse = 1.
+        #mod.hparams.alpha_mse_rec = (dT-dt_forecast)/dT #0.75
+        #mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
         mod.hparams.alpha_mse = 1.
-        mod.hparams.alpha_mse_rec = (dT-dt_forecast)/dT #0.75
-        mod.hparams.alpha_mse_for = dt_forecast/dT #0.5#0.25
+        mod.hparams.alpha_mse_rec = 0. #(dT-dt_forecast)/dT #0.75
+        mod.hparams.alpha_mse_for = 1. # dt_forecast/dT #0.5#0.25
+        mod.hparams.alpha_mse_init = 1. / dt_forecast# #dt_forecast/dT #0.5#0.25
         
         
         profiler_kwargs = {'max_epochs': 200 }
