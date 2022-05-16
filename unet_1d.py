@@ -466,7 +466,7 @@ class UNet_1D(nn.Module):
     
 class UNet_1D_2scales(torch.nn.Module):
     def __init__(self, n_channels, n_classes, bilinear=False,nfeat=32,padding_mode='zeros',activation='relu'):
-        super(UNet_1D, self).__init__()
+        super(UNet_1D_2scales, self).__init__()
         self.n_channels = n_channels
         self.n_classes = n_classes
         self.bilinear = bilinear
@@ -505,7 +505,7 @@ class UNet_1D_2scales(torch.nn.Module):
 
 class UNet_1D_3scales(torch.nn.Module):
     def __init__(self, n_channels, n_classes, bilinear=False,nfeat=32,padding_mode='zeros',activation='relu'):
-        super(UNet_1D, self).__init__()
+        super(UNet_1D_3scales, self).__init__()
         self.n_channels = n_channels
         self.n_classes = n_classes
         self.bilinear = bilinear

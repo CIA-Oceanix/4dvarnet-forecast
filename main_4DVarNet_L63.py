@@ -1024,7 +1024,7 @@ elif flagAEType == 'unet-1d-relu': ## Conv model with no use of the central poin
       def __init__(self):
           super(Phi_r, self).__init__()
           self.nfeat = 8
-          self.unet  = unet_1d.UNet_1D_3scales(3,3,False,self.nfeat)
+          self.unet  = unet_1d.UNet_1D_4scales(3,3,False,self.nfeat)
           
       def forward(self, xinp):
           xout = self.unet( xinp.view(-1,xinp.size(1),xinp.size(2)) )
@@ -1034,7 +1034,7 @@ elif flagAEType == 'unet-1d-tanh': ## Conv model with no use of the central poin
       def __init__(self):
           super(Phi_r, self).__init__()
           self.nfeat = 8
-          self.unet  = unet_1d.UNet_1D_3scales(3,3,False,self.nfeat,activation='tanh')
+          self.unet  = unet_1d.UNet_1D_4scales(3,3,False,self.nfeat,activation='tanh')
           
       def forward(self, xinp):
           xout = self.unet( xinp.view(-1,xinp.size(1),xinp.size(2)) )
