@@ -166,7 +166,8 @@ class Up_1D(nn.Module):
 
         # if bilinear, use the normal convolutions to reduce the number of channels
         
-        self.up = nn.ConvTranspose1d(in_channels, in_channels // 2, kernel_size=2, stride=2)#,padding_mode=padding_mode)
+        #self.up = nn.ConvTranspose1d(in_channels, in_channels // 2, kernel_size=2, stride=2)#,padding_mode=padding_mode)
+        self.up = nn.ConvTranspose1d(in_channels, out_channels, kernel_size=2, stride=2)#,padding_mode=padding_mode)
         self.conv = DoubleConv_1D(in_channels, out_channels,padding_mode=padding_mode,activation=activation)
 
     def forward(self, x1, x2):
@@ -205,9 +206,6 @@ class Up_1D_2(nn.Module):
         # https://github.com/HaiyongJiang/U-Net-Pytorch-Unstructured-Buggy/commit/0e854509c2cea854e247a9c615f175f76fbb2e3a
         # https://github.com/xiaopeng-liao/Pytorch-UNet/commit/8ebac70e633bac59fc22bb5195e513d5832fb3bd
         x = torch.cat([x2, x1], dim=1)
-        
-        print(x2.size())
-        print(x1.size())
         
         return self.conv(x)
 
