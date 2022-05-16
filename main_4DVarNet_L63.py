@@ -1964,9 +1964,9 @@ if __name__ == '__main__':
         
         profiler_kwargs = {'max_epochs': 300 }
 
-        suffix_exp = 'exp%02d-newdata'%flagTypeMissData
+        suffix_exp = 'exp02-unet'#'exp%02d-newdata'%flagTypeMissData
         #suffix_exp = 'exp_perrine%02d-'%flagTypeMissData
-        filename_chkpt = 'model-l63-new'#'dlstm--'
+        filename_chkpt = 'model-l63-'#'dlstm--'
         
         if flagForecast == True :
             if mod.flag_ode_forecast  == True :
@@ -1997,7 +1997,7 @@ if __name__ == '__main__':
         if  mod.hparams.rate_rnd_init > 0. :
             filename_chkpt = filename_chkpt+'sopt%02d-'%(int(100.*mod.hparams.rate_rnd_init))
             
-        filename_chkpt = filename_chkpt+flagAEType+'-'  
+        filename_chkpt = filename_chkpt+flagAEType+'-%d'%DimAE+'-'  
             
         filename_chkpt = filename_chkpt + suffix_exp+'-Noise%02d'%(sigNoise)
         filename_chkpt = filename_chkpt+'-igrad%02d_%02d'%(mod.hparams.n_grad,mod.hparams.k_n_grad)+'-dgrad%d'%dimGradSolver
