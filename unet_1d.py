@@ -287,9 +287,6 @@ class Up_1D_2(nn.Module):
         # https://github.com/xiaopeng-liao/Pytorch-UNet/commit/8ebac70e633bac59fc22bb5195e513d5832fb3bd
         x = torch.cat([x2, x1], dim=1)
         
-        print(x1.size())
-        print(x2.size())
-        
         return self.conv(x)
 
 class Up2(nn.Module):
@@ -527,7 +524,7 @@ class UNet_1D_4scales(torch.nn.Module):
         
         #self.down4 = Down(512, 1024 // factor)
         #self.up1 = Up(1024, 512 // factor, bilinear)
-        self.up2 = Up_1D_2(8*self.nfeat, 4*self.nfeat // factor, bilinear,padding_mode=padding_mode,activation=activation)
+        self.up2 = Up_1D(8*self.nfeat, 4*self.nfeat // factor, bilinear,padding_mode=padding_mode,activation=activation)
         self.up3 = Up_1D(4*self.nfeat, 2*self.nfeat // factor, bilinear,padding_mode=padding_mode,activation=activation)
         self.up4 = Up_1D(2*self.nfeat, self.nfeat, bilinear,padding_mode=padding_mode,activation=activation)
         self.outc = OutConv_1D(self.nfeat, n_classes,padding_mode=padding_mode)
@@ -567,7 +564,7 @@ class UNet_1D_5scales(torch.nn.Module):
         
         #self.down4 = Down(512, 1024 // factor)
         #self.up1 = Up(1024, 512 // factor, bilinear)
-        self.up1 = Up_1D(8*self.nfeat, 8*self.nfeat // factor, bilinear,padding_mode=padding_mode,activation=activation)
+        self.up1 = Up_1D_2(8*self.nfeat, 8*self.nfeat // factor, bilinear,padding_mode=padding_mode,activation=activation)
         self.up2 = Up_1D(8*self.nfeat, 4*self.nfeat // factor, bilinear,padding_mode=padding_mode,activation=activation)
         self.up3 = Up_1D(4*self.nfeat, 2*self.nfeat // factor, bilinear,padding_mode=padding_mode,activation=activation)
         self.up4 = Up_1D(2*self.nfeat, self.nfeat, bilinear,padding_mode=padding_mode,activation=activation)
