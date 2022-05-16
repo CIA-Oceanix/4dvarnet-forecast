@@ -21,7 +21,16 @@ import torch.nn.functional as F
 rateDropout = 0.2
 padding_mode = 'reflect'
 
+class Bilin_layer(nn.Module):
+    def __init__(self, in_channels, out_channels, padding_mode='reflect',activation='relu'):
+        super().__init__()
 
+        self.conv1 = nn.Conv1d(in_channels, out_channels, kernel_size=3, padding=1, bias=False,padding_mode=padding_mode),
+        self.conv2 = nn.Conv1d(in_channels, out_channels, kernel_size=3, padding=1, bias=False,padding_mode=padding_mode),
+        self.conv3 = nn.Conv1d(in_channels, out_channels, kernel_size=3, padding=1, bias=False,padding_mode=padding_mode),
+    def forward(self,x):        
+        return self.conv1(x) + self.conv2(x) * self.conv3(x)
+    
 class DoubleConv_1D(nn.Module):
     """(convolution => [BN] => ReLU) * 2"""
 
@@ -47,6 +56,16 @@ class DoubleConv_1D(nn.Module):
                     nn.Tanh(),
                     nn.Dropout(rateDropout),
                     nn.Conv1d(mid_channels, out_channels, kernel_size=3, padding=1, bias=False,padding_mode=padding_mode),
+                    nn.BatchNorm1d(out_channels),
+                    nn.Tanh() )
+
+        elif activation == 'relu-bilin' :
+            self.double_conv = nn.Sequential(
+                    nn.Conv1d(in_channels, mid_channels, kernel_size=3, padding=1, bias=False,padding_mode=padding_mode),
+                    nn.BatchNorm1d(mid_channels),
+                    nn.ReLU(inplace=True),
+                    nn.Dropout(rateDropout),
+                    Bilin_layer(mid_channels, out_channels, padding_mode=padding_mode),
                     nn.BatchNorm1d(out_channels),
                     nn.Tanh() )
 

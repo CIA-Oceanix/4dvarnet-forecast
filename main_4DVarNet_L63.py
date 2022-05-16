@@ -37,7 +37,7 @@ flagProcess = 3
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
-flagAEType = 'unet-1d-tanh'#'unet-1d-relu'#'unet2'##ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
+flagAEType = 'unet-1d-bilin'#'unet-1d-tanh'#'unet-1d-relu'#'unet2'##ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
 #flagAEType = 'unet-1d'
 dim_aug_state = 0#10#10#10#10 #False#
  
@@ -1040,6 +1040,16 @@ elif flagAEType == 'unet-1d-tanh': ## Conv model with no use of the central poin
           xout = self.unet( xinp.view(-1,xinp.size(1),xinp.size(2)) )
           return xout.view(-1,xinp.size(1),xinp.size(2),1)
 
+elif flagAEType == 'unet-1d-bilin': ## Conv model with no use of the central point        
+    class Phi_r(torch.nn.Module):
+      def __init__(self):
+          super(Phi_r, self).__init__()
+          self.nfeat = 8
+          self.unet  = unet_1d.UNet_1D_4scales(3,3,False,self.nfeat,activation='relu-bilin')
+          
+      def forward(self, xinp):
+          xout = self.unet( xinp.view(-1,xinp.size(1),xinp.size(2)) )
+          return xout.view(-1,xinp.size(1),xinp.size(2),1)
 phi_r           = Phi_r()
 print(' AE Model/Dynamical prior: '+flagAEType)
 print(phi_r)
