@@ -21,47 +21,6 @@ import torch.nn.functional as F
 rateDropout = 0.2
 padding_mode = 'reflect'
 
-class DoubleConv(nn.Module):
-    """(convolution => [BN] => ReLU) * 2"""
-
-    def __init__(self, in_channels, out_channels, mid_channels=None,padding_mode='reflect',activation='relu'):
-        super().__init__()
-        if not mid_channels:
-            mid_channels = out_channels
-            
-        if activation == 'relu':
-            self.double_conv = nn.Sequential(
-                    nn.Conv2d(in_channels, mid_channels, kernel_size=3, padding=1, bias=False,padding_mode=padding_mode),
-                    nn.BatchNorm2d(mid_channels),
-                    nn.ReLU(inplace=True),
-                    nn.Dropout(rateDropout),
-                    nn.Conv2d(mid_channels, out_channels, kernel_size=3, padding=1, bias=False,padding_mode=padding_mode),
-                    nn.BatchNorm2d(out_channels),
-                    nn.ReLU(inplace=True)
-                )
-        elif activation == 'tanh' :
-            self.double_conv = nn.Sequential(
-                    nn.Conv2d(in_channels, mid_channels, kernel_size=3, padding=1, bias=False,padding_mode=padding_mode),
-                    nn.BatchNorm2d(mid_channels),
-                    nn.ReLU(inplace=True),
-                    nn.Dropout(rateDropout),
-                    nn.Conv2d(mid_channels, out_channels, kernel_size=3, padding=1, bias=False,padding_mode=padding_mode),
-                    nn.BatchNorm2d(out_channels),
-                    nn.ReLU(inplace=True) )
-        elif activation == 'logsigmoid' :
-            self.double_conv = nn.Sequential(
-                    nn.Conv2d(in_channels, mid_channels, kernel_size=3, padding=1, bias=False,padding_mode=padding_mode),
-                    nn.BatchNorm2d(mid_channels),
-                    nn.LogSigmoid(inplace=True),
-                    nn.Dropout(rateDropout),
-                    nn.Conv2d(mid_channels, out_channels, kernel_size=3, padding=1, bias=False,padding_mode=padding_mode),
-                    nn.BatchNorm2d(out_channels),
-                    nn.LogSigmoid(inplace=True) )
-        elif activation == 'bilin' :
-            self.double_conv = DoubleConvBILIN(in_channels, mid_channels,padding_mode=padding_mode)
-
-    def forward(self, x):
-        return self.double_conv(x)
 
 class DoubleConv_1D(nn.Module):
     """(convolution => [BN] => ReLU) * 2"""
@@ -85,11 +44,11 @@ class DoubleConv_1D(nn.Module):
             self.double_conv = nn.Sequential(
                     nn.Conv1d(in_channels, mid_channels, kernel_size=3, padding=1, bias=False,padding_mode=padding_mode),
                     nn.BatchNorm1d(mid_channels),
-                    nn.Tanh(inplace=True),
+                    nn.Tanh(),
                     nn.Dropout(rateDropout),
                     nn.Conv1d(mid_channels, out_channels, kernel_size=3, padding=1, bias=False,padding_mode=padding_mode),
                     nn.BatchNorm1d(out_channels),
-                    nn.Tanh(inplace=True) )
+                    nn.Tanh() )
 
     def forward(self, x):
         return self.double_conv(x)
