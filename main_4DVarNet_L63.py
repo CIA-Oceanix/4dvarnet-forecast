@@ -21,7 +21,7 @@ import xarray as xr
 from sklearn import decomposition
 from netCDF4 import Dataset
 
-import unet
+import unet_1d
 import solver as solver_4DVarNet
 
 #os.chdir('/content/drive/My Drive/Colab Notebooks/AnDA')
@@ -37,7 +37,7 @@ flagProcess = 3
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
-flagAEType = 'unet-1d'#'unet2'##ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
+flagAEType = 'unet-1d-tanh'#'unet2'##ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
 #flagAEType = 'unet-1d'
 dim_aug_state = 0#10#10#10#10 #False#
  
@@ -1019,149 +1019,22 @@ elif flagAEType == 'unet2+wc_ode': ## Conv model with no use of the central poin
           
           return xpred
  
-elif flagAEType == 'unet-1d-16': ## Conv model with no use of the central point
-    class UNet_1D(torch.nn.Module):
-        def __init__(self, n_channels, n_classes, bilinear=False,nfeat=32):
-            super(UNet_1D, self).__init__()
-            self.n_channels = n_channels
-            self.n_classes = n_classes
-            self.bilinear = bilinear
-            self.nfeat = nfeat
-    
-            self.inc = unet.DoubleConv_1D(n_channels, self.nfeat)#,padding_mode=padding_mode,activation='relu')
-            self.down1 = unet.Down_1D(self.nfeat, 2*self.nfeat)
-            self.down2 = unet.Down_1D(2*self.nfeat, 4*self.nfeat)
-            #self.down3 = Down(256, 512)
-            factor = 2 if bilinear else 1
-            
-            #self.down4 = Down(512, 1024 // factor)
-            #self.up1 = Up(1024, 512 // factor, bilinear)
-            #self.up2 = Up(512, 256 // factor, bilinear)
-            self.up3 = unet.Up_1D(4*self.nfeat, 2*self.nfeat // factor, bilinear)
-            self.up4 = unet.Up_1D(2*self.nfeat, self.nfeat, bilinear)
-            self.outc = unet.OutConv_1D(self.nfeat, n_classes)
-    
-        def forward(self, x):
-            x1 = self.inc(x)
-            x2 = self.down1(x1)
-            x3 = self.down2(x2)
-            #x4 = self.down3(x3)
-            #x5 = self.down4(x4)
-            #x = self.up1(x5, x4)
-            #x5 = self.down4(x4)
-            #x = self.up1(x5, x4)
-            #print(x3.shape)
-            #print(x4.shape)
-            #x = self.up2(x4, x3)
-            x = self.up3(x3, x2)
-            x = self.up4(x, x1)
-            out = self.outc(x)
-            
-            return out
-        
-    class Phi_r(torch.nn.Module):
-      def __init__(self):
-          super(Phi_r, self).__init__()
-          self.unet  = unet.UNet_1D(3,3,False)
-          
-      def forward(self, xinp):
-          xout = self.unet( xinp.view(-1,xinp.size(1),xinp.size(2)) )
-          return xout.view(-1,xinp.size(1),xinp.size(2),1)
-
-elif flagAEType == 'unet-1d-8': ## Conv model with no use of the central point
-    class UNet_1D(torch.nn.Module):
-        def __init__(self, n_channels, n_classes, bilinear=False,nfeat=32):
-            super(UNet_1D, self).__init__()
-            self.n_channels = n_channels
-            self.n_classes = n_classes
-            self.bilinear = bilinear
-            self.nfeat = nfeat
-    
-            self.inc = unet.DoubleConv_1D(n_channels, self.nfeat)#,padding_mode=padding_mode,activation='relu')
-            self.down1 = unet.Down_1D(self.nfeat, 2*self.nfeat)
-            self.down2 = unet.Down_1D(3*self.nfeat, 4*self.nfeat)
-            self.down3 = unet.Down_1D(4*self.nfeat, 8*self.nfeat)
-            factor = 2 if bilinear else 1
-            
-            #self.down4 = Down(512, 1024 // factor)
-            #self.up1 = Up(1024, 512 // factor, bilinear)
-            self.up2 = unet.Up_1D(8*self.nfeat, 4*self.nfeat // factor, bilinear)
-            self.up3 = unet.Up_1D(4*self.nfeat, 2*self.nfeat // factor, bilinear)
-            self.up4 = unet.Up_1D(2*self.nfeat, self.nfeat, bilinear)
-            self.outc = unet.OutConv_1D(self.nfeat, n_classes)
-    
-        def forward(self, x):
-            x1 = self.inc(x)
-            x2 = self.down1(x1)
-            x3 = self.down2(x2)
-            x4 = self.down3(x3)
-            #x5 = self.down4(x4)
-            #x = self.up1(x5, x4)
-            #x5 = self.down4(x4)
-            #x = self.up1(x5, x4)
-            #print(x3.shape)
-            #print(x4.shape)
-            x = self.up2(x4, x3)
-            x = self.up3(x, x2)
-            x = self.up4(x, x1)
-            out = self.outc(x)
-            
-            return out
-        
-    class Phi_r(torch.nn.Module):
-      def __init__(self):
-          super(Phi_r, self).__init__()
-          self.unet  = unet.UNet_1D(3,3,False)
-          
-      def forward(self, xinp):
-          xout = self.unet( xinp.view(-1,xinp.size(1),xinp.size(2)) )
-          return xout.view(-1,xinp.size(1),xinp.size(2),1)
-
-elif flagAEType == 'unet-1d': ## Conv model with no use of the central point
-    class UNet_1D(torch.nn.Module):
-        def __init__(self, n_channels, n_classes, bilinear=False,nfeat=32):
-            super(UNet_1D, self).__init__()
-            self.n_channels = n_channels
-            self.n_classes = n_classes
-            self.bilinear = bilinear
-            self.nfeat = nfeat
-    
-            self.inc = unet.DoubleConv_1D(n_channels, self.nfeat)#,padding_mode=padding_mode,activation='relu')
-            self.down1 = unet.Down_1D(self.nfeat, 2*self.nfeat)
-            self.down2 = unet.Down_1D(2*self.nfeat, 4*self.nfeat)
-            self.down3 = unet.Down_1D(4*self.nfeat, 8*self.nfeat)
-            factor = 2 if bilinear else 1
-            
-            #self.down4 = Down(512, 1024 // factor)
-            #self.up1 = Up(1024, 512 // factor, bilinear)
-            self.up2 = unet.Up_1D(8*self.nfeat, 4*self.nfeat // factor, bilinear)
-            self.up3 = unet.Up_1D(4*self.nfeat, 2*self.nfeat // factor, bilinear)
-            self.up4 = unet.Up_1D(2*self.nfeat, self.nfeat, bilinear)
-            self.outc = unet.OutConv_1D(self.nfeat, n_classes)
-    
-        def forward(self, x):
-            x1 = self.inc(x)
-            x2 = self.down1(x1)
-            x3 = self.down2(x2)
-            x4 = self.down3(x3)
-            #x5 = self.down4(x4)
-            #x = self.up1(x5, x4)
-            #x5 = self.down4(x4)
-            #x = self.up1(x5, x4)
-            #print(x3.shape)
-            #print(x4.shape)
-            x = self.up2(x4, x3)
-            x = self.up3(x, x2)
-            x = self.up4(x, x1)
-            out = self.outc(x)
-            
-            return out
-        
+elif flagAEType == 'unet-1d-relu': ## Conv model with no use of the central point        
     class Phi_r(torch.nn.Module):
       def __init__(self):
           super(Phi_r, self).__init__()
           self.nfeat = 8
-          self.unet  = UNet_1D(3,3,False,self.nfeat)
+          self.unet  = unet_1d.UNet_1D_3scales(3,3,False,self.nfeat)
+          
+      def forward(self, xinp):
+          xout = self.unet( xinp.view(-1,xinp.size(1),xinp.size(2)) )
+          return xout.view(-1,xinp.size(1),xinp.size(2),1)
+elif flagAEType == 'unet-1d-tanh': ## Conv model with no use of the central point        
+    class Phi_r(torch.nn.Module):
+      def __init__(self):
+          super(Phi_r, self).__init__()
+          self.nfeat = 8
+          self.unet  = unet_1d.UNet_1D_3scales(3,3,False,self.nfeat,activation='tanh')
           
       def forward(self, xinp):
           xout = self.unet( xinp.view(-1,xinp.size(1),xinp.size(2)) )
