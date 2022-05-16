@@ -36,8 +36,8 @@ flagProcess = 3
 
 dimGradSolver = 25
 rateDropout = 0.2
-DimAE = 10
-flagAEType = 'unet2'#'unet-1d-bilin'#'unet-1d-tanh'#'unet-1d-relu'#'#ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
+DimAE = 32#10
+flagAEType = 'unet-1d-bilin'#unet2'#'unet-1d-tanh'#'unet-1d-relu'#'#ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
 #flagAEType = 'unet-1d'
 dim_aug_state = 0#10#10#10#10 #False#
  
@@ -1023,7 +1023,7 @@ elif flagAEType == 'unet-1d-relu': ## Conv model with no use of the central poin
     class Phi_r(torch.nn.Module):
       def __init__(self):
           super(Phi_r, self).__init__()
-          self.nfeat = 8
+          self.nfeat = DimAE
           self.unet  = unet_1d.UNet_1D_4scales(3,3,False,self.nfeat)
           
       def forward(self, xinp):
@@ -1033,7 +1033,7 @@ elif flagAEType == 'unet-1d-tanh': ## Conv model with no use of the central poin
     class Phi_r(torch.nn.Module):
       def __init__(self):
           super(Phi_r, self).__init__()
-          self.nfeat = 32
+          self.nfeat = DimAE
           self.unet  = unet_1d.UNet_1D_4scales(3,3,False,self.nfeat,activation='tanh')
           
       def forward(self, xinp):
@@ -1044,7 +1044,7 @@ elif flagAEType == 'unet-1d-bilin': ## Conv model with no use of the central poi
     class Phi_r(torch.nn.Module):
       def __init__(self):
           super(Phi_r, self).__init__()
-          self.nfeat = 32
+          self.nfeat = DimAE
           self.unet  = unet_1d.UNet_1D_4scales(3,3,False,self.nfeat,activation='relu-bilin')
           
       def forward(self, xinp):
@@ -2268,10 +2268,7 @@ if __name__ == '__main__':
         if flag_x1_only == True :
             filename_chkpt = filename_chkpt+'x1_only-'
         
-        if ( flagAEType == 'unet-1d-relu' ) | ( flagAEType == 'unet-1d-tanh' ) | ( flagAEType == 'unet-1d-bilin' ):
-            filename_chkpt = filename_chkpt+flagAEType+'-%d'%mod.model.nfeat+'-'  
-        else:
-            filename_chkpt = filename_chkpt+flagAEType+'-'  
+        filename_chkpt = filename_chkpt+flagAEType+'-%d'%DimAE+'-'  
             
         filename_chkpt = filename_chkpt + suffix_exp+'-Noise%02d'%(sigNoise)
 
