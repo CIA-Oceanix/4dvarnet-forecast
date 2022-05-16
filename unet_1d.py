@@ -19,7 +19,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 rateDropout = 0.2
-padding_mode = 'reflect'
+padding_mode = 'zeros'
 
 class Bilin_layer(nn.Module):
     def __init__(self, in_channels, out_channels, padding_mode='reflect'):
@@ -67,8 +67,7 @@ class DoubleConv_1D(nn.Module):
                     nn.ReLU(inplace=True),
                     nn.Dropout(rateDropout),
                     Bilin_layer(mid_channels, out_channels, padding_mode=padding_mode),
-                    nn.BatchNorm1d(out_channels),
-                    nn.Tanh() )
+                    nn.BatchNorm1d(out_channels) )
 
     def forward(self, x):
         return self.double_conv(x)
