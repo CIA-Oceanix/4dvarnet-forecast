@@ -2258,7 +2258,7 @@ if __name__ == '__main__':
         if flag_x1_only == True :
             filename_chkpt = filename_chkpt+'x1_only-'
         
-        if flagAEType == 'unet-1d':
+        if ( flagAEType == 'unet-1d-relu' ) | ( flagAEType == 'unet-1d-tanh' ):
             filename_chkpt = filename_chkpt+flagAEType+'-%d'%mod.model.nfeat  
         else:
             filename_chkpt = filename_chkpt+flagAEType+'-'  
