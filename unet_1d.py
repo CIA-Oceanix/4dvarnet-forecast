@@ -519,3 +519,45 @@ class UNet_1D_4scales(torch.nn.Module):
         out = self.outc(x)
         
         return out
+
+class UNet_1D_5scales(torch.nn.Module):
+    def __init__(self, n_channels, n_classes, bilinear=False,nfeat=32,padding_mode='zeros',activation='relu'):
+        super(UNet_1D_5scales, self).__init__()
+        self.n_channels = n_channels
+        self.n_classes = n_classes
+        self.bilinear = bilinear
+        self.nfeat = nfeat
+
+        self.inc = DoubleConv_1D(n_channels, self.nfeat,padding_mode=padding_mode,activation=activation)#,padding_mode=padding_mode,activation='relu')
+        self.down1 = Down_1D(self.nfeat, 2*self.nfeat,padding_mode=padding_mode,activation=activation)
+        self.down2 = Down_1D(2*self.nfeat, 4*self.nfeat,padding_mode=padding_mode,activation=activation)
+        self.down3 = Down_1D(4*self.nfeat, 8*self.nfeat,padding_mode=padding_mode,activation=activation)
+        self.down4 = Down_1D(8*self.nfeat, 8*self.nfeat,padding_mode=padding_mode,activation=activation)
+        factor = 2 if bilinear else 1
+        
+        #self.down4 = Down(512, 1024 // factor)
+        #self.up1 = Up(1024, 512 // factor, bilinear)
+        self.up1 = Up_1D(8*self.nfeat, 8*self.nfeat // factor, bilinear,padding_mode=padding_mode,activation=activation)
+        self.up2 = Up_1D(8*self.nfeat, 4*self.nfeat // factor, bilinear,padding_mode=padding_mode,activation=activation)
+        self.up3 = Up_1D(4*self.nfeat, 2*self.nfeat // factor, bilinear,padding_mode=padding_mode,activation=activation)
+        self.up4 = Up_1D(2*self.nfeat, self.nfeat, bilinear,padding_mode=padding_mode,activation=activation)
+        self.outc = OutConv_1D(self.nfeat, n_classes,padding_mode=padding_mode)
+
+    def forward(self, x):
+        x1 = self.inc(x)
+        x2 = self.down1(x1)
+        x3 = self.down2(x2)
+        x4 = self.down3(x3)
+        x5 = self.down4(x4)
+        #x = self.up1(x5, x4)
+        #x5 = self.down4(x4)
+        #x = self.up1(x5, x4)
+        #print(x3.shape)
+        #print(x4.shape)
+        x = self.up2(x4, x5)
+        x = self.up2(x, x4)
+        x = self.up3(x, x2)
+        x = self.up4(x, x1)
+        out = self.outc(x)
+        
+        return out
