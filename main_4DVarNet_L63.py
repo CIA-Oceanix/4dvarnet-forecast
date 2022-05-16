@@ -36,7 +36,7 @@ flagProcess = 0
 
 dimGradSolver = 100#25
 rateDropout = 0.2
-DimAE = 32#10
+DimAE = 8#10
 flagAEType = 'unet-1d-tanh'#'unet2'#unet2'#'unet-1d-tanh'#'unet-1d-relu'#'#ode'#' 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
 #flagAEType = 'unet-1d'
 dim_aug_state = 0#10#10#10#10 #False#
