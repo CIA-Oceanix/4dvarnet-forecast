@@ -181,8 +181,6 @@ class Up_1D(nn.Module):
         # https://github.com/xiaopeng-liao/Pytorch-UNet/commit/8ebac70e633bac59fc22bb5195e513d5832fb3bd
         x = torch.cat([x2, x1], dim=1)
         
-        
-        
         return self.conv(x)
 
 class Up_1D_2(nn.Module):
@@ -506,7 +504,7 @@ class UNet_1D_5scales(torch.nn.Module):
         #print(x3.shape)
         #print(x4.shape)
         x = self.up1(x4, x5)
-        x = self.up2(x, x4)
+        x = self.up2(x, x3)
         x = self.up3(x, x2)
         x = self.up4(x, x1)
         out = self.outc(x)
