@@ -37,7 +37,7 @@ flagProcess = 3
 dimGradSolver = 25
 rateDropout = 0.2
 DimAE = 10
-flagAEType = 'unet-1d-bilin'#'unet-1d-tanh'#'unet-1d-relu'#'unet2'##ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
+flagAEType = 'unet2'#'unet-1d-bilin'#'unet-1d-tanh'#'unet-1d-relu'#'#ode'#'unet2'# 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
 #flagAEType = 'unet-1d'
 dim_aug_state = 0#10#10#10#10 #False#
  
@@ -2256,7 +2256,7 @@ if __name__ == '__main__':
         
         profiler_kwargs = {'max_epochs': 200 }
 
-        suffix_exp = 'exp%02d-testloaders'%flagTypeMissData
+        suffix_exp = 'exp%02d-unet'%flagTypeMissData
         filename_chkpt = 'model-l63-dirinv-'
         
         if flagForecast == True :
