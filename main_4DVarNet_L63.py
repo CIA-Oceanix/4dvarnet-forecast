@@ -2259,7 +2259,7 @@ if __name__ == '__main__':
             filename_chkpt = filename_chkpt+'x1_only-'
         
         if ( flagAEType == 'unet-1d-relu' ) | ( flagAEType == 'unet-1d-tanh' ):
-            filename_chkpt = filename_chkpt+flagAEType+'-%d'%mod.model.nfeat  
+            filename_chkpt = filename_chkpt+flagAEType+'-%d'%mod.model.nfeat+'-'  
         else:
             filename_chkpt = filename_chkpt+flagAEType+'-'  
             
