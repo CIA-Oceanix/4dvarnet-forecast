@@ -555,7 +555,7 @@ class UNet_1D_5scales(torch.nn.Module):
         #x = self.up1(x5, x4)
         #print(x3.shape)
         #print(x4.shape)
-        x = self.up2(x4, x5)
+        x = self.up1(x4, x5)
         x = self.up2(x, x4)
         x = self.up3(x, x2)
         x = self.up4(x, x1)
