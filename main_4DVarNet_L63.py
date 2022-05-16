@@ -1044,7 +1044,7 @@ elif flagAEType == 'unet-1d-bilin': ## Conv model with no use of the central poi
     class Phi_r(torch.nn.Module):
       def __init__(self):
           super(Phi_r, self).__init__()
-          self.nfeat = 8
+          self.nfeat = 32
           self.unet  = unet_1d.UNet_1D_4scales(3,3,False,self.nfeat,activation='relu-bilin')
           
       def forward(self, xinp):
