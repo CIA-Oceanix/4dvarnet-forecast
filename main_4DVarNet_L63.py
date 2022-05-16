@@ -34,7 +34,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 flagProcess = 0
 
-dimGradSolver = 25
+dimGradSolver = 100#25
 rateDropout = 0.2
 DimAE = 32#10
 flagAEType = 'unet-1d-tanh'#'unet2'#unet2'#'unet-1d-tanh'#'unet-1d-relu'#'#ode'#' 'ode'#'unet'#'unet2+wc_ode'#'unet' # #'ode' # 
